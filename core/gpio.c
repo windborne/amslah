@@ -9,7 +9,18 @@ void gpio_direction(uint8_t pin, enum gpio_direction direction) {
 		PORT_IOBUS->Group[GPIO_PORT(pin)].WRCONFIG.reg = 
 			PORT_WRCONFIG_HWSEL | PORT_WRCONFIG_WRPINCFG | ((pinsel & 0xffff0000) >> 16);
 		critical_section_leave();
-	} else {
+	} else if (direction == GPIO_DIRECTION_IN) {
+		uint32_t pinsel = 1U << GPIO_PIN(pin);
+		PORT_IOBUS->Group[GPIO_PORT(pin)].DIRCLR.reg = pinsel;
+
+		critical_section_enter();
+		PORT_IOBUS->Group[GPIO_PORT(pin)].WRCONFIG.reg = PORT_WRCONFIG_WRPINCFG | PORT_WRCONFIG_INEN | (pinsel & 0xffff);
+		PORT_IOBUS->Group[GPIO_PORT(pin)].WRCONFIG.reg = 
+			PORT_WRCONFIG_HWSEL | PORT_WRCONFIG_WRPINCFG | PORT_WRCONFIG_INEN | ((pinsel & 0xffff0000) >> 16);
+		critical_section_leave();
+    } 
+
+else {
 		__asm("BKPT #0");
 	}
 }
@@ -21,10 +32,14 @@ void gpio_function(uint8_t pin, uint32_t function) {
     tmp &= ~PORT_PINCFG_PMUXEN;
     tmp |= (function != GPIO_FUNCTION_OFF) << PORT_PINCFG_PMUXEN_Pos;
     PORT->Group[GPIO_PORT(pin)].PINCFG[GPIO_PIN(pin)].reg = tmp;
-	critical_section_leave();
 
 	if (function != GPIO_FUNCTION_OFF) {
-		__asm("BKPT #0");
+		if (GPIO_PIN(pin) & 1) {
+            PORT->Group[GPIO_PORT(pin)].PMUX[GPIO_PIN(pin) >> 1].bit.PMUXO = function & 0xffff;
+        } else {
+            PORT->Group[GPIO_PORT(pin)].PMUX[GPIO_PIN(pin) >> 1].bit.PMUXE = function & 0xffff;
+        }
 	}
+	critical_section_leave();
 }
 

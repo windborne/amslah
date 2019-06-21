@@ -199,9 +199,12 @@ void init_sources() {
     calib_osc8m = SYSCTRL->OSC8M.reg;
     calib_osc8m = (calib_osc8m & SYSCTRL_OSC8M_CALIB_Msk) >> SYSCTRL_OSC8M_CALIB_Pos;
     critical_section_enter();
-    SYSCTRL->OSC8M.reg = SYSCTRL_OSC8M_CALIB(calib_osc8m)
+    /*SYSCTRL->OSC8M.reg = SYSCTRL_OSC8M_CALIB(calib_osc8m)
                             | SYSCTRL_OSC8M_PRESC(0)
                             | (1 << SYSCTRL_OSC8M_ENABLE_Pos);
+    */
+    SYSCTRL->OSC8M.bit.PRESC = 0;
+    SYSCTRL->OSC8M.reg |= 1 << SYSCTRL_OSC8M_ENABLE_Pos;
 
     uint32_t calib_ulp;
     calib_ulp = SYSCTRL->OSCULP32K.reg;
@@ -220,6 +223,7 @@ void init_sources() {
                         | GCLK_CLKCTRL_GEN(GCLK_CLKCTRL_GEN_GCLK3_Val)
                         | (1 << GCLK_CLKCTRL_CLKEN_Pos);
 
+    /*
     SYSCTRL->DFLLCTRL.reg = SYSCTRL_DFLLCTRL_ENABLE;
 
     while (!((SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) >> SYSCTRL_PCLKSR_DFLLRDY_Pos)) {};
@@ -236,39 +240,82 @@ void init_sources() {
 
     uint16_t dfllctrl_val = (0 << SYSCTRL_DFLLCTRL_WAITLOCK_Pos)
                             | (0 << SYSCTRL_DFLLCTRL_RUNSTDBY_Pos)
-                            | (0 << SYSCTRL_DFLLCTRL_USBCRM_Pos) /* This fucker */
+                            | (0 << SYSCTRL_DFLLCTRL_USBCRM_Pos) // This fucker
                             | (0 << SYSCTRL_DFLLCTRL_MODE_Pos)
                             | (1 << SYSCTRL_DFLLCTRL_ENABLE_Pos);
     SYSCTRL->DFLLCTRL.reg = dfllctrl_val;
     SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ONDEMAND;
+    */
 
     while ((GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY) >> GCLK_STATUS_SYNCBUSY_Pos) {};
 
+    #define MAX_GCLK_ID 0x25
+
+	for (int gclk_id = 1; gclk_id < MAX_GCLK_ID; gclk_id++) {
+		GCLK->CLKCTRL.reg = (gclk_id << GCLK_CLKCTRL_ID_Pos) | GCLK_CLKCTRL_GEN_GCLK7;
+	}
+
     /* Generator 0. Sourced from DFLL, divided by two. */
-    GCLK->GENDIV.reg = GCLK_GENDIV_DIV(48) | GCLK_GENDIV_ID(0);
+    /*GCLK->GENDIV.reg = GCLK_GENDIV_DIV(48) | GCLK_GENDIV_ID(0);
     GCLK->GENCTRL.reg = (0 << GCLK_GENCTRL_RUNSTDBY_Pos)
                         | (1 << GCLK_GENCTRL_GENEN_Pos)
-                        | GCLK_GENCTRL_SRC_DFLL48M | GCLK_GENCTRL_ID(0);
+                        | GCLK_GENCTRL_SRC_DFLL48M | GCLK_GENCTRL_ID(0);*/
+
+    GCLK->GENDIV.reg = GCLK_GENDIV_DIV(8) | GCLK_GENDIV_ID(0);
+    GCLK->GENCTRL.reg = (0 << GCLK_GENCTRL_RUNSTDBY_Pos)
+                        | (1 << GCLK_GENCTRL_GENEN_Pos)
+                        | GCLK_GENCTRL_SRC_OSC8M | GCLK_GENCTRL_ID(0);
 
     /* Generator 1. Peripheral clock, sourced from OSC8M. */
-    GCLK->GENDIV.reg = GCLK_GENDIV_DIV(1) | GCLK_GENDIV_ID(1);
-    GCLK->GENCTRL.reg = (0 << GCLK_GENCTRL_RUNSTDBY_Pos)
-                        | (1 << GCLK_GENCTRL_GENEN_Pos)
-                        | GCLK_GENCTRL_SRC_OSC8M | GCLK_GENCTRL_ID(1);
+    GCLK->GENDIV.reg = GCLK_GENDIV_DIV(2) | GCLK_GENDIV_ID(1);
+    //GCLK->GENCTRL.bit.DIVSEL = 0;
+    //GCLK->GENCTRL.bit.ID = 1;
+    GCLK->GENCTRL.reg = GCLK_GENCTRL_SRC_OSC8M | GCLK_GENCTRL_ID(1)| GCLK_GENCTRL_GENEN;
+    //GCLK->GENCTRL.bit.GENEN = 1;
+
+
+	SYSCTRL->BOD33.reg = 0;
+
+    PM->APBCMASK.reg = 0;
+
+    USB->DEVICE.CTRLA.reg &= ~USB_CTRLA_ENABLE;
+    PM->APBBMASK.reg &= ~PM_APBBMASK_USB;
+    PM->APBBMASK.reg &= ~PM_APBBMASK_DMAC;
+    PM->AHBMASK.bit.USB_ = 0;
+    PM->AHBMASK.bit.DMAC_ = 0;
+
     critical_section_leave();
 
 
 }
 
+
 void init_chip() {
     critical_section_enter();
-    PM->CPUSEL.reg |= 0;
-    PM->APBASEL.reg |= 0;
-    PM->APBBSEL.reg |= 0;
-    PM->APBCSEL.reg |= 0;
+    PM->CPUSEL.bit.CPUDIV = 0;
+    PM->APBASEL.bit.APBADIV = 0;
+    PM->APBBSEL.bit.APBBDIV = 0;
+    PM->APBCSEL.bit.APBCDIV = 0;
     critical_section_leave();
 
     init_sources();
+
+
+/*
+	system_ahb_clock_clear_mask(
+				(PM_AHBMASK_USB \
+				| PM_AHBMASK_DSU \
+				| PM_AHBMASK_HPB1 \
+				| PM_AHBMASK_HPB2 \
+				| PM_AHBMASK_DMAC \
+				| PM_AHBMASK_HPB0 \*/
+				/* These clocks should remain enabled on this bus
+				| PM_AHBMASK_HPB1 \
+				| PM_AHBMASK_HPB2 \
+				| PM_AHBMASK_HPB0 \
+				| PM_AHBMASK_NVMCTRL \
+				*/
+			//));
 }
 
 /**
@@ -310,6 +357,11 @@ void Reset_Handler(void)
 
 	/* Overwriting the default value of the NVMCTRL.CTRLB.MANW bit (errata reference 13134) */
 	NVMCTRL->CTRLB.bit.MANW = 1;
+
+    NVMCTRL->CTRLB.bit.RWS = 5;
+
+    NVMCTRL->CTRLB.bit.CACHEDIS = 0;
+    NVMCTRL->CTRLB.bit.READMODE = 0;
 
 	/* Initialize the C library */
 	__libc_init_array();
