@@ -24,3 +24,4 @@ inline uint16_t _uart_get_baud_reg(int baud) {
 
 void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_tx, uint8_t pin_rx, uint32_t mux_rx);
 int32_t uart_write(uart_t *uart, uint8_t *buf, uint16_t len);
+char uart_read(uart_t *uart);

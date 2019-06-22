@@ -47,7 +47,7 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
     hw->USART.CTRLB.bit.CHSIZE = 0; // 8 bits
     hw->USART.CTRLA.bit.FORM = 0;  // No parity bit
     hw->USART.CTRLB.bit.SBMODE = 0; // One stop bit
-    hw->USART.BAUD.reg = _uart_get_baud_reg(115200);
+    hw->USART.BAUD.reg = _uart_get_baud_reg(baud);
 	hw->USART.CTRLB.bit.ENC = 0;
     hw->USART.CTRLB.bit.RXEN = 1; // Receiver
     hw->USART.CTRLB.bit.TXEN = 1; // Transmitter
@@ -82,3 +82,9 @@ int32_t uart_write(uart_t *uart, uint8_t *buf, uint16_t len) {
     return ret;
 }
 
+
+char uart_read(uart_t *uart) {
+    char byte;
+    xStreamBufferReceive(uart->rx_buffer, &byte, 1, portMAX_DELAY);
+    return byte;
+}
