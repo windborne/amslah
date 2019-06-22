@@ -27,7 +27,10 @@
  *
  */
 
+#include "amslah_config.h"
 #include "samd21.h"
+
+void init_serial();
 
 /* Initialize segments */
 extern uint32_t _sfixed;
@@ -261,7 +264,7 @@ void init_sources() {
                         | (1 << GCLK_GENCTRL_GENEN_Pos)
                         | GCLK_GENCTRL_SRC_DFLL48M | GCLK_GENCTRL_ID(0);*/
 
-    GCLK->GENDIV.reg = GCLK_GENDIV_DIV(8) | GCLK_GENDIV_ID(0);
+    GCLK->GENDIV.reg = GCLK_GENDIV_DIV(1) | GCLK_GENDIV_ID(0);
     GCLK->GENCTRL.reg = (0 << GCLK_GENCTRL_RUNSTDBY_Pos)
                         | (1 << GCLK_GENCTRL_GENEN_Pos)
                         | GCLK_GENCTRL_SRC_OSC8M | GCLK_GENCTRL_ID(0);
@@ -360,6 +363,9 @@ void Reset_Handler(void)
 
     NVMCTRL->CTRLB.bit.RWS = 5;
 
+
+    PM->APBAMASK.reg |= PM_APBAMASK_GCLK;
+
     NVMCTRL->CTRLB.bit.CACHEDIS = 0;
     NVMCTRL->CTRLB.bit.READMODE = 0;
 
@@ -368,6 +374,9 @@ void Reset_Handler(void)
 
     init_chip();
 
+    #if USE_DEBUG_UART
+        init_serial();
+    #endif
 	/* Branch to main function */
 	main();
 

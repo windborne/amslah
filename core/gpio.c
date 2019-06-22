@@ -43,3 +43,8 @@ void gpio_function(uint8_t pin, uint32_t function) {
 	critical_section_leave();
 }
 
+void gpio_init(uint8_t pin) {
+    gpio_function(pin, GPIO_FUNCTION_OFF);
+    gpio_direction(pin, GPIO_DIRECTION_OUT);
+    gpio_set(pin, LOW);
+}

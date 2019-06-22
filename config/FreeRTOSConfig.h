@@ -2,13 +2,13 @@
 
 #include <stdint.h>
 
-#define configCPU_CLOCK_HZ (1000000)
+#define configCPU_CLOCK_HZ (8000000)
 
 #define configMAX_PRIORITIES (5)
 
 #define configMINIMAL_STACK_SIZE ((uint16_t)64)
 
-#define configTOTAL_HEAP_SIZE ((size_t)(2400))
+#define configTOTAL_HEAP_SIZE ((size_t)(9400))
 
 #define configUSE_MUTEXES 1
 

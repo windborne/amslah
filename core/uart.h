@@ -1,6 +1,6 @@
-#include "samd21.h"
-#include "amslah_config.h"
-#include "FreeRTOS.h"
+#pragma once
+
+#include "amslah.h"
 #include "semphr.h"
 #include "stream_buffer.h"
 
@@ -19,7 +19,7 @@ typedef struct {
 } uart_t;
 
 inline uint16_t _uart_get_baud_reg(int baud) {
-    return 65536 - ((65536 * 16.0f * baud) / 4000000);
+    return 65536 - ((65536 * 16.0f * baud) / PERIPHERAL_FREQUENCY);
 }
 
 void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_tx, uint8_t pin_rx, uint32_t mux_rx);

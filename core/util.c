@@ -7,5 +7,6 @@ void enable_sercom_clock(int n) {
     GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(channel)
                         | GCLK_CLKCTRL_GEN_GCLK1
                         | (1 << GCLK_CLKCTRL_CLKEN_Pos);
+    while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);
     critical_section_leave();
 }

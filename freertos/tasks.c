@@ -5211,4 +5211,7 @@ when performing module tests). */
 
 #endif
 
+char *pcGetCurrentTaskName() {
+        return ((tskTCB*)pxCurrentTCB)->pcTaskName;
+}
 

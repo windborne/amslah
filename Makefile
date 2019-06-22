@@ -1,3 +1,6 @@
+AMSLAH_PATH = $(shell readlink -f Makefile | xargs dirname)
+$(info ${AMSLAH_PATH})
+
 CC = arm-none-eabi-gcc -B/usr/bin/arm-none-eabi-
 CXX = arm-none-eabi-g++ -B/usr/bin/arm-none-eabi-
 LD = arm-none-eabi-gcc -B/usr/bin/arm-none-eabi-
@@ -9,32 +12,32 @@ SIZE = arm-none-eabi-size
 CFLAGS = -x c -mthumb -DDEBUG -O2 -ffunction-sections -mlong-calls -Wall -g3
 CFLAGS += -c -D__SAMD21J18A__ -mcpu=cortex-m0plus
 
-LFLAGS = -T"core/samd21j18a_flash.ld"
+LFLAGS = -T"$(AMSLAH_PATH)/core/samd21j18a_flash.ld"
 LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus  -lm
 
-INCLUDE = -I"./core" -I"./config" -I"./freertos/include" -I"./freertos/portable"
+INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable"
 
 BUILD_PATH = build
 APP = app
 
-CSRC += main.c
-CSRC += bmp3.c
-CSRC += core/startup_samd21.c
-CSRC += core/gpio.c
-CSRC += core/util.c
-CSRC += core/uart.c
-CSRC += core/spi.c
-CSRC += core/sercoms.c
-CSRC += core/printf.c
-CSRC += freertos/croutine.c
-CSRC += freertos/event_groups.c
-CSRC += freertos/list.c
-CSRC += freertos/queue.c
-CSRC += freertos/tasks.c
-CSRC += freertos/stream_buffer.c
-CSRC += freertos/timers.c
-CSRC += freertos/heap_1.c
-CSRC += freertos/portable/port.c
+CSRC = $(wildcard *.c)
+CSRC += $(AMSLAH_PATH)/core/startup_samd21.c
+CSRC += $(AMSLAH_PATH)/core/gpio.c
+CSRC += $(AMSLAH_PATH)/core/util.c
+CSRC += $(AMSLAH_PATH)/core/uart.c
+CSRC += $(AMSLAH_PATH)/core/spi.c
+CSRC += $(AMSLAH_PATH)/core/sercoms.c
+CSRC += $(AMSLAH_PATH)/core/serial.c
+CSRC += $(AMSLAH_PATH)/core/printf.c
+CSRC += $(AMSLAH_PATH)/freertos/croutine.c
+CSRC += $(AMSLAH_PATH)/freertos/event_groups.c
+CSRC += $(AMSLAH_PATH)/freertos/list.c
+CSRC += $(AMSLAH_PATH)/freertos/queue.c
+CSRC += $(AMSLAH_PATH)/freertos/tasks.c
+CSRC += $(AMSLAH_PATH)/freertos/stream_buffer.c
+CSRC += $(AMSLAH_PATH)/freertos/timers.c
+CSRC += $(AMSLAH_PATH)/freertos/heap_1.c
+CSRC += $(AMSLAH_PATH)/freertos/portable/port.c
 
 CPPOBJ := $(CPPSRC:%.cpp=%.o)
 COBJ := $(CSRC:%.c=%.o)

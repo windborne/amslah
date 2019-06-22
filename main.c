@@ -47,23 +47,12 @@
 
 #define BMP380_CS GPIO(GPIO_PORTA, 22)
 
-uart_t uart;
 spi_t spi;
 
 uint8_t SPI_RW(uint8_t d) {
     uint8_t recv = 42;
     spi_transfer(&spi, &d, &recv, 1);
     return recv;
-}
-
-char printf_buffer[512];
-
-void print(char *fmt, ...) {
-    va_list va;
-    va_start(va, fmt);
-    int nb = vsnprintf_(printf_buffer, 512, fmt, va);
-
-    uart_write(&uart, (uint8_t*)printf_buffer, nb);
 }
 
 uint8_t sdcmd(uint8_t cmd, uint32_t arg) {
@@ -323,8 +312,9 @@ int main() {
     //PM->AHBMASK.reg = 0;
     //PM->AHBMASK.bit.USB = 0;
 
-    uart_init(&uart, 2, 115200, PA12, PINMUX_PA12C_SERCOM2_PAD0, PA13, PINMUX_PA13C_SERCOM2_PAD1);
+    //uart_init(&uart, 2, 115200, PA12, PINMUX_PA12C_SERCOM2_PAD0, PA13, PINMUX_PA13C_SERCOM2_PAD1);
     //uart_init(&uart, 0, 115200, PA04, PINMUX_PA04D_SERCOM0_PAD0, PA05, PINMUX_PA05D_SERCOM0_PAD1);
+    init_serial();
 
     /*
     spi_init(&spi, 4, 2, 0,

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "samd21.h"
 #include "amslah_config.h"
 #include "FreeRTOS.h"
@@ -18,6 +20,8 @@ typedef struct {
 
 	SemaphoreHandle_t bus_mutex;
 	SemaphoreHandle_t call_mutex;
+
+	int cs;
 } spi_t;
 
 /*inline uint16_t _uart_get_baud_reg(int baud) {
@@ -29,4 +33,8 @@ void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
 				uint8_t pin_mosi, uint32_t mux_mosi,
 				uint8_t pin_miso, uint32_t mux_miso);
 //int32_t uart_write(uart_t *uart, uint8_t *buf, uint16_t len);
+
 int32_t spi_transfer(spi_t *spi, uint8_t *tx_buf, uint8_t *rx_buf, int size);
+
+void spi_take(spi_t *spi, int cs);
+void spi_give(spi_t *spi);

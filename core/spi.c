@@ -1,5 +1,7 @@
 #include "spi.h"
 
+#include "gpio.h"
+
 void spi_handler(int num) {
     spi_t *spi = (spi_t*)sercom_handlers[num];
 
@@ -126,7 +128,6 @@ void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
 }
 
 int32_t spi_transfer(spi_t *spi, uint8_t *tx_buf, uint8_t *rx_buf, int size) {
-    xSemaphoreTake(spi->bus_mutex, portMAX_DELAY);
     spi->tx_buffer = tx_buf;
     spi->rx_buffer = rx_buf;
     spi->size = size;
@@ -136,8 +137,18 @@ int32_t spi_transfer(spi_t *spi, uint8_t *tx_buf, uint8_t *rx_buf, int size) {
     spi->hw->SPI.DATA.reg = tx_buf[0];
 
     int32_t ret = xSemaphoreTake(spi->call_mutex, IO_MAX_DELAY) ? size : ERR_TIMEOUT;
-    xSemaphoreGive(spi->bus_mutex);
     return ret;
+}
+
+void spi_take(spi_t *spi, int cs) {
+    xSemaphoreTake(spi->bus_mutex, portMAX_DELAY);
+    spi->cs = cs;
+    gpio_set(cs, LOW);
+}
+
+void spi_give(spi_t *spi) {
+    gpio_set(spi->cs, HIGH);
+    xSemaphoreGive(spi->bus_mutex);
 }
 
 /*

@@ -22,3 +22,4 @@ static inline void gpio_set(uint8_t pin, uint8_t level) {
 void gpio_direction(uint8_t pin, enum gpio_direction direction);
 void gpio_function(uint8_t pin, uint32_t function);
 
+void gpio_init(uint8_t pin);
