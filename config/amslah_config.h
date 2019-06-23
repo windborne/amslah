@@ -1,10 +1,22 @@
-#define IO_MAX_DELAY 5000
+#pragma once
 
-#define UART_RX_BUFFER_SIZE 128
+#include <user_amslah_config.h>
 
-#define CPU_FREQUENCY 1000000
+#ifndef IO_MAX_DELAY
+	#define IO_MAX_DELAY 5000
+#endif
 
-#define PERIPHERAL_FREQUENCY 4000000
+#ifndef UART_RX_BUFFER_SIZE
+	#define UART_RX_BUFFER_SIZE 128
+#endif
+
+#ifndef CPU_FREQUENCY
+	#define CPU_FREQUENCY 8000000
+#endif
+
+#ifndef PERIPHERAL_FREQUENCY
+	#define PERIPHERAL_FREQUENCY 4000000
+#endif
 
 #define USE_DEBUG_UART 1
 

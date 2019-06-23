@@ -264,13 +264,21 @@ void init_sources() {
                         | (1 << GCLK_GENCTRL_GENEN_Pos)
                         | GCLK_GENCTRL_SRC_DFLL48M | GCLK_GENCTRL_ID(0);*/
 
-    GCLK->GENDIV.reg = GCLK_GENDIV_DIV(1) | GCLK_GENDIV_ID(0);
+    #if CPU_FREQUENCY > 8000000
+        #error Frequencies above 8 MHz require the DFLL, which is currently commented out.
+    #endif
+
+    GCLK->GENDIV.reg = GCLK_GENDIV_DIV(8000000/CPU_FREQUENCY) | GCLK_GENDIV_ID(0);
     GCLK->GENCTRL.reg = (0 << GCLK_GENCTRL_RUNSTDBY_Pos)
                         | (1 << GCLK_GENCTRL_GENEN_Pos)
                         | GCLK_GENCTRL_SRC_OSC8M | GCLK_GENCTRL_ID(0);
 
+    #if PERIPHERAL_FREQUENCY > 8000000
+        #error Peripherals run off the 8 MHz oscillator. If you really want higher clocked peripherals, go bother Joan or something.
+    #endif
+
     /* Generator 1. Peripheral clock, sourced from OSC8M. */
-    GCLK->GENDIV.reg = GCLK_GENDIV_DIV(2) | GCLK_GENDIV_ID(1);
+    GCLK->GENDIV.reg = GCLK_GENDIV_DIV(8000000/PERIPHERAL_FREQUENCY) | GCLK_GENDIV_ID(1);
     //GCLK->GENCTRL.bit.DIVSEL = 0;
     //GCLK->GENCTRL.bit.ID = 1;
     GCLK->GENCTRL.reg = GCLK_GENCTRL_SRC_OSC8M | GCLK_GENCTRL_ID(1)| GCLK_GENCTRL_GENEN;

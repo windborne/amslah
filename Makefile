@@ -15,10 +15,14 @@ CFLAGS += -c -D__SAMD21J18A__ -mcpu=cortex-m0plus
 LFLAGS = -T"$(AMSLAH_PATH)/core/samd21j18a_flash.ld"
 LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus  -lm
 
-INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable"
+INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable" -I"."
 
 BUILD_PATH = build
 APP = app
+
+CONFIGS = $(AMSLAH_PATH)/config/FreeRTOSConfig.h
+CONFIGS += $(AMSLAH_PATH)/config/amslah_config.h
+CONFIGS += user_amslah_config.h
 
 CSRC = $(wildcard *.c)
 CSRC += $(AMSLAH_PATH)/core/startup_samd21.c
@@ -50,11 +54,11 @@ $(APP): $(BUILTOBJ)
 	$(OBJCOPY) --strip-unneeded -O binary build/amslah.elf build/amslah.bin
 	arm-none-eabi-size "build/amslah.elf"
 
-$(BUILD_PATH)/%.o: %.cpp
+$(BUILD_PATH)/%.o: %.cpp $(CONFIGS)
 	mkdir -p $(@D)
 	$(CXX) $(INCLUDE) $(CFLAGS) -o "$@" -c "$<"
 
-$(BUILD_PATH)/%.o: %.c
+$(BUILD_PATH)/%.o: %.c $(CONFIGS)
 	mkdir -p $(@D)
 	$(CC) $(INCLUDE) $(CFLAGS) -o "$@" -c "$<"
 

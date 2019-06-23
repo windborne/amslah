@@ -1,8 +1,9 @@
 #pragma once
 
 #include <stdint.h>
+#include "amslah_config.h"
 
-#define configCPU_CLOCK_HZ (8000000)
+#define configCPU_CLOCK_HZ (CPU_FREQUENCY)
 
 #define configMAX_PRIORITIES (5)
 
