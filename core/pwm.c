@@ -1,3 +1,5 @@
+#include "amslah_config.h"
+
 #include "pwm.h"
 
 #include "gpio.h"
@@ -35,7 +37,7 @@ void pwm_init(uint8_t pin) {
         hw->CTRLA.bit.PRESCALER = 0; /* Undivided. */
         hw->CTRLA.bit.WAVEGEN = 2; /* Normal PWM. */
 
-        hw->PER.reg = 0xff;
+        hw->PER.reg = (1 << PWM_RESOLUTION) - 1;
 
         int out = pin & 1;
 
