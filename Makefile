@@ -71,5 +71,8 @@ clean:
 u: $(APP)
 	edbg -bpv -t samd21 -f build/amslah.bin
 
-o:
-	openocd
+ocd:
+	cd $(AMSLAH_PATH); openocd
+
+gdb:
+	arm-none-eabi-gdb build/amslah.elf -ex "target extended-remote :3333"
