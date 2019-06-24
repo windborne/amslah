@@ -31,6 +31,7 @@ CSRC += $(AMSLAH_PATH)/core/util.c
 CSRC += $(AMSLAH_PATH)/core/uart.c
 CSRC += $(AMSLAH_PATH)/core/spi.c
 CSRC += $(AMSLAH_PATH)/core/pwm.c
+CSRC += $(AMSLAH_PATH)/core/adc.c
 CSRC += $(AMSLAH_PATH)/core/sercoms.c
 CSRC += $(AMSLAH_PATH)/core/serial.c
 CSRC += $(AMSLAH_PATH)/core/printf.c
