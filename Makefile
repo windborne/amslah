@@ -1,5 +1,4 @@
 AMSLAH_PATH = $(shell readlink -f Makefile | xargs dirname)
-$(info ${AMSLAH_PATH})
 
 CC = arm-none-eabi-gcc -B/usr/bin/arm-none-eabi-
 CXX = arm-none-eabi-g++ -B/usr/bin/arm-none-eabi-
