@@ -28,7 +28,9 @@ void pwm_init(uint8_t pin) {
 
     gpio_function(pin, (pin << 16) | 4);
 
-    print("tc %d for pin %d\n", tc, pin);
+    #if PWM_RESOLUTION > 8
+        #error "PWM resolution above 8 bit unsupported"
+    #endif
 
     if (tc >= 3) {
         TcCount8 *hw = (TcCount8*)(((char*)TCC0) + 1024 * tc);
