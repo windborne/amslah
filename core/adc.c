@@ -21,8 +21,6 @@ void ADC_Handler() {
 }
 
 void adc_init() {
-    gpio_function(GPIO(GPIO_PORTA, 7), PINMUX_PA07B_ADC_AIN7);
-
     PM->APBCMASK.reg |= PM_APBCMASK_ADC;
 
     GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID_ADC
