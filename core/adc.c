@@ -83,7 +83,7 @@ int adc_sample(uint8_t pin) {
     xSemaphoreTake(adc_call_mutex, portMAX_DELAY);
     int result = adc_result;
     xSemaphoreGive(adc_mutex);
-    if (result < 5) {
+    if (ADC_OVERSAMPLE < 5) {
         result = result >> ADC_OVERSAMPLE;
     } else {
         result = result >> 4;
