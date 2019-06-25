@@ -17,7 +17,7 @@ volatile int adc_result;
 void ADC_Handler() {
     ADC->INTENCLR.reg = ADC_INTENCLR_RESRDY; 
     adc_result = ADC->RESULT.reg;
-    xSemaphoreGive(adc_call_mutex);
+    xSemaphoreGiveFromISR(adc_call_mutex, 0);
 }
 
 void adc_init() {
