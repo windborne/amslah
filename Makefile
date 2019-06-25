@@ -1,4 +1,4 @@
-AMSLAH_PATH = $(shell readlink -f Makefile | xargs dirname)
+AMSLAH_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 CC = arm-none-eabi-gcc -B/usr/bin/arm-none-eabi-
 CXX = arm-none-eabi-g++ -B/usr/bin/arm-none-eabi-
