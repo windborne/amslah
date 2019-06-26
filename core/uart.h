@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "amslah.h"
 #include "semphr.h"
 #include "stream_buffer.h"
@@ -74,3 +78,7 @@ int32_t uart_write(uart_t *uart, uint8_t *buf, uint16_t len);
  *          thread. It waits until a byte is available.
  */
 char uart_read(uart_t *uart);
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 #define ERR_NONE 0
@@ -55,3 +59,7 @@ void atomic_leave_critical(hal_atomic_t volatile *atomic);
 void delay_ms(uint32_t ms);
 
 void enable_sercom_clock(int n);
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "samd21.h"
 
 #include "FreeRTOS.h"
@@ -47,3 +51,7 @@ void adc_init_pin(uint8_t pin);
  *          using the ADC interrupt event.
  */
 int adc_sample(uint8_t pin);
+
+#ifdef __cplusplus
+}
+#endif

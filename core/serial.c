@@ -10,7 +10,7 @@ StreamBufferHandle_t serial_stream;
 char printf_buffer[512];
 uart_t debug_uart;
 
-void raw_print(char *fmt, ...) {
+void raw_print(const char *fmt, ...) {
     va_list va;
     va_start(va, fmt);
     int nb = vsnprintf_(printf_buffer, 512, fmt, va);
@@ -18,7 +18,7 @@ void raw_print(char *fmt, ...) {
     uart_write(&debug_uart, (uint8_t*)printf_buffer, nb);
 }
 
-void print(char *fmt, ...) {
+void print(const char *fmt, ...) {
     va_list va;
     va_start(va, fmt);
     taskENTER_CRITICAL();

@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "samd21.h"
 #include "amslah_config.h"
 #include "FreeRTOS.h"
@@ -102,3 +106,7 @@ void spi_take(spi_t *spi, int cs);
  * @param spi SPI bus to give away.
  */
 void spi_give(spi_t *spi);
+
+#ifdef __cplusplus
+}
+#endif

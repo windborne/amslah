@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "samd21.h"
 
 #define GPIO_PIN(n) (((n)&0x1Fu) << 0)
@@ -55,3 +59,7 @@ void gpio_function(uint8_t pin, uint32_t function);
  * @param pin Pin to initialize as a digital output.
  */
 void gpio_init(uint8_t pin);
+
+#ifdef __cplusplus
+}
+#endif

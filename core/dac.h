@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "samd21.h"
 
 #include "gpio.h"
@@ -25,3 +29,7 @@ void dac_init();
  *        range of 0 to 1023).
  */
 void dac_set(int level);
+
+#ifdef __cplusplus
+}
+#endif

@@ -8,11 +8,11 @@ OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
 
 
-CFLAGS = -x c -mthumb -DDEBUG -O2 -ffunction-sections -mlong-calls -Wall -g3
+CFLAGS = -mthumb -DDEBUG -O2 -ffunction-sections -mlong-calls -Wall -g3
 CFLAGS += -c -D__SAMD21J18A__ -mcpu=cortex-m0plus
 
 LFLAGS = -T"$(AMSLAH_PATH)/core/samd21j18a_flash.ld"
-LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus  -lm
+LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus  -lm -specs=nano.specs -specs=nosys.specs
 
 INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable" -I"."
 
@@ -23,6 +23,7 @@ CONFIGS = $(AMSLAH_PATH)/config/FreeRTOSConfig.h
 CONFIGS += $(AMSLAH_PATH)/config/amslah_config.h
 CONFIGS += user_amslah_config.h
 
+CPPSRC = $(wildcard *.cpp)
 CSRC = $(wildcard *.c)
 CSRC += $(AMSLAH_PATH)/core/startup_samd21.c
 CSRC += $(AMSLAH_PATH)/core/gpio.c
@@ -62,7 +63,7 @@ $(BUILD_PATH)/%.o: %.cpp $(CONFIGS)
 
 $(BUILD_PATH)/%.o: %.c $(CONFIGS)
 	mkdir -p $(@D)
-	$(CC) $(INCLUDE) $(CFLAGS) -o "$@" -c "$<"
+	$(CC) $(INCLUDE) -x c $(CFLAGS) -o "$@" -c "$<"
 
 clean:
 	rm -rf build

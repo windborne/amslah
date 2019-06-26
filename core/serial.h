@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "amslah.h"
 
 #if USE_DEBUG_UART
@@ -25,6 +29,10 @@ void init_serial();
  * @param fmt Formatting string.
  * @param ... Optional formatting arguments.
  */
-void print(char *fmt, ...);
+void print(const char *fmt, ...);
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
