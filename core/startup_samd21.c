@@ -424,3 +424,13 @@ static void delay_cycles(uint32_t cycles) {
 void delay_ms(uint32_t ms) {
     delay_cycles(ms * 1000);
 }
+
+
+#ifdef __cplusplus
+extern "C"{
+  int _getpid(){ return -1;}
+  int _kill(int pid, int sig){ return -1; }
+  int _write(){return -1;}
+}
+#endif
+

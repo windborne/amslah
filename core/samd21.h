@@ -5,14 +5,6 @@
  * \brief SAMD21 CMSIS Definitions.
  */
 
-#ifdef __cplusplus
-extern "C"{
-  int _getpid(){ return -1;}
-  int _kill(int pid, int sig){ return -1; }
-  int _write(){return -1;}
-}
-#endif
-
 #if   defined(__SAMD21E15A__) || defined(__ATSAMD21E15A__)
   #include "samd21e15a.h"
 #elif defined(__SAMD21E16A__) || defined(__ATSAMD21E16A__)
