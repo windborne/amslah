@@ -21,7 +21,7 @@
 
 #define configUSE_RECURSIVE_MUTEXES 1
 
-#define configGENERATE_RUN_TIME_STATS 0
+#define configGENERATE_RUN_TIME_STATS USAGE_REPORT
 
 #define configUSE_16_BIT_TICKS 0
 
@@ -110,12 +110,12 @@
 #define xPortSysTickHandler SysTick_Handler
 
 /* Used when configGENERATE_RUN_TIME_STATS is 1. */
-/*
+#if configGENERATE_RUN_TIME_STATS
 extern void     vConfigureTimerForRunTimeStats(void);
 extern uint32_t vGetRunTimeCounterValue(void);
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() vConfigureTimerForRunTimeStats()
 #define portGET_RUN_TIME_COUNTER_VALUE() vGetRunTimeCounterValue()
-*/
+#endif
 
 /* The lowest interrupt priority that can be used in a call to a "set priority"
 function. */

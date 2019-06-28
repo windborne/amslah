@@ -18,6 +18,14 @@
 	#define PERIPHERAL_FREQUENCY 4000000
 #endif
 
+#ifndef USAGE_REPORT
+    #define USAGE_REPORT 1
+#endif
+
+#ifndef USAGE_REPORT_TC
+    #define USAGE_REPORT_TC 4
+#endif
+
 #ifndef PWM_RESOLUTION
 	#define PWM_RESOLUTION 8
 #endif

@@ -10,12 +10,14 @@ const uint8_t tcs[] = {2, 2, -1, -1, 0, 0, 1, 1, 0, 0, 1, 1, // PA11
                        7, 7, 6, 6, -1, -1, -1, -1, 4, 4, 5, 5, // PB11
                        4, 4, 5, 5, 6, 6, -1, -1, -1, -1, 7, 7, // PB23
                        -1, -1, -1, -1, -1, -1, 0, 0}; // PB31
+bool used_tcs[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 void pwm_init(uint8_t pin) {
     int tc = tcs[pin];
     if (tc == -1) {
         __asm("BKPT #0");
     }
+    used_tcs[tc] = 1;
 
     int channel = 0x1a + (tc/2);
 

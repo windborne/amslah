@@ -8,6 +8,7 @@ extern "C" {
 
 #include "gpio.h"
 
+extern bool used_tcs[8];
 
 /**
  * @brief Initialize a pin so that it can be pulse width modulated.
