@@ -25,6 +25,8 @@ CONFIGS += user_amslah_config.h
 
 CPPSRC = $(wildcard *.cpp)
 CSRC = $(wildcard *.c)
+HSRC = $(wildcard *.h)
+
 CSRC += $(AMSLAH_PATH)/core/startup_samd21.c
 CSRC += $(AMSLAH_PATH)/core/gpio.c
 CSRC += $(AMSLAH_PATH)/core/util.c
@@ -52,12 +54,12 @@ COBJ := $(CSRC:%.c=%.o)
 OBJ := $(COBJ) $(CPPOBJ)
 BUILTOBJ := $(addprefix $(BUILD_PATH)/,$(OBJ))
 
-$(APP): $(BUILTOBJ)
+$(APP): $(BUILTOBJ) 
 	$(LD) -o build/amslah.elf $(BUILTOBJ) $(LFLAGS)
 	$(OBJCOPY) --strip-unneeded -O binary build/amslah.elf build/amslah.bin
 	arm-none-eabi-size "build/amslah.elf"
 
-$(BUILD_PATH)/%.o: %.cpp $(CONFIGS)
+$(BUILD_PATH)/%.o: %.cpp $(CONFIGS) $(HSRC)
 	mkdir -p $(@D)
 	$(CXX) $(INCLUDE) $(CFLAGS) -o "$@" -c "$<"
 
