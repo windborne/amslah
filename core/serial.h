@@ -13,7 +13,6 @@ extern "C" {
 
 extern uart_t debug_uart;
 
-
 /**
  * @brief Initialize the debug serial, as enabled by USE_DEBUG_UART and
  *        configured with the various DEBUG_* options in the configuration

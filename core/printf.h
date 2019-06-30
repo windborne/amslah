@@ -40,6 +40,8 @@
 extern "C" {
 #endif
 
+#define PRINTF_DISABLE_SUPPORT_EXPONENTIAL
+#define PRINTF_DISABLE_SUPPORT_LONG_LONG
 
 /**
  * Output a character to a custom device like UART, used by the printf() function
