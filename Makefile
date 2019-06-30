@@ -14,7 +14,7 @@ CFLAGS += -c -D__SAMD21J18A__ -mcpu=cortex-m0plus
 LFLAGS = -T"$(AMSLAH_PATH)/core/samd21j18a_flash.ld"
 LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus  -lm -specs=nano.specs -specs=nosys.specs
 
-INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable" -I"."
+INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable" -I"$(AMSLAH_PATH)/extra" -I"."
 
 BUILD_PATH = build
 APP = app
