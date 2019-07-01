@@ -60,6 +60,10 @@ void gpio_function(uint8_t pin, uint32_t function);
  */
 void gpio_init(uint8_t pin);
 
+void gpio_in_init(uint8_t pin);
+
+uint8_t gpio_get(uint8_t pin);
+
 #ifdef __cplusplus
 }
 #endif

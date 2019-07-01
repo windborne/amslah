@@ -48,3 +48,20 @@ void gpio_init(uint8_t pin) {
     gpio_direction(pin, GPIO_DIRECTION_OUT);
     gpio_set(pin, LOW);
 }
+
+void gpio_in_init(uint8_t pin) {
+    gpio_function(pin, GPIO_FUNCTION_OFF);
+    gpio_direction(pin, GPIO_DIRECTION_IN);
+}
+
+uint8_t gpio_get(uint8_t pin) {
+    uint8_t pinsel = 1 << GPIO_PIN(pin);
+    uint8_t port = GPIO_PORT(pin);
+
+    if ( (PORT->Group[port].IN.reg & pinsel) != 0) {
+        return HIGH;
+    } else {
+        return LOW;
+    }
+
+}
