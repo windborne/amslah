@@ -14,7 +14,11 @@ CFLAGS += -c -D__SAMD21J18A__ -mcpu=cortex-m0plus
 LFLAGS = -T"$(AMSLAH_PATH)/core/samd21j18a_flash.ld"
 LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus  -lm -specs=nano.specs -specs=nosys.specs
 
+SHELL:=/bin/bash
+LIBDIRS := $(shell sed -n 's/^.*LIBS: //p' amslah.cfg)
+
 INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable" -I"$(AMSLAH_PATH)/extra" -I"."
+INCLUDE += $(foreach LIBDIR,$(LIBDIRS),-I"$(LIBDIR)")
 
 BUILD_PATH = build
 APP = app
@@ -23,9 +27,12 @@ CONFIGS = $(AMSLAH_PATH)/config/FreeRTOSConfig.h
 CONFIGS += $(AMSLAH_PATH)/config/amslah_config.h
 CONFIGS += user_amslah_config.h
 
-CPPSRC = $(wildcard *.cpp)
-CSRC = $(wildcard *.c)
-HSRC = $(wildcard *.h)
+DIRS = .
+DIRS += $(LIBDIRS)
+
+CPPSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.cpp)) 
+CSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.c)) 
+HSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.h)) 
 
 CSRC += $(AMSLAH_PATH)/core/startup_samd21.c
 CSRC += $(AMSLAH_PATH)/core/gpio.c
