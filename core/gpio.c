@@ -43,18 +43,18 @@ void gpio_function(uint8_t pin, uint32_t function) {
     critical_section_leave();
 }
 
-void gpio_init(uint8_t pin) {
+void digital_out_init(uint8_t pin) {
     gpio_function(pin, GPIO_FUNCTION_OFF);
     gpio_direction(pin, GPIO_DIRECTION_OUT);
-    gpio_set(pin, LOW);
+    digital_set(pin, LOW);
 }
 
-void gpio_in_init(uint8_t pin) {
+void digital_in_init(uint8_t pin) {
     gpio_function(pin, GPIO_FUNCTION_OFF);
     gpio_direction(pin, GPIO_DIRECTION_IN);
 }
 
-uint8_t gpio_get(uint8_t pin) {
+uint8_t digital_get(uint8_t pin) {
     uint32_t pinsel = 1 << GPIO_PIN(pin);
     uint8_t port = GPIO_PORT(pin);
 

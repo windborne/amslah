@@ -85,11 +85,11 @@ int32_t spi_transfer(spi_t *spi, uint8_t *tx_buf, uint8_t *rx_buf, int size) {
 void spi_take(spi_t *spi, int cs) {
     xSemaphoreTake(spi->bus_mutex, portMAX_DELAY);
     spi->cs = cs;
-    gpio_set(cs, LOW);
+    digital_set(cs, LOW);
 }
 
 void spi_give(spi_t *spi) {
-    gpio_set(spi->cs, HIGH);
+    digital_set(spi->cs, HIGH);
     xSemaphoreGive(spi->bus_mutex);
 }
 
