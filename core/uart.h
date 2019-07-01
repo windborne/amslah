@@ -4,7 +4,9 @@
 extern "C" {
 #endif
 
-#include "amslah.h"
+#include "samd21.h"
+#include "FreeRTOS.h"
+#include "task.h"
 #include "semphr.h"
 #include "stream_buffer.h"
 

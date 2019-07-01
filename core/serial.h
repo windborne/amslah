@@ -4,8 +4,6 @@
 extern "C" {
 #endif
 
-#include "amslah.h"
-
 #if USE_DEBUG_UART
 
 #include "uart.h"
