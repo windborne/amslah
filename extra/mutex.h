@@ -35,12 +35,12 @@ public:
 	Mutex mutex;
 };
 
-class LockGaurd {
+class LockGuard {
 public:
-	LockGaurd(Mutex& mutex) : _mutex(mutex){
+	LockGuard(Mutex& mutex) : _mutex(mutex){
 		_mutex.take();
 	}
-	~LockGaurd(){
+	~LockGuard(){
 		_mutex.give();
 	}
 	Mutex& _mutex;
