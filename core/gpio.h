@@ -23,7 +23,7 @@ enum gpio_pull_mode { GPIO_PULL_OFF, GPIO_PULL_UP, GPIO_PULL_DOWN };
  * @param pin Pin to set.
  * @param level Digital level to set it (LOW and HIGH can be used).
  */
-static inline void gpio_set(uint8_t pin, uint8_t level) {
+static inline void digital_set(uint8_t pin, uint8_t level) {
 	if (level) {
 		PORT_IOBUS->Group[GPIO_PORT(pin)].OUTSET.reg = 1U << GPIO_PIN(pin);
 	} else {
@@ -58,11 +58,20 @@ void gpio_function(uint8_t pin, uint32_t function);
  *
  * @param pin Pin to initialize as a digital output.
  */
-void gpio_init(uint8_t pin);
+void digital_out_init(uint8_t pin);
 
-void gpio_in_init(uint8_t pin);
+void digital_in_init(uint8_t pin);
 
-uint8_t gpio_get(uint8_t pin);
+uint8_t digital_get(uint8_t pin);
+
+#define gpio_get _Pragma("Deprecated function gpio_get. Use 'digital_get' instead.") digital_get
+
+#define gpio_set _Pragma("Deprecated function gpio_set. Use 'digital_set' instead.") digital_set
+
+#define gpio_init _Pragma("Deprecated function gpio_init. Use 'digital_out_init' instead.") digital_out_init
+
+#define gpio_in_init _Pragma("Deprecated function 'gpio_in_init'. Use 'digital_in_init' instead.") digital_in_init
+
 
 #ifdef __cplusplus
 }
