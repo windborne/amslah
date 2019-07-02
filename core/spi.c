@@ -7,9 +7,15 @@ void spi_handler(int num) {
 
     if ( (spi->hw->SPI.INTFLAG.reg & SERCOM_SPI_INTFLAG_RXC)
              && (spi->hw->SPI.INTENSET.reg & SERCOM_SPI_INTENSET_RXC) ) {
-        spi->rx_buffer[spi->cur++] = spi->hw->SPI.DATA.reg;
+        if (spi->rx_buffer != 0) {
+            spi->rx_buffer[spi->cur++] = spi->hw->SPI.DATA.reg;
+        }
         if (spi->cur < spi->size) {
-            spi->hw->SPI.DATA.reg = spi->tx_buffer[spi->cur];
+            if (spi->tx_buffer != 0) {
+                spi->hw->SPI.DATA.reg = spi->tx_buffer[spi->cur];
+            } else {
+                spi->hw->SPI.DATA.reg = spi->dummy_byte;
+            }
         } else {
             spi->hw->SPI.INTENCLR.reg = SERCOM_SPI_INTENCLR_RXC;
             xSemaphoreGiveFromISR(spi->call_mutex, 0);
@@ -61,6 +67,7 @@ void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
 
     spi->hw = hw;
     spi->fn = spi_handler;
+    spi->dummy_byte = 0x0;
     spi->bus_mutex = xSemaphoreCreateBinary();
     xSemaphoreGive(spi->bus_mutex);
 

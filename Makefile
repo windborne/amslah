@@ -17,7 +17,7 @@ LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus  -lm -specs=nano.specs -specs=no
 LFLAGS += -mfloat-abi=soft -mthumb -msoft-float
 
 SHELL:=/bin/bash
-LIBDIRS := $(shell realpath $(shell sed -n 's/^.*LIBS: //p' amslah.cfg))
+LIBDIRS := $(shell realpath $(shell sed -n 's/^.*LIBS: //p' amslah.cfg 2>/dev/null) 2>/dev/null)
 
 INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable" -I"$(AMSLAH_PATH)/extra" -I"."
 INCLUDE += $(foreach LIBDIR,$(LIBDIRS),-I"$(LIBDIR)")

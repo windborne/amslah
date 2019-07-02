@@ -18,6 +18,7 @@ typedef struct {
     Sercom *hw;
     uint8_t *tx_buffer;
     uint8_t *rx_buffer;
+    uint8_t dummy_byte;
 
     uint16_t size;
     uint16_t cur;
