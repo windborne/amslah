@@ -21,6 +21,9 @@ LIBDIRS := $(shell realpath $(shell sed -n 's/^.*LIBS: //p' amslah.cfg 2>/dev/nu
 
 INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable" -I"$(AMSLAH_PATH)/extra" -I"."
 INCLUDE += $(foreach LIBDIR,$(LIBDIRS),-I"$(LIBDIR)")
+INCLUDE += $(foreach LIBDIR,$(shell ls -d */),-I"$(LIBDIR)")
+
+$(info $(shell $(shell sed -n 's/^.*HOOKS: //p' amslah.cfg)))
 
 BUILD_PATH = build
 APP = app
@@ -31,6 +34,7 @@ CONFIGS += user_amslah_config.h
 
 DIRS = .
 DIRS += $(LIBDIRS)
+DIRS += $(shell ls -d */ | grep -v ^build)
 
 CPPSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.cpp)) 
 CSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.c)) 
