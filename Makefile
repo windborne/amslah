@@ -2,7 +2,7 @@ AMSLAH_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 CC = arm-none-eabi-gcc -B/usr/bin/arm-none-eabi-
 CXX = arm-none-eabi-g++ -B/usr/bin/arm-none-eabi-
-LD = arm-none-eabi-gcc -B/usr/bin/arm-none-eabi-
+LD = arm-none-eabi-g++ -B/usr/bin/arm-none-eabi-
 AR = arm-none-eabi-ar
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
