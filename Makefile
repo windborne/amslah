@@ -2,7 +2,7 @@ AMSLAH_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 CC = arm-none-eabi-gcc -B/usr/bin/arm-none-eabi-
 CXX = arm-none-eabi-g++ -B/usr/bin/arm-none-eabi-
-LD = arm-none-eabi-gcc -B/usr/bin/arm-none-eabi-
+LD = arm-none-eabi-g++ -B/usr/bin/arm-none-eabi-
 AR = arm-none-eabi-ar
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
@@ -16,7 +16,11 @@ LFLAGS = -T"$(AMSLAH_PATH)/core/samd21j18a_flash.ld"
 LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus  -lm -specs=nano.specs -specs=nosys.specs
 LFLAGS += -mfloat-abi=soft -mthumb -msoft-float
 
+SHELL:=/bin/bash
+LIBDIRS := $(shell realpath $(shell sed -n 's/^.*LIBS: //p' amslah.cfg))
+
 INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable" -I"$(AMSLAH_PATH)/extra" -I"."
+INCLUDE += $(foreach LIBDIR,$(LIBDIRS),-I"$(LIBDIR)")
 
 BUILD_PATH = build
 APP = app
@@ -25,9 +29,12 @@ CONFIGS = $(AMSLAH_PATH)/config/FreeRTOSConfig.h
 CONFIGS += $(AMSLAH_PATH)/config/amslah_config.h
 CONFIGS += user_amslah_config.h
 
-CPPSRC = $(wildcard *.cpp)
-CSRC = $(wildcard *.c)
-HSRC = $(wildcard *.h)
+DIRS = .
+DIRS += $(LIBDIRS)
+
+CPPSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.cpp)) 
+CSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.c)) 
+HSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.h)) 
 
 CSRC += $(AMSLAH_PATH)/core/startup_samd21.c
 CSRC += $(AMSLAH_PATH)/core/gpio.c
