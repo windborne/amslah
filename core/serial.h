@@ -30,6 +30,12 @@ void print(const char *fmt, ...);
 
 #endif
 
+#if USAGE_REPORT_TC >= 3
+    #define HRT_RES 16
+#else
+    #define HRT_RES 24
+#endif
+
 #ifdef __cplusplus
 }
 #endif

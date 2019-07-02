@@ -59,7 +59,7 @@ void serial_task(void *params){
 
 TaskStatus_t task_statuses[16];
 
-int hrt_base = 0;
+uint32_t hrt_base = 0;
 
 void usage_task(void *params) {
     volatile UBaseType_t arr_size;
@@ -124,10 +124,8 @@ void
 inline uint32_t vGetRunTimeCounterValue(void) {
     #if USAGE_REPORT_TC >= 3
         TcCount16 *hw = (TcCount16*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
-        #define HRT_RES 16
     #else
         Tcc *hw = (Tcc*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
-        #define HRT_RES 24
         hw->CTRLBSET.bit.CMD = TCC_CTRLBSET_CMD_READSYNC_Val;
         while (hw->SYNCBUSY.bit.COUNT);
     #endif 
