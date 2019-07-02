@@ -8,8 +8,9 @@ void spi_handler(int num) {
     if ( (spi->hw->SPI.INTFLAG.reg & SERCOM_SPI_INTFLAG_RXC)
              && (spi->hw->SPI.INTENSET.reg & SERCOM_SPI_INTENSET_RXC) ) {
         if (spi->rx_buffer != 0) {
-            spi->rx_buffer[spi->cur++] = spi->hw->SPI.DATA.reg;
+            spi->rx_buffer[spi->cur] = spi->hw->SPI.DATA.reg;
         }
+        spi->cur++;
         if (spi->cur < spi->size) {
             if (spi->tx_buffer != 0) {
                 spi->hw->SPI.DATA.reg = spi->tx_buffer[spi->cur];
