@@ -369,7 +369,7 @@ void Reset_Handler(void)
 	/* Overwriting the default value of the NVMCTRL.CTRLB.MANW bit (errata reference 13134) */
 	NVMCTRL->CTRLB.bit.MANW = 1;
 
-    NVMCTRL->CTRLB.bit.RWS = 5;
+    NVMCTRL->CTRLB.bit.RWS = 0;
 
 
     PM->APBAMASK.reg |= PM_APBAMASK_GCLK;

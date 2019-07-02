@@ -10,9 +10,11 @@ SIZE = arm-none-eabi-size
 
 CFLAGS = -mthumb -DDEBUG -O2 -ffunction-sections -mlong-calls -Wall -g3
 CFLAGS += -c -D__SAMD21J18A__ -mcpu=cortex-m0plus
+CFLAGS += -mfloat-abi=soft -msoft-float -fsingle-precision-constant
 
 LFLAGS = -T"$(AMSLAH_PATH)/core/samd21j18a_flash.ld"
 LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus  -lm -specs=nano.specs -specs=nosys.specs
+LFLAGS += -mfloat-abi=soft -mthumb -msoft-float
 
 INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable" -I"$(AMSLAH_PATH)/extra" -I"."
 
