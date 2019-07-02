@@ -55,11 +55,11 @@ void serial_task(void *params){
     }
 }
 
-#if USAGE_REPORT
+#if USAGE_REPORT || HIGH_RESOLUTION_TIMER
 
 TaskStatus_t task_statuses[16];
 
-int base = 0;
+int hrt_base = 0;
 
 void usage_task(void *params) {
     volatile UBaseType_t arr_size;
@@ -90,7 +90,13 @@ void usage_task(void *params) {
 }
 
 void
-#if USAGE_REPORT_TC == 3
+#if USAGE_REPORT_TC == 0
+    TCC0_Handler
+#elif USAGE_REPORT_TC == 1
+    TCC1_Handler
+#elif USAGE_REPORT_TC == 2
+    TCC2_Handler
+#elif USAGE_REPORT_TC == 3
     TC3_Handler
 #elif USAGE_REPORT_TC == 4
     TC4_Handler
@@ -104,14 +110,28 @@ void
     #error "ohp"
 #endif
 () {
-    TcCount16 *hw = (TcCount16*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
-    base += 65536;
-    hw->INTFLAG.reg |= TC_INTFLAG_OVF;
+    #if USAGE_REPORT_TC >= 3
+        TcCount16 *hw = (TcCount16*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
+        hrt_base++;
+        hw->INTFLAG.reg |= TC_INTFLAG_OVF;
+    #else
+        Tcc *hw = (Tcc*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
+        hrt_base++;
+        hw->INTFLAG.reg |= TCC_INTFLAG_OVF;
+    #endif
 }
 
 inline uint32_t vGetRunTimeCounterValue(void) {
-    TcCount16 *hw = (TcCount16*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
-    return base + hw->COUNT.reg;
+    #if USAGE_REPORT_TC >= 3
+        TcCount16 *hw = (TcCount16*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
+        #define HRT_RES 16
+    #else
+        Tcc *hw = (Tcc*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
+        #define HRT_RES 24
+        hw->CTRLBSET.bit.CMD = TCC_CTRLBSET_CMD_READSYNC_Val;
+        while (hw->SYNCBUSY.bit.COUNT);
+    #endif 
+    return (hrt_base << HRT_RES) + hw->COUNT.reg;
 }
 
 void vConfigureTimerForRunTimeStats(void) {
@@ -121,15 +141,37 @@ void vConfigureTimerForRunTimeStats(void) {
     GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(channel)
                         | GCLK_CLKCTRL_GEN_GCLK1
                         | (1 << GCLK_CLKCTRL_CLKEN_Pos);
-    while(GCLK->STATUS.bit.SYNCBUSY);
+    while(GCLK->STATUS.bit.SYNCBUSY) {};
 
-    TcCount16 *hw = (TcCount16*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
-    hw->CTRLA.bit.MODE = 0x0; // 16 bit
-    hw->CTRLA.bit.WAVEGEN = 0x0; // normal frequency
-    hw->CTRLA.bit.PRESCALER = 0x6; // div256
-    hw->INTENSET.bit.OVF = 1;
-    hw->CTRLA.bit.ENABLE = 1;
-    while (hw->STATUS.bit.SYNCBUSY);
+    #if USAGE_REPORT_TC >= 3
+        TcCount16 *hw = (TcCount16*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
+        hw->CTRLA.bit.MODE = 0x0; // 16 bit
+        hw->CTRLA.bit.WAVEGEN = 0x0; // normal frequency
+        hw->CTRLA.bit.PRESCALER = 0x6; // div256
+        hw->INTENSET.bit.OVF = 1;
+        hw->CTRLA.bit.ENABLE = 1;
+        while (hw->STATUS.bit.SYNCBUSY) {};
+    #else
+        Tcc *hw = (Tcc*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
+        #if (PERIPHERAL_FREQUENCY/1000000) == 1
+            hw->CTRLA.bit.PRESCALER = 0;
+        #elif (PERIPHERAL_FREQUENCY/1000000) == 2
+            hw->CTRLA.bit.PRESCALER = 1;
+        #elif (PERIPHERAL_FREQUENCY/1000000) == 4
+            hw->CTRLA.bit.PRESCALER = 2;
+        #elif (PERIPHERAL_FREQUENCY/1000000) == 8
+            hw->CTRLA.bit.PRESCALER = 3;
+        #elif (PERIPHERAL_FREQUENCY/1000000) == 16
+            hw->CTRLA.bit.PRESCALER = 4;
+        #else
+            #error "whooops please use a power of two or poke Joan"
+        #endif
+        hw->WAVE.bit.WAVEGEN = 0;
+        hw->INTENSET.bit.OVF = 1;
+        hw->CTRLBSET.bit.CMD = TCC_CTRLBSET_CMD_READSYNC_Val;
+        hw->CTRLA.bit.ENABLE = 1;
+        while (hw->SYNCBUSY.bit.ENABLE) {};
+    #endif
     NVIC_EnableIRQ(TCC0_IRQn + USAGE_REPORT_TC);
 
 }

@@ -23,7 +23,7 @@
 #endif
 
 #ifndef USAGE_REPORT_TC
-    #define USAGE_REPORT_TC 4
+    #define USAGE_REPORT_TC 0
 #endif
 
 #ifndef USAGE_REPORT_INTERVAL
@@ -32,6 +32,10 @@
 
 #ifndef USAGE_REPORT_INITIAL_WAIT
     #define USAGE_REPORT_INITIAL_WAIT 5000
+#endif
+
+#ifndef HIGH_RESOLUTION_TIMER
+    #define HIGH_RESOLUTION_TIMER 1
 #endif
 
 #ifndef PWM_RESOLUTION
