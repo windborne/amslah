@@ -23,7 +23,7 @@ INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/fr
 INCLUDE += $(foreach LIBDIR,$(LIBDIRS),-I"$(LIBDIR)")
 INCLUDE += $(foreach LIBDIR,$(shell ls -d */),-I"$(LIBDIR)")
 
-HOOK_VAL := $(shell $(shell sed -n 's/^.*HOOKS: //p' amslah.cfg) &> hook_output; echo $$?)
+HOOK_VAL := $(shell $(shell sed -n 's/^.*HOOKS: //p' amslah.cfg 2>/dev/null) &> hook_output; echo $$?)
 ifneq ($(HOOK_VAL), 0)
 $(error "The hook failed! See hook_output.")
 endif
@@ -42,7 +42,6 @@ DIRS += $(shell ls -d */ | grep -v ^build| grep -v ^test)
 CPPSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.cpp)) 
 CSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.c)) 
 HSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.h)) 
-HSRC += test/testheader.h
 
 CSRC += $(AMSLAH_PATH)/core/startup_samd21.c
 CSRC += $(AMSLAH_PATH)/core/gpio.c
@@ -62,11 +61,20 @@ CSRC += $(AMSLAH_PATH)/freertos/queue.c
 CSRC += $(AMSLAH_PATH)/freertos/tasks.c
 CSRC += $(AMSLAH_PATH)/freertos/stream_buffer.c
 CSRC += $(AMSLAH_PATH)/freertos/timers.c
+HEAP_VAL = $(shell sed -n 's/^.*HEAP: //p' amslah.cfg 2>/dev/null || echo 1)
+ifeq ($(HEAP_VAL), 4)
+CSRC += $(AMSLAH_PATH)/freertos/heap_4.c
+else
 CSRC += $(AMSLAH_PATH)/freertos/heap_1.c
+endif
+
 CSRC += $(AMSLAH_PATH)/freertos/portable/port.c
-test:
-	$(eval CPPSRC += test/test.cpp)
-	$(eval CPPSRC = $(filter-out ./main.cpp,$(CPPSRC)))
+ifeq ($(MAKECMDGOALS), test)
+HSRC += test/testheader.h
+$(eval CPPSRC += test/test.cpp)
+$(eval CPPSRC = $(filter-out ./main.cpp,$(CPPSRC)))
+$(eval CSRC = $(filter-out ./main.c,$(CSRC)))
+endif
 
 
 CPPOBJ := $(CPPSRC:%.cpp=%.o)
