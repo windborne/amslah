@@ -81,6 +81,8 @@ int32_t uart_write(uart_t *uart, uint8_t *buf, uint16_t len);
  */
 char uart_read(uart_t *uart);
 
+uint32_t uart_available(uart_t *uart);
+
 #ifdef __cplusplus
 }
 #endif

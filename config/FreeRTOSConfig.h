@@ -5,7 +5,7 @@
 
 #define configCPU_CLOCK_HZ (CPU_FREQUENCY)
 
-#define configMAX_PRIORITIES (5)
+#define configMAX_PRIORITIES (8)
 
 #define configMINIMAL_STACK_SIZE ((uint16_t)64)
 

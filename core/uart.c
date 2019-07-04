@@ -88,3 +88,7 @@ char uart_read(uart_t *uart) {
     xStreamBufferReceive(uart->rx_buffer, &byte, 1, portMAX_DELAY);
     return byte;
 }
+
+uint32_t uart_available(uart_t *uart) {
+    return xStreamBufferBytesAvailable(uart->rx_buffer);
+}
