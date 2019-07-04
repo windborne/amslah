@@ -37,11 +37,12 @@ CONFIGS += user_amslah_config.h
 
 DIRS = .
 DIRS += $(LIBDIRS)
-DIRS += $(shell ls -d */ | grep -v ^build)
+DIRS += $(shell ls -d */ | grep -v ^build| grep -v ^test)
 
 CPPSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.cpp)) 
 CSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.c)) 
 HSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.h)) 
+HSRC += test/testheader.h
 
 CSRC += $(AMSLAH_PATH)/core/startup_samd21.c
 CSRC += $(AMSLAH_PATH)/core/gpio.c
@@ -63,6 +64,8 @@ CSRC += $(AMSLAH_PATH)/freertos/stream_buffer.c
 CSRC += $(AMSLAH_PATH)/freertos/timers.c
 CSRC += $(AMSLAH_PATH)/freertos/heap_1.c
 CSRC += $(AMSLAH_PATH)/freertos/portable/port.c
+test: $(eval CPPSRC += test/test.cpp) $(eval CPPSRC= $(filter-out ./main.cpp,$(CPPSRC)))
+
 
 CPPOBJ := $(CPPSRC:%.cpp=%.o)
 COBJ := $(CSRC:%.c=%.o)
@@ -83,12 +86,18 @@ $(BUILD_PATH)/%.o: %.c $(CONFIGS)
 	mkdir -p $(@D)
 	$(CC) $(INCLUDE) -x c $(CFLAGS) -o "$@" -c "$<"
 
+TARGET = lasagnaSim
+
 clean:
 	rm -rf build
 
 u: $(APP)
 	edbg -bpv -t samd21 -f build/amslah.bin
 
+
+
+test: $(APP) 
+	edbg -bpv -t samd21 -f build/amslah.bin
 ocd:
 	cd $(AMSLAH_PATH); openocd
 
