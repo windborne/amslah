@@ -73,7 +73,7 @@ void usage_task(void *params) {
         }
         arr_size = uxTaskGetSystemState(task_statuses, 8, &total_runtime);
 
-        print("RAM & CPU usage report:\n");
+        print("RAM & CPU usage report (free RAM: %d bytes):\n", xPortGetFreeHeapSize());
         for (int x = 0; x<arr_size; x++) {
             float pc = 0;
             if (total_runtime != 0) {
