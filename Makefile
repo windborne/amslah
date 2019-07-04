@@ -64,7 +64,9 @@ CSRC += $(AMSLAH_PATH)/freertos/stream_buffer.c
 CSRC += $(AMSLAH_PATH)/freertos/timers.c
 CSRC += $(AMSLAH_PATH)/freertos/heap_1.c
 CSRC += $(AMSLAH_PATH)/freertos/portable/port.c
-test: $(eval CPPSRC += test/test.cpp) $(eval CPPSRC= $(filter-out ./main.cpp,$(CPPSRC)))
+test:
+	$(eval CPPSRC += test/test.cpp)
+	$(eval CPPSRC = $(filter-out ./main.cpp,$(CPPSRC)))
 
 
 CPPOBJ := $(CPPSRC:%.cpp=%.o)

@@ -9,6 +9,9 @@ void spi_handler(int num) {
              && (spi->hw->SPI.INTENSET.reg & SERCOM_SPI_INTENSET_RXC) ) {
         if (spi->rx_buffer != 0) {
             spi->rx_buffer[spi->cur] = spi->hw->SPI.DATA.reg;
+        } else {
+            volatile int nop = spi->hw->SPI.DATA.reg; // this guy
+            (void)nop;
         }
         spi->cur++;
         if (spi->cur < spi->size) {
@@ -84,7 +87,11 @@ int32_t spi_transfer(spi_t *spi, uint8_t *tx_buf, uint8_t *rx_buf, int size) {
     spi->cur = 0;
 
     spi->hw->SPI.INTENSET.reg = SERCOM_SPI_INTENSET_RXC;
-    spi->hw->SPI.DATA.reg = tx_buf[0];
+    if (tx_buf != 0) {
+        spi->hw->SPI.DATA.reg = tx_buf[0];
+    } else {
+        spi->hw->SPI.DATA.reg = spi->dummy_byte;
+    }
 
     int32_t ret = xSemaphoreTake(spi->call_mutex, IO_MAX_DELAY) ? size : ERR_TIMEOUT;
     return ret;
