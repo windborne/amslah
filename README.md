@@ -9,7 +9,4 @@ Setting up an Amslah project is easy; just create a folder with your code (e.g. 
 ## TODO
 Extremely nonexhaustive list.
  - Improve documentation.
- - Library system (that essentially just adds folders to the Makefile for both code and headers).
- - Actually try using C++.
  - Automatic switch to DFLL48M for frequencies above 8 MHz.
- - Nice way to change SPI baudrate.
