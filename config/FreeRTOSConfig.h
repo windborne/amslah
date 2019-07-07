@@ -9,7 +9,7 @@
 
 #define configMINIMAL_STACK_SIZE ((uint16_t)64)
 
-#define configTOTAL_HEAP_SIZE ((size_t)(16000))
+#define configTOTAL_HEAP_SIZE ((size_t)(20000))
 
 #define configUSE_MUTEXES 1
 
@@ -51,11 +51,11 @@
 
 #define configUSE_TIMERS 1
 
-#define configTIMER_TASK_PRIORITY (2)
+#define configTIMER_TASK_PRIORITY (4)
 
-#define configTIMER_QUEUE_LENGTH 2
+#define configTIMER_QUEUE_LENGTH 10
 
-#define configTIMER_TASK_STACK_DEPTH (64)
+#define configTIMER_TASK_STACK_DEPTH (128)
 
 #define configPRIO_BITS 3
 

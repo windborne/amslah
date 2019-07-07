@@ -80,6 +80,16 @@ void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
     sercom_handlers[sercom] = (dummy_type*)spi;
 }
 
+void spi_set_baud(spi_t *spi, int baud) {
+    xSemaphoreTake(spi->bus_mutex, portMAX_DELAY);
+    spi->hw->SPI.CTRLA.bit.ENABLE = 0;
+    while (spi->hw->SPI.SYNCBUSY.bit.ENABLE);
+    spi->hw->SPI.BAUD.reg = baud;
+    spi->hw->SPI.CTRLA.bit.ENABLE = 1;
+    while (spi->hw->SPI.SYNCBUSY.bit.ENABLE);
+    xSemaphoreGive(spi->bus_mutex);
+}
+
 int32_t spi_transfer(spi_t *spi, uint8_t *tx_buf, uint8_t *rx_buf, int size) {
     spi->tx_buffer = tx_buf;
     spi->rx_buffer = rx_buf;

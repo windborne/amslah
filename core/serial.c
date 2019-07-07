@@ -71,7 +71,7 @@ void usage_task(void *params) {
             print("The timer counter used for the usage report is taken by a PWM pin\n");
             print("Change USAGE_REPORT_TC in the config as necessary\n");
         }
-        arr_size = uxTaskGetSystemState(task_statuses, 8, &total_runtime);
+        arr_size = uxTaskGetSystemState(task_statuses, 16, &total_runtime);
 
         print("RAM & CPU usage report (free RAM: %d bytes):\n", xPortGetFreeHeapSize());
         for (int x = 0; x<arr_size; x++) {
@@ -129,7 +129,9 @@ inline uint32_t vGetRunTimeCounterValue(void) {
         hw->CTRLBSET.bit.CMD = TCC_CTRLBSET_CMD_READSYNC_Val;
         while (hw->SYNCBUSY.bit.COUNT);
     #endif 
-    return (hrt_base << HRT_RES) + hw->COUNT.reg;
+
+    uint32_t val = (hrt_base << HRT_RES) + hw->COUNT.reg;
+    return val;
 }
 
 void vConfigureTimerForRunTimeStats(void) {
@@ -187,9 +189,9 @@ void init_serial() {
     xSemaphoreGive(serial_mutex);
     printing_mutex = xSemaphoreCreateBinary();
     postprint_mutex = xSemaphoreCreateBinary();
-    xTaskCreate(serial_task, "serial", 130, 0, 5, &serial_handle);
+    xTaskCreate(serial_task, "serial", 130, 0, 1, &serial_handle);
     #if USAGE_REPORT
-        xTaskCreate(usage_task, "usage", 80, 0, 5, NULL);
+        xTaskCreate(usage_task, "usage", 80, 0, 1, NULL);
     #endif
 }
 

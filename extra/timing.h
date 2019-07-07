@@ -10,7 +10,6 @@ public:
         if (!HIGH_RESOLUTION_TIMER) {
             configASSERT(0);
         }
-        start();
     };
 
     uint32_t base;
@@ -19,17 +18,31 @@ public:
     void start() {
         taskENTER_CRITICAL(); 
         base = hrt_base;
-        count = vGetRunTimeCounterValue();
+	#if USAGE_REPORT_TC >= 3
+		TcCount16 *hw = (TcCount16*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
+	#else
+		Tcc *hw = (Tcc*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
+		hw->CTRLBSET.bit.CMD = TCC_CTRLBSET_CMD_READSYNC_Val;
+		while (hw->SYNCBUSY.bit.COUNT);
+    	#endif
+		count = hw->COUNT.reg;
         taskEXIT_CRITICAL(); 
     }
 
     uint32_t get() {
         taskENTER_CRITICAL(); 
         uint32_t nbase = hrt_base;
-        uint32_t ncount = vGetRunTimeCounterValue();
+	#if USAGE_REPORT_TC >= 3
+		TcCount16 *hw = (TcCount16*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
+	#else
+		Tcc *hw = (Tcc*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
+		hw->CTRLBSET.bit.CMD = TCC_CTRLBSET_CMD_READSYNC_Val;
+		volatile int aa = 0;
+		while (hw->SYNCBUSY.bit.COUNT);
+    	#endif
+		uint32_t ncount = hw->COUNT.reg;
         taskEXIT_CRITICAL(); 
-        if (base != nbase) return ((nbase - base) << HRT_RES) + ncount - count;
-        else return ncount - count;
+        return (nbase << HRT_RES) + ncount - ((base << HRT_RES) + count);
     }
 
     void print() {
