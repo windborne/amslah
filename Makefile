@@ -71,7 +71,7 @@ endif
 CSRC += $(AMSLAH_PATH)/freertos/portable/port.c
 ifeq ($(MAKECMDGOALS), test)
 HSRC += test/testheader.h
-$(eval CPPSRC += test/test.cpp)
+$(eval CPPSRC += test/$(TESTFILE).cpp)
 $(eval CPPSRC = $(filter-out ./main.cpp,$(CPPSRC)))
 $(eval CSRC = $(filter-out ./main.c,$(CSRC)))
 endif
