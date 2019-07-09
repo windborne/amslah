@@ -32,13 +32,12 @@ public:
     uint32_t get() {
         taskENTER_CRITICAL(); 
         uint32_t nbase = hrt_base;
-	#if USAGE_REPORT_TC >= 3
-		TcCount16 *hw = (TcCount16*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
-	#else
-		Tcc *hw = (Tcc*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
-		hw->CTRLBSET.bit.CMD = TCC_CTRLBSET_CMD_READSYNC_Val;
-		volatile int aa = 0;
-		while (hw->SYNCBUSY.bit.COUNT);
+		#if USAGE_REPORT_TC >= 3
+			TcCount16 *hw = (TcCount16*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
+		#else
+			Tcc *hw = (Tcc*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
+			hw->CTRLBSET.bit.CMD = TCC_CTRLBSET_CMD_READSYNC_Val;
+			while (hw->SYNCBUSY.bit.COUNT);
     	#endif
 		uint32_t ncount = hw->COUNT.reg;
         taskEXIT_CRITICAL(); 
