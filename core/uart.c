@@ -90,7 +90,7 @@ char uart_readt(uart_t *uart, uint32_t timeout) {
 }
 
 char uart_read(uart_t *uart) {
-	return uart_readt(uart, portMAX_DELAY);
+	return uart_readt(uart, 0);
 }
 
 uint32_t uart_available(uart_t *uart) {
