@@ -2,14 +2,14 @@ AMSLAH_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 CC = arm-none-eabi-gcc -B/usr/bin/arm-none-eabi-
 CXX = arm-none-eabi-g++ -B/usr/bin/arm-none-eabi-
-LD = arm-none-eabi-g++ -B/usr/bin/arm-none-eabi-
+LD = arm-none-eabi-g++ -B/usr/bin/arm-none-eabi
 AR = arm-none-eabi-ar
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
 
 
 CFLAGS = -mthumb -DDEBUG -O2 -ffunction-sections -mlong-calls -Wall -g3
-CFLAGS += -c -D__SAMD21J18A__ -mcpu=cortex-m0plus
+CFLAGS += -c -D__SAMD21J18A__ -mcpu=cortex-m0plus -specs=nano.specs -specs=nosys.specs
 CFLAGS += -mfloat-abi=soft -msoft-float -fsingle-precision-constant
 
 LFLAGS = -T"$(AMSLAH_PATH)/core/samd21j18a_flash.ld"
@@ -84,7 +84,7 @@ OBJ := $(COBJ) $(CPPOBJ)
 BUILTOBJ := $(addprefix $(BUILD_PATH)/,$(OBJ))
 
 $(APP): $(BUILTOBJ) 
-	$(LD) -o build/amslah.elf $(BUILTOBJ) $(LFLAGS)
+	$(LD) $(LFLAGS) -o build/amslah.elf $(BUILTOBJ)
 	$(OBJCOPY) --strip-unneeded -O binary build/amslah.elf build/amslah.bin
 	arm-none-eabi-size "build/amslah.elf"
 

@@ -79,6 +79,8 @@ int32_t uart_write(uart_t *uart, uint8_t *buf, uint16_t len);
  * @effects This function is NOT protected and must be only used from a single
  *          thread. It waits until a byte is available.
  */
+char uart_readt(uart_t *uart, uint32_t timeout);
+
 char uart_read(uart_t *uart);
 
 uint32_t uart_available(uart_t *uart);

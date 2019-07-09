@@ -82,11 +82,15 @@ int32_t uart_write(uart_t *uart, uint8_t *buf, uint16_t len) {
     return ret;
 }
 
+char uart_readt(uart_t *uart, uint32_t timeout) {
+    char byte;
+    int nb = xStreamBufferReceive(uart->rx_buffer, &byte, 1, timeout);
+    if (nb != 0) return byte;
+	else return 0;
+}
 
 char uart_read(uart_t *uart) {
-    char byte;
-    xStreamBufferReceive(uart->rx_buffer, &byte, 1, portMAX_DELAY);
-    return byte;
+	return uart_readt(uart, portMAX_DELAY);
 }
 
 uint32_t uart_available(uart_t *uart) {

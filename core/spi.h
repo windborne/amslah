@@ -99,6 +99,8 @@ int32_t spi_transfer(spi_t *spi, uint8_t *tx_buf, uint8_t *rx_buf, int size);
  */
 void spi_take(spi_t *spi, int cs);
 
+void spi_set_baud(spi_t *spi, int baud);
+
 
 /**
  * @brief Gives away a SPI bus and deactivates the chip select pin used in
