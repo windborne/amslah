@@ -217,16 +217,16 @@ void init_sources() {
     while (!((SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC8MRDY) >> SYSCTRL_PCLKSR_OSC8MRDY_Pos)) {};
     SYSCTRL->OSC8M.reg |= SYSCTRL_OSC8M_ONDEMAND;
 
-    GCLK->GENDIV.reg = GCLK_GENDIV_DIV(1) | GCLK_GENDIV_ID(3);
+    GCLK->GENDIV.reg = GCLK_GENDIV_DIV(32) | GCLK_GENDIV_ID(3);
     GCLK->GENCTRL.reg = (1 << GCLK_GENCTRL_RUNSTDBY_Pos)
                         | (1 << GCLK_GENCTRL_GENEN_Pos)
                         | GCLK_GENCTRL_SRC_OSCULP32K | GCLK_GENCTRL_ID(3);
 
+    /*
     GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(0)
                         | GCLK_CLKCTRL_GEN(GCLK_CLKCTRL_GEN_GCLK3_Val)
                         | (1 << GCLK_CLKCTRL_CLKEN_Pos);
 
-    /*
     SYSCTRL->DFLLCTRL.reg = SYSCTRL_DFLLCTRL_ENABLE;
 
     while (!((SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) >> SYSCTRL_PCLKSR_DFLLRDY_Pos)) {};

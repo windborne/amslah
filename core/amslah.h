@@ -18,6 +18,7 @@ extern "C" {
 #include "spi.h"
 #include "uart.h"
 #include "util.h"
+#include "watchdog.h"
 
 #ifdef __cplusplus
 }
