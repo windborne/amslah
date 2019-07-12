@@ -9,7 +9,7 @@
 
 #define configMINIMAL_STACK_SIZE ((uint16_t)64)
 
-#define configTOTAL_HEAP_SIZE ((size_t)(20000))
+#define configTOTAL_HEAP_SIZE ((size_t)(21000))
 
 #define configUSE_MUTEXES 1
 
@@ -96,6 +96,8 @@
 #define INCLUDE_vTaskCleanUpResources 0
 
 #define INCLUDE_xTimerPendFunctionCall 0
+
+#define INCLUDE_xSemaphoreGetMutexHolder 1
 
 #define configASSERT(x)                                                                                                \
 	if ((x) == 0) {                                                                                                    \

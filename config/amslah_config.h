@@ -31,7 +31,7 @@
 #endif
 
 #ifndef USAGE_REPORT_INITIAL_WAIT
-    #define USAGE_REPORT_INITIAL_WAIT 25000
+    #define USAGE_REPORT_INITIAL_WAIT 5000
 #endif
 
 #ifndef HIGH_RESOLUTION_TIMER
@@ -40,6 +40,10 @@
 
 #ifndef PWM_RESOLUTION
 	#define PWM_RESOLUTION 8
+#endif
+
+#ifndef PWM_PRESCALER
+	#define PWM_PRESCALER 0
 #endif
 
 #ifndef ADC_OVERSAMPLE

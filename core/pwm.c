@@ -38,7 +38,7 @@ void pwm_init(uint8_t pin) {
         TcCount8 *hw = (TcCount8*)(((char*)TCC0) + 1024 * tc);
 
         hw->CTRLA.bit.MODE = 1; /* 8 bit mode. */
-        hw->CTRLA.bit.PRESCALER = 0; /* Undivided. */
+        hw->CTRLA.bit.PRESCALER = PWM_PRESCALER; /* Undivided. */
         hw->CTRLA.bit.WAVEGEN = 2; /* Normal PWM. */
 
         hw->PER.reg = (1 << PWM_RESOLUTION) - 1;
@@ -50,7 +50,7 @@ void pwm_init(uint8_t pin) {
         hw->CTRLA.bit.ENABLE = 1;
     } else {
         Tcc *hw = (Tcc*)(((char*)TCC0) + 1024 * tc);
-        hw->CTRLA.bit.PRESCALER = 0;
+        hw->CTRLA.bit.PRESCALER = PWM_PRESCALER;
         hw->WAVE.bit.WAVEGEN = 2;
         hw->PER.bit.PER = (1 << PWM_RESOLUTION) - 1;
         hw->CC[pin & 1].bit.CC = 0;
