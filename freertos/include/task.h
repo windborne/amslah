@@ -1395,6 +1395,8 @@ char *pcTaskGetName( TaskHandle_t xTaskToQuery ) PRIVILEGED_FUNCTION; /*lint !e9
 
 char *pcGetCurrentTaskName();
 
+unsigned portBASE_TYPE pxGetCurrentTaskNumber();
+
 /**
  * task. h
  * <PRE>TaskHandle_t xTaskGetHandle( const char *pcNameToQuery );</PRE>

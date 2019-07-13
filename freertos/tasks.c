@@ -5215,3 +5215,13 @@ char *pcGetCurrentTaskName() {
         return ((tskTCB*)pxCurrentTCB)->pcTaskName;
 }
 
+unsigned portBASE_TYPE pxGetCurrentTaskNumber( void )
+{
+	unsigned portBASE_TYPE uxNumber;
+
+	portENTER_CRITICAL();
+	uxNumber = pxCurrentTCB->uxTCBNumber;
+	portEXIT_CRITICAL();
+
+	return uxNumber;
+}

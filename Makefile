@@ -43,6 +43,8 @@ CPPSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.cpp))
 CSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.c)) 
 HSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.h)) 
 
+CPPSRC += $(AMSLAH_PATH)/extra/mutex.cpp
+
 CSRC += $(AMSLAH_PATH)/core/startup_samd21.c
 CSRC += $(AMSLAH_PATH)/core/gpio.c
 CSRC += $(AMSLAH_PATH)/core/util.c
