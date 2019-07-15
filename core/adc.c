@@ -20,6 +20,13 @@ void ADC_Handler() {
     xSemaphoreGiveFromISR(adc_call_mutex, 0);
 }
 
+void adc_deinit() {
+    xSemaphoreTake(adc_mutex, portMAX_DELAY);
+    ADC->CTRLA.bit.ENABLE = 0;
+    while (ADC->STATUS.reg & ADC_STATUS_SYNCBUSY) {};
+    xSemaphoreGive(adc_mutex);
+}
+
 void adc_init() {
     PM->APBCMASK.reg |= PM_APBCMASK_ADC;
 
@@ -75,6 +82,7 @@ void adc_init_pin(uint8_t pin) {
 }
 
 int adc_sample(uint8_t pin) {
+    if (!ADC->CTRLA.bit.ENABLE || adc_ains[pin] == -1) return -1;
     xSemaphoreTake(adc_mutex, portMAX_DELAY);
     ADC->INPUTCTRL.bit.MUXPOS = adc_ains[pin];
     ADC->SWTRIG.reg = 0b11;

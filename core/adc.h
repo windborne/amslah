@@ -26,6 +26,7 @@ extern "C" {
  */
 void adc_init();
 
+void adc_deinit();
 
 /**
  * @brief Initializes a pin for use with the ADC.
