@@ -10,8 +10,8 @@ const uint8_t adc_ains[] = {-1, -1, 0, 1, 4, 5, 6, 7, 16, 17, 18, 19, /* PA11 */
                             2, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* PB21 */
                             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}; /* PB31 */
 
-SemaphoreHandle_t adc_mutex;
-SemaphoreHandle_t adc_call_mutex;
+SemaphoreHandle_t adc_mutex = 0;
+SemaphoreHandle_t adc_call_mutex = 0;
 volatile int adc_result;
 
 void ADC_Handler() {
@@ -28,6 +28,18 @@ void adc_deinit() {
 }
 
 void adc_init() {
+	if (adc_mutex == 0) {
+        adc_mutex = xSemaphoreCreateBinary();
+        adc_call_mutex = xSemaphoreCreateBinary();
+        xSemaphoreGive(adc_mutex);
+	} else {
+        xSemaphoreTake(adc_mutex, portMAX_DELAY);
+    }
+    if (ADC->CTRLA.bit.ENABLE) {
+        xSemaphoreGive(adc_mutex);
+        return;
+    }
+
     PM->APBCMASK.reg |= PM_APBCMASK_ADC;
 
     GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID_ADC
@@ -66,12 +78,7 @@ void adc_init() {
     ADC->INTENSET.bit.RESRDY = 1;
 
     NVIC_EnableIRQ(ADC_IRQn);
-
-    adc_mutex = xSemaphoreCreateBinary();
     xSemaphoreGive(adc_mutex);
-
-    adc_call_mutex = xSemaphoreCreateBinary();
-
 }
 
 void adc_init_pin(uint8_t pin) {
