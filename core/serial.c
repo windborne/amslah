@@ -10,14 +10,18 @@
 
 #include "stream_buffer.h"
 
+uart_t debug_uart;
+
+void print(const char *fmt, ...);
+
+#if SERIAL_TASK
+
 SemaphoreHandle_t serial_mutex;
 SemaphoreHandle_t printing_mutex;
 SemaphoreHandle_t postprint_mutex;
 StreamBufferHandle_t serial_stream;
 char printf_buffer[512];
-uart_t debug_uart;
 TaskHandle_t serial_handle = 0;
-
 char *printing_task;
 const char *printing_fmt;
 va_list printing_va;
@@ -54,6 +58,8 @@ void serial_task(void *params){
         xSemaphoreGive(postprint_mutex);
     }
 }
+
+#endif
 
 #if USAGE_REPORT || HIGH_RESOLUTION_TIMER
 
@@ -184,14 +190,16 @@ void init_serial() {
                 DEBUG_UART_TX_PIN, DEBUG_UART_TX_MUX,
                 DEBUG_UART_RX_PIN, DEBUG_UART_RX_MUX);
 
+	#if SERIAL_TASK
     serial_stream = xStreamBufferCreate(512, 64);
     serial_mutex = xSemaphoreCreateBinary();
     xSemaphoreGive(serial_mutex);
     printing_mutex = xSemaphoreCreateBinary();
     postprint_mutex = xSemaphoreCreateBinary();
     xTaskCreate(serial_task, "serial", 130, 0, 1, &serial_handle);
+	#endif
     #if USAGE_REPORT
-        xTaskCreate(usage_task, "usage", 80, 0, 1, NULL);
+        xTaskCreate(usage_task, "usage", 200, 0, 1, NULL);
     #endif
 }
 
