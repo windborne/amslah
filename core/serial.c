@@ -10,6 +10,11 @@
 
 #include "stream_buffer.h"
 
+void vApplicationMallocFailedHook() {
+	print("out of RAM!!!!\n");
+	configASSERT(0);
+}
+
 uart_t debug_uart;
 
 void print(const char *fmt, ...);

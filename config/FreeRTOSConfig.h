@@ -9,7 +9,7 @@
 
 #define configMINIMAL_STACK_SIZE ((uint16_t)64)
 
-#define configTOTAL_HEAP_SIZE ((size_t)(21000))
+#define configTOTAL_HEAP_SIZE ((size_t)(23000))
 
 #define configUSE_MUTEXES 1
 
@@ -27,7 +27,7 @@
 
 #define configCHECK_FOR_STACK_OVERFLOW 0
 
-#define configUSE_MALLOC_FAILED_HOOK 0
+#define configUSE_MALLOC_FAILED_HOOK 1
 
 #define configUSE_IDLE_HOOK 0
 
