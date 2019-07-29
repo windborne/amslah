@@ -52,6 +52,7 @@ CSRC += $(AMSLAH_PATH)/core/uart.c
 CSRC += $(AMSLAH_PATH)/core/spi.c
 CSRC += $(AMSLAH_PATH)/core/pwm.c
 CSRC += $(AMSLAH_PATH)/core/adc.c
+CSRC += $(AMSLAH_PATH)/core/mtb.c
 CSRC += $(AMSLAH_PATH)/core/dac.c
 CSRC += $(AMSLAH_PATH)/core/watchdog.c
 CSRC += $(AMSLAH_PATH)/core/sercoms.c

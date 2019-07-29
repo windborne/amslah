@@ -29,6 +29,7 @@
 
 #include "amslah_config.h"
 #include "samd21.h"
+#include "mtb.h"
 
 void init_serial();
 
@@ -42,6 +43,13 @@ extern uint32_t _szero;
 extern uint32_t _ezero;
 extern uint32_t _sstack;
 extern uint32_t _estack;
+
+#if(USE_ERROR_INFO == 1)
+    #include "error_info.h"
+    extern error_info_t prev_error;
+    extern error_info_t curr_error;
+#endif
+
 
 /** \cond DOXYGEN_SHOULD_SKIP_THIS */
 int main(void);
@@ -346,12 +354,19 @@ void Reset_Handler(void)
 			*pDest++ = *pSrc++;
 		}
 	}
-
+#if(USE_ERROR_INFO == 1)
+    error_info_t error_save;
+    memcpy(&error_save,&curr_error,sizeof(error_info_t));
+#endif
 	/* Clear the zero segment */
 	for (pDest = &_szero; pDest < &_ezero;) {
 		*pDest++ = 0;
-	}
 
+	}
+#if(USE_ERROR_INFO == 1)
+    if(error_save.identifier == ERROR_INFO_IDENTIFIER) memcpy(&prev_error,&error_save,sizeof(error_info_t));
+    curr_error.identifier = ERROR_INFO_IDENTIFIER;
+#endif
 	/* Set the vector table base address */
 	pSrc      = (uint32_t *)&_sfixed;
 	SCB->VTOR = ((uint32_t)pSrc & SCB_VTOR_TBLOFF_Msk);
@@ -398,6 +413,7 @@ void Reset_Handler(void)
  */
 void Dummy_Handler(void)
 {
+    mtb_stop();
 	while (1) {
 	}
 }

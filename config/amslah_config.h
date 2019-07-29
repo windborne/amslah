@@ -101,3 +101,9 @@
 #ifndef SERIAL_TASK
 	#define SERIAL_TASK USE_DEBUG_UART
 #endif
+
+#ifndef USE_ERROR_INFO
+	#define USE_ERROR_INFO 0
+#else 
+	#define ERROR_INFO_IDENTIFIER 0xaabbccdd
+#endif

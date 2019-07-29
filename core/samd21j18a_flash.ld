@@ -42,6 +42,8 @@ MEMORY
 /* The stack size used by the application. NOTE: you need to adjust according to your application. */
 STACK_SIZE = DEFINED(STACK_SIZE) ? STACK_SIZE : DEFINED(__stack_size__) ? __stack_size__ : 2000;
 
+MTB_SIZE = 129;
+
 /* Section Definitions */
 SECTIONS
 {
@@ -126,6 +128,15 @@ SECTIONS
         . = ALIGN(4);
         _ebss = . ;
         _ezero = .;
+    } > ram
+
+    /* micro trace buffer section */
+    .mtb (NOLOAD):
+    {
+        . = ALIGN(64);
+        _smtb = .;
+        . = . +  MTB_SIZE;
+        _emtb = .;
     } > ram
 
     /* stack section */
