@@ -99,11 +99,12 @@
 
 #define INCLUDE_xSemaphoreGetMutexHolder 1
 
-#define configASSERT(x)                                                                                                \
-	if ((x) == 0) {                                                                                                    \
-		taskDISABLE_INTERRUPTS();                                                                                      \
-		for (;;)                                                                                                       \
-			;                                                                                                          \
+#define configASSERT(x) \
+	if ((x) == 0) { \
+		taskDISABLE_INTERRUPTS(); \
+		mtb_stop(); \
+		for (;;) \
+			; \
 	}
 
 #define vPortSVCHandler SVCall_Handler

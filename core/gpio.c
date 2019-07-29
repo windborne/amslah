@@ -21,7 +21,7 @@ void gpio_direction(uint8_t pin, enum gpio_direction direction) {
     } 
 
 else {
-        __asm("BKPT #0");
+    configASSERT(0);
     }
 }
 
