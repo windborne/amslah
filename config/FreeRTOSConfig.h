@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "amslah_config.h"
+#include "mtb.h"
 
 #define configCPU_CLOCK_HZ (CPU_FREQUENCY)
 
