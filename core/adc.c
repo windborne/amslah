@@ -83,9 +83,7 @@ void adc_init() {
 
 void adc_init_pin(uint8_t pin) {
     gpio_function(pin, (pin << 16) | 1);
-    if (adc_ains[pin] == -1) {
-        __asm("BKPT #0");
-    }
+    configASSERT(adc_ains[pin] != -1);
 }
 
 int adc_sample(uint8_t pin) {

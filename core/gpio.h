@@ -5,6 +5,7 @@ extern "C" {
 #endif
 
 #include "samd21.h"
+#include "FreeRTOS.h"
 
 #define GPIO_PIN(n) (((n)&0x1Fu) << 0)
 #define GPIO_PORT(n) ((n) >> 5)

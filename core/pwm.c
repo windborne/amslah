@@ -1,5 +1,5 @@
 #include "amslah_config.h"
-
+#include "FreeRTOS.h"
 #include "pwm.h"
 
 #include "gpio.h"
@@ -14,9 +14,7 @@ bool used_tcs[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 void pwm_init(uint8_t pin) {
     int tc = tcs[pin];
-    if (tc == -1) {
-        __asm("BKPT #0");
-    }
+    configASSERT(tc != -1);
     used_tcs[tc] = 1;
 
     int channel = 0x1a + (tc/2);
