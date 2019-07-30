@@ -7,6 +7,8 @@ AR = arm-none-eabi-ar
 OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
 
+BUILD_PATH = build
+APP = app
 
 CFLAGS = -mthumb -DDEBUG -O2 -ffunction-sections -mlong-calls -Wall -g3
 CFLAGS += -c -D__SAMD21J18A__ -mcpu=cortex-m0plus -specs=nano.specs -specs=nosys.specs
@@ -15,6 +17,7 @@ CFLAGS += -mfloat-abi=soft -msoft-float -fsingle-precision-constant
 LFLAGS = -T"$(AMSLAH_PATH)/core/samd21j18a_flash.ld"
 LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus  -lm -specs=nano.specs -specs=nosys.specs
 LFLAGS += -mfloat-abi=soft -mthumb -msoft-float
+LFLAGS += -Wl,-Map="$(BUILD_PATH)/memory.map",--cref
 
 SHELL:=/bin/bash
 LIBDIRS := $(shell realpath $(shell sed -n 's/^.*LIBS: //p' amslah.cfg 2>/dev/null) 2>/dev/null)
@@ -27,9 +30,6 @@ HOOK_VAL := $(shell $(shell sed -n 's/^.*HOOKS: //p' amslah.cfg 2>/dev/null) &> 
 ifneq ($(HOOK_VAL), 0)
 $(error "The hook failed! See hook_output.")
 endif
-
-BUILD_PATH = build
-APP = app
 
 CONFIGS = $(AMSLAH_PATH)/config/FreeRTOSConfig.h
 CONFIGS += $(AMSLAH_PATH)/config/amslah_config.h
