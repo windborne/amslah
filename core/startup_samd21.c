@@ -44,10 +44,10 @@ extern uint32_t _ezero;
 extern uint32_t _sstack;
 extern uint32_t _estack;
 
-#if(USE_ERROR_INFO == 1)
-    #include "error_info.h"
-    extern error_info_t prev_error;
-    extern error_info_t curr_error;
+#if(USE_PERSISTENT_INFO == 1)
+    #include "persistent_info.h"
+    extern persistent_info_t prev_info;
+    extern persistent_info_t curr_info;
 #endif
 
 
@@ -345,27 +345,27 @@ void Reset_Handler(void)
 {
 	uint32_t *pSrc, *pDest;
 
-	/* Initialize the relocate segment */
-	pSrc  = &_etext;
-	pDest = &_srelocate;
+#if(USE_PERSISTENT_INFO == 1)
+    persistent_info_t info_save;
+    memcpy(&info_save,&curr_info,sizeof(persistent_info_t));
+#endif
 
+    /* Initialize the relocate segment */
+    pSrc  = &_etext;
+    pDest = &_srelocate;
 	if (pSrc != pDest) {
 		for (; pDest < &_erelocate;) {
 			*pDest++ = *pSrc++;
 		}
 	}
-#if(USE_ERROR_INFO == 1)
-    error_info_t error_save;
-    memcpy(&error_save,&curr_error,sizeof(error_info_t));
-#endif
 	/* Clear the zero segment */
 	for (pDest = &_szero; pDest < &_ezero;) {
 		*pDest++ = 0;
 
 	}
-#if(USE_ERROR_INFO == 1)
-    if(error_save.identifier == ERROR_INFO_IDENTIFIER) memcpy(&prev_error,&error_save,sizeof(error_info_t));
-    curr_error.identifier = ERROR_INFO_IDENTIFIER;
+#if(USE_PERSISTENT_INFO == 1)
+    if(info_save.identifier == PERSISTENT_INFO_IDENTIFIER) memcpy(&prev_info,&info_save,sizeof(persistent_info_t));
+    curr_info.identifier = PERSISTENT_INFO_IDENTIFIER;
 #endif
 	/* Set the vector table base address */
 	pSrc      = (uint32_t *)&_sfixed;

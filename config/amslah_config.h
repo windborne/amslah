@@ -102,8 +102,10 @@
 	#define SERIAL_TASK USE_DEBUG_UART
 #endif
 
-#ifndef USE_ERROR_INFO
-	#define USE_ERROR_INFO 0
+#ifndef USE_PERSISTENT_INFO
+	#define USE_PERSISTENT_INFO 0
 #else 
-	#define ERROR_INFO_IDENTIFIER 0xaabbccdd
+	#ifndef PERSISTENT_INFO_IDENTIFIER
+		#define PERSISTENT_INFO_IDENTIFIER 0xaabbccdd
+	#endif
 #endif
