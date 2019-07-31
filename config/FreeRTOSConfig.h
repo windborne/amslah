@@ -10,7 +10,7 @@
 
 #define configMINIMAL_STACK_SIZE ((uint16_t)64)
 
-#define configTOTAL_HEAP_SIZE ((size_t)(23000))
+#define configTOTAL_HEAP_SIZE ((size_t)(25000))
 
 #define configUSE_MUTEXES 1
 
@@ -38,7 +38,7 @@
 
 #define configUSE_TRACE_FACILITY 1
 
-#define configUSE_STATS_FORMATTING_FUNCTIONS 1
+#define configUSE_STATS_FORMATTING_FUNCTIONS 0
 
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
 
