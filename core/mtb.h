@@ -6,6 +6,12 @@ extern "C" {
 
 #include "samd21.h"
 
+// NOTE: if the size is changed here, the size _and_ alignment in the linker must be manually changed
+#define MTB_MAGNITUDE 6
+#define MTB_SIZE (1<<MTB_MAGNITUDE)
+#define MTB_SIZE_WORDS (1<<(MTB_MAGNITUDE-2))
+
+
 /**
  * @brief Initializes the Micro Trace Buffer.
  * 
