@@ -53,6 +53,9 @@ void adc_init_pin(uint8_t pin);
  */
 int adc_sample(uint8_t pin);
 
+void adc_temp_init();
+float adc_get_temp();
+
 #ifdef __cplusplus
 }
 #endif
