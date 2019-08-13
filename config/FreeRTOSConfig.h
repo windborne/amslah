@@ -26,7 +26,9 @@
 
 #define configUSE_16_BIT_TICKS 0
 
-#define configCHECK_FOR_STACK_OVERFLOW 0
+#ifndef configCHECK_FOR_STACK_OVERFLOW 
+	#define configCHECK_FOR_STACK_OVERFLOW 0
+#endif
 
 #define configUSE_MALLOC_FAILED_HOOK 1
 

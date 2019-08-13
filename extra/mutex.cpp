@@ -46,7 +46,7 @@ bool Mutex::take(){
 
 void Mutex::give(){
 #if (MUTEX_TRACKING) 
-	xTaskHandle current_task;
+	//xTaskHandle current_task;
 	uint8_t task_num  = pxGetCurrentTaskNumber();
 	int time_held = xTaskGetTickCount() - tracking_array[task_num] ;
 	if(time_held > MUTEX_TRACKING_WARNING_TICKS){
