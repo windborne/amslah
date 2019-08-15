@@ -56,6 +56,8 @@ int adc_sample(uint8_t pin);
 void adc_temp_init();
 float adc_get_temp();
 
+uint32_t adc_rng(int nbits);
+
 #ifdef __cplusplus
 }
 #endif

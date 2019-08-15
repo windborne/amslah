@@ -80,6 +80,10 @@ $(eval CPPSRC = $(filter-out ./main.cpp,$(CPPSRC)))
 $(eval CSRC = $(filter-out ./main.c,$(CSRC)))
 endif
 
+ifneq ($(SERIAL),)
+ICE_SERIAL = -s $(SERIAL)
+endif
+
 
 CPPOBJ := $(CPPSRC:%.cpp=%.o)
 COBJ := $(CSRC:%.c=%.o)
@@ -106,12 +110,12 @@ clean:
 	rm -rf build
 
 u: $(APP)
-	edbg -bpv -t samd21 -f build/amslah.bin
+	edbg -bpv -t samd21 -f build/amslah.bin $(ICE_SERIAL)
 
 
 
 test: $(APP) 
-	edbg -bpv -t samd21 -f build/amslah.bin
+	edbg -bpv -t samd21 -f build/amslah.bin 
 ocd:
 	cd $(AMSLAH_PATH); openocd
 

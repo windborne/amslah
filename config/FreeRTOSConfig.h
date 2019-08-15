@@ -26,8 +26,6 @@
 
 #define configUSE_16_BIT_TICKS 0
 
-#define configCHECK_FOR_STACK_OVERFLOW 0
-
 #define configUSE_MALLOC_FAILED_HOOK 1
 
 #define configUSE_IDLE_HOOK 0

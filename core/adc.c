@@ -90,6 +90,8 @@ int adc_sample(uint8_t pin) {
 	if (!ADC->CTRLA.bit.ENABLE) return -1;
 	int ain;
 	if (pin == 137) ain = 0x18;
+    if (pin == 138) ain = 0x1a;
+    if (pin == 139) ain = 0x1b;
 	else if (adc_ains[pin] == -1) return -1;
 	else ain = adc_ains[pin];
     xSemaphoreTake(adc_mutex, portMAX_DELAY);
@@ -223,4 +225,29 @@ float adc_get_temp() {
 	float VADCM = ((float)raw*INT1VM)/4095.;
 	float fine_temp = tempR + (((tempH - tempR)/(VADCH - VADCR)) * (VADCM - VADCR));
 	return fine_temp;
+}
+
+
+uint32_t adc_rng(int nbits) {
+    uint32_t random = 0;
+    nbits = (nbits > 32) ? 32 : nbits;
+    for(int i = 0; i<nbits; i++){
+        SYSCTRL->VREF.bit.TSEN = 1;
+        int raw = adc_sample(137);
+        SYSCTRL->VREF.bit.TSEN = 0;
+        bool bit;
+        for(int j=0;j<12;j++){
+            bit = bit^(raw>>j & 1);
+        }
+        raw = adc_sample(138);
+        for(int j=0;j<12;j++){
+            bit = bit^(raw>>j & 1);
+        }
+        raw = adc_sample(139);
+        for(int j=0;j<12;j++){
+            bit = bit^(raw>>j & 1);
+        }
+        random |= bit<<i;
+    }
+    return random;
 }

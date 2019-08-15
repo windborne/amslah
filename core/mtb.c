@@ -9,6 +9,9 @@ int8_t curr_buffer = -1;
 uint32_t *mtb_ePtr;
 uint32_t *mtb_sPtr;
 void mtb_init(){
+	//print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ init_mtb\n");
+	configASSERT(curr_buffer == -1);
+	//MTB->MASTER.bit.EN = 0;
 	mtb_ePtr= &_emtb;
 	mtb_sPtr= &_smtb;
 	uint8_t *cb_ptr = ((uint8_t*)mtb_ePtr)-1;

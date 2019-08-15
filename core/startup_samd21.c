@@ -343,6 +343,7 @@ void init_chip() {
  */
 void Reset_Handler(void)
 {
+    mtb_stop();
 	uint32_t *pSrc, *pDest;
 
 #if(USE_PERSISTENT_INFO == 1)
