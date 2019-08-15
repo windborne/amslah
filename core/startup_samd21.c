@@ -27,6 +27,8 @@
  *
  */
 
+#include <string.h>
+
 #include "amslah_config.h"
 #include "samd21.h"
 #include "mtb.h"

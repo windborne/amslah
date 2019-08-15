@@ -1,5 +1,6 @@
 #include "amslah_config.h"
 #include "FreeRTOS.h"
+#include "task.h"
 #include "pwm.h"
 
 #include "gpio.h"
