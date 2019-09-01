@@ -26,10 +26,12 @@ INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/fr
 INCLUDE += $(foreach LIBDIR,$(LIBDIRS),-I"$(LIBDIR)")
 INCLUDE += $(foreach LIBDIR,$(shell ls -d */),-I"$(LIBDIR)")
 
-HOOK_VAL := $(shell $(shell sed -n 's/^.*HOOKS: //p' amslah.cfg 2>/dev/null) &> hook_output; echo $$?)
+HOOK_VAL := $(shell $(shell sed -n 's/^.*HOOKS: //p' amslah.cfg 2>&1) &> hook_output; echo $$?)
 ifneq ($(HOOK_VAL), 0)
 $(error "The hook failed! See hook_output.")
 endif
+
+TEXT := $(shell cat hook_output)
 
 CONFIGS = $(AMSLAH_PATH)/config/FreeRTOSConfig.h
 CONFIGS += $(AMSLAH_PATH)/config/amslah_config.h
@@ -94,6 +96,7 @@ BUILTOBJ := $(addprefix $(BUILD_PATH)/,$(OBJ))
 $(APP): $(BUILTOBJ) 
 	$(LD) $(LFLAGS) -o build/amslah.elf $(BUILTOBJ)
 	$(OBJCOPY) --strip-unneeded -O binary build/amslah.elf build/amslah.bin
+	cat hook_output
 	arm-none-eabi-size "build/amslah.elf"
 
 $(BUILD_PATH)/%.o: %.cpp $(CONFIGS) $(HSRC)
