@@ -6,6 +6,7 @@
 
 
 void gpio_direction(uint8_t pin, enum gpio_direction direction) {
+    if(pin==NOT_A_PIN) return;
     if (direction == GPIO_DIRECTION_OUT) {
         uint32_t pinsel = 1U << GPIO_PIN(pin);
         PORT_IOBUS->Group[GPIO_PORT(pin)].DIRSET.reg = pinsel;
@@ -31,6 +32,7 @@ else {
 }
 
 void gpio_function(uint8_t pin, uint32_t function) {
+    if(pin==NOT_A_PIN) return;
     uint8_t tmp;
     critical_section_enter();
     tmp = PORT->Group[GPIO_PORT(pin)].PINCFG[GPIO_PIN(pin)].reg;
@@ -60,6 +62,7 @@ void digital_in_init(uint8_t pin) {
 }
 
 uint8_t digital_get(uint8_t pin) {
+    if(pin==NOT_A_PIN) return 0;
     uint32_t pinsel = 1 << GPIO_PIN(pin);
     uint8_t port = GPIO_PORT(pin);
 

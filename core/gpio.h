@@ -11,6 +11,7 @@ extern "C" {
 #define GPIO_PORT(n) ((n) >> 5)
 #define GPIO(port, pin) ((((port)&0x7u) << 5) + ((pin)&0x1Fu))
 #define GPIO_FUNCTION_OFF 0xffffffff
+#define NOT_A_PIN 255
 
 enum gpio_port { GPIO_PORTA, GPIO_PORTB, GPIO_PORTC, GPIO_PORTD, GPIO_PORTE };
 enum gpio_direction { GPIO_DIRECTION_OFF, GPIO_DIRECTION_IN, GPIO_DIRECTION_OUT };
@@ -25,6 +26,7 @@ enum gpio_pull_mode { GPIO_PULL_OFF, GPIO_PULL_UP, GPIO_PULL_DOWN };
  * @param level Digital level to set it (LOW and HIGH can be used).
  */
 static inline void digital_set(uint8_t pin, uint8_t level) {
+	if(pin==NOT_A_PIN) return;
 	if (level) {
 		PORT_IOBUS->Group[GPIO_PORT(pin)].OUTSET.reg = 1U << GPIO_PIN(pin);
 	} else {
