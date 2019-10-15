@@ -66,7 +66,7 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
  *
  * @effects This function waits asynchronously until the transfer is complete.
  */
-int32_t uart_write(uart_t *uart, uint8_t *buf, uint16_t len);
+int32_t uart_write(uart_t *uart, const uint8_t *buf, uint16_t len);
 
 
 /**

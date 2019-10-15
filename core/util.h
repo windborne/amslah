@@ -60,6 +60,8 @@ void delay_ms(uint32_t ms);
 
 void enable_sercom_clock(int n);
 
+uint32_t get_32bit_core_id();
+
 #ifdef __cplusplus
 }
 #endif

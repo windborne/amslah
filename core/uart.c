@@ -71,7 +71,7 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
     sercom_handlers[sercom] = (dummy_type*)uart;
 }
 
-int32_t uart_write(uart_t *uart, uint8_t *buf, uint16_t len) {
+int32_t uart_write(uart_t *uart, const uint8_t *buf, uint16_t len) {
     xSemaphoreTake(uart->bus_mutex, portMAX_DELAY);
     uart->tx_buffer = buf;
     uart->tx_len = len;

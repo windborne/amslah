@@ -18,6 +18,7 @@ LFLAGS = -T"$(AMSLAH_PATH)/core/samd21j18a_flash.ld"
 LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus  -lm -specs=nano.specs -specs=nosys.specs
 LFLAGS += -mfloat-abi=soft -mthumb -msoft-float
 LFLAGS += -Wl,-Map="$(BUILD_PATH)/memory.map",--cref
+LFLAGS += -Wl,--undefined=uxTopUsedPriority
 
 SHELL:=/bin/bash
 LIBDIRS := $(shell realpath $(shell sed -n 's/^.*LIBS: //p' amslah.cfg 2>/dev/null) 2>/dev/null)
@@ -67,6 +68,7 @@ CSRC += $(AMSLAH_PATH)/freertos/queue.c
 CSRC += $(AMSLAH_PATH)/freertos/tasks.c
 CSRC += $(AMSLAH_PATH)/freertos/stream_buffer.c
 CSRC += $(AMSLAH_PATH)/freertos/timers.c
+CSRC += $(AMSLAH_PATH)/freertos/FreeRTOS-openocd.c
 HEAP_VAL = $(shell sed -n 's/^.*HEAP: //p' amslah.cfg 2>/dev/null || echo 1)
 ifeq ($(HEAP_VAL), 4)
 CSRC += $(AMSLAH_PATH)/freertos/heap_4.c
@@ -78,9 +80,10 @@ CSRC += $(AMSLAH_PATH)/freertos/portable/port.c
 ifeq ($(MAKECMDGOALS), test)
 HSRC += test/testheader.h
 $(eval CPPSRC += test/$(TESTFILE).cpp)
-$(eval CPPSRC = $(filter-out ./main.cpp,$(CPPSRC)))
-$(eval CSRC = $(filter-out ./main.c,$(CSRC)))
+$(eval CPPSRC = $(filter-out %/main.cpp,$(CPPSRC)))
+$(eval CSRC = $(filter-out %/main.c,$(CSRC)))
 endif
+$(info $$var is [${CPPSRC}])
 
 ifneq ($(SERIAL),)
 ICE_SERIAL = -s $(SERIAL)
