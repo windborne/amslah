@@ -52,6 +52,7 @@ bool eic_wait(uint8_t pin, uint8_t level, uint32_t timeout) {
 	eic -= 8;
         EIC->CONFIG[1].reg &= ~(0b1111 << (4*eic));
 	EIC->CONFIG[1].reg |= reg << (4*eic);
+	eic += 8; // joan is dumb dumb
     }
 
     eic_handles[eic] = task;
