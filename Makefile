@@ -27,9 +27,12 @@ INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/fr
 INCLUDE += $(foreach LIBDIR,$(LIBDIRS),-I"$(LIBDIR)")
 INCLUDE += $(foreach LIBDIR,$(shell ls -d */),-I"$(LIBDIR)")
 
+
+ifndef IGNORE_HOOK
 HOOK_VAL := $(shell $(shell sed -n 's/^.*HOOKS: //p' amslah.cfg 2>&1) &> hook_output; echo $$?)
 ifneq ($(HOOK_VAL), 0)
 $(error "The hook failed! See hook_output.")
+endif
 endif
 
 TEXT := $(shell cat hook_output)
