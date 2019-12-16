@@ -48,7 +48,7 @@ void adc_init() {
     while(GCLK->STATUS.bit.SYNCBUSY);
 
     ADC->REFCTRL.bit.REFCOMP = 1;
-    ADC->REFCTRL.bit.REFSEL = 0x0; /* 1.0 V voltage reference. */
+    ADC->REFCTRL.bit.REFSEL = ADC_REFERENCE; /* 1.0 V voltage reference by default. */
 
     ADC->AVGCTRL.bit.SAMPLENUM = ADC_OVERSAMPLE;
 
@@ -57,7 +57,7 @@ void adc_init() {
     while (ADC->STATUS.reg & ADC_STATUS_SYNCBUSY) {};
 
     ADC->CTRLB.bit.PRESCALER = ADC_FREQUENCY_PRESCALER;
-    ADC->CTRLB.bit.RESSEL = ADC_AVERAGE; /* Averaging. */
+    ADC->CTRLB.bit.RESSEL = ADC_AVERAGE; /* Averaging by default. */
     ADC->CTRLB.bit.CORREN = 0;
     ADC->CTRLB.bit.FREERUN = 0;
     ADC->CTRLB.bit.DIFFMODE = 0; /* Single ended. */

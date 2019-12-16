@@ -90,6 +90,11 @@
 	#define ADC_AVERAGE 1
 #endif
 
+#ifndef ADC_REFERENCE
+	/* ADC reference source. */
+	#define ADC_REFERENCE 0
+#endif
+
 #ifndef USE_DEBUG_UART
 	#define USE_DEBUG_UART 1
 
