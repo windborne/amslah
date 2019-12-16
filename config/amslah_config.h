@@ -85,6 +85,11 @@
 	#define ADC_SAMPLE_TIME 63
 #endif
 
+#ifndef ADC_AVERAGE
+	/* Average the oversampling down to 12 bits (0--4095). */
+	#define ADC_AVERAGE 1
+#endif
+
 #ifndef USE_DEBUG_UART
 	#define USE_DEBUG_UART 1
 

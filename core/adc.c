@@ -57,7 +57,7 @@ void adc_init() {
     while (ADC->STATUS.reg & ADC_STATUS_SYNCBUSY) {};
 
     ADC->CTRLB.bit.PRESCALER = ADC_FREQUENCY_PRESCALER;
-    ADC->CTRLB.bit.RESSEL = 0x1; /* Averaging. */
+    ADC->CTRLB.bit.RESSEL = ADC_AVERAGE; /* Averaging. */
     ADC->CTRLB.bit.CORREN = 0;
     ADC->CTRLB.bit.FREERUN = 0;
     ADC->CTRLB.bit.DIFFMODE = 0; /* Single ended. */
@@ -102,11 +102,14 @@ int adc_sample(uint8_t pin) {
     xSemaphoreTake(adc_call_mutex, portMAX_DELAY);
     int result = adc_result;
     xSemaphoreGive(adc_mutex);
-    if (ADC_OVERSAMPLE < 5) {
-        result = result >> ADC_OVERSAMPLE;
-    } else {
-        result = result >> 4;
-    }
+
+	if (ADC_AVERAGE) {
+		if (ADC_OVERSAMPLE < 5) {
+			result = result >> ADC_OVERSAMPLE;
+		} else {
+			result = result >> 4;
+		}
+	}
     return result;
 }
 
