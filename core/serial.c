@@ -68,7 +68,7 @@ void serial_task(void *params){
 
 #if USAGE_REPORT || HIGH_RESOLUTION_TIMER
 
-TaskStatus_t task_statuses[16];
+TaskStatus_t task_statuses[20];
 
 uint32_t hrt_base = 0;
 
@@ -82,7 +82,7 @@ void usage_task(void *params) {
             print("The timer counter used for the usage report is taken by a PWM pin\n");
             print("Change USAGE_REPORT_TC in the config as necessary\n");
         }
-        arr_size = uxTaskGetSystemState(task_statuses, 16, &total_runtime);
+        arr_size = uxTaskGetSystemState(task_statuses, 20, &total_runtime);
 
         print("RAM & CPU usage report (free RAM: %d bytes):\n", xPortGetFreeHeapSize());
         for (int x = 0; x<arr_size; x++) {
@@ -204,7 +204,7 @@ void init_serial() {
     xTaskCreate(serial_task, "serial", 130, 0, 1, &serial_handle);
 	#endif
     #if USAGE_REPORT
-        xTaskCreate(usage_task, "usage", 200, 0, 1, NULL);
+        xTaskCreate(usage_task, "usage", 150, 0, 1, NULL);
     #endif
 }
 
