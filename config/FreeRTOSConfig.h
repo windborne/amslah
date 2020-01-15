@@ -10,7 +10,7 @@
 
 #define configMINIMAL_STACK_SIZE ((uint16_t)64)
 
-#define configTOTAL_HEAP_SIZE ((size_t)(22500))
+#define configTOTAL_HEAP_SIZE ((size_t)(22000))
 
 #define configUSE_MUTEXES 1
 
