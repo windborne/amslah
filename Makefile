@@ -10,7 +10,7 @@ SIZE = arm-none-eabi-size
 BUILD_PATH = build
 APP = app
 
-CFLAGS = -mthumb -DDEBUG -O2 -ffunction-sections -mlong-calls -Wall -g3
+CFLAGS = -mthumb -DDEBUG -O2 -ffunction-sections -mlong-calls -Wall -g3 -fstack-usage
 CFLAGS += -c -D__SAMD21J18A__ -mcpu=cortex-m0plus -specs=nano.specs -specs=nosys.specs
 CFLAGS += -mfloat-abi=soft -msoft-float -fsingle-precision-constant
 
