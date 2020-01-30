@@ -104,6 +104,8 @@ SECTIONS
     } > rom
     PROVIDE_HIDDEN (__exidx_end = .);
 
+    
+
     . = ALIGN(4);
     _etext = .;
 
