@@ -8,5 +8,6 @@ Setting up an Amslah project is easy; just create a folder with your code (e.g. 
 
 ## TODO
 Extremely nonexhaustive list.
+ - SAMD51 support.
  - Improve documentation.
  - Automatic switch to DFLL48M for frequencies above 8 MHz.
