@@ -87,12 +87,11 @@ $(eval CPPSRC += test/$(TESTFILE).cpp)
 $(eval CPPSRC = $(filter-out %/main.cpp,$(CPPSRC)))
 $(eval CSRC = $(filter-out %/main.c,$(CSRC)))
 endif
-$(info $$var is [${CPPSRC}])
+#$(info $$var is [${INCLUDE}])
 
 ifneq ($(SERIAL),)
 ICE_SERIAL = -s $(SERIAL)
 endif
-
 
 CPPOBJ := $(CPPSRC:%.cpp=%.o)
 COBJ := $(CSRC:%.c=%.o)
@@ -104,6 +103,7 @@ $(APP): $(BUILTOBJ)
 	$(LD) $(LFLAGS) -o build/amslah.elf $(BUILTOBJ)
 	$(OBJCOPY) --strip-unneeded -O binary build/amslah.elf build/amslah.bin
 	cat hook_output
+	printf "INCLUDE: ${INCLUDE} \nCSRC: ${CSRC} \nCPPSRC: ${CPPSRC}" > build/filelist 
 	arm-none-eabi-size "build/amslah.elf"
 
 $(BUILD_PATH)/%.o: %.cpp $(CONFIGS) $(HSRC)
@@ -121,8 +121,6 @@ clean:
 
 u: $(APP)
 	edbg -bpv -t samd21 -f build/amslah.bin $(ICE_SERIAL)
-
-
 
 test: $(APP) 
 	edbg -bpv -t samd21 -f build/amslah.bin 
