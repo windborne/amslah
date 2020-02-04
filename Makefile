@@ -114,8 +114,6 @@ $(BUILD_PATH)/%.o: %.c $(CONFIGS)
 	mkdir -p $(@D)
 	$(CC) $(INCLUDE) -x c $(CFLAGS) -o "$@" -c "$<"
 
-TARGET = lasagnaSim
-
 clean:
 	rm -rf build
 
