@@ -120,6 +120,9 @@ clean:
 u: $(APP)
 	edbg -bpv -t samd21 -f build/amslah.bin $(ICE_SERIAL)
 
+r: $(APP)
+	$(RUN)
+
 test: $(APP) 
 	edbg -bpv -t samd21 -f build/amslah.bin 
 ocd:
