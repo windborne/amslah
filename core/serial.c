@@ -66,39 +66,11 @@ void serial_task(void *params){
 
 #endif
 
-#if USAGE_REPORT || HIGH_RESOLUTION_TIMER
 
-TaskStatus_t task_statuses[20];
+#if USAGE_REPORT || HIGH_RESOLUTION_TIMER
 
 uint32_t hrt_base = 0;
 
-void usage_task(void *params) {
-    volatile UBaseType_t arr_size;
-    unsigned long total_runtime;
-    vTaskDelay(USAGE_REPORT_INITIAL_WAIT);
-    while (true) {
-        if (used_tcs[USAGE_REPORT_TC]) {
-            print("ERROR ERROR IMPORTANT ERROR ERROR\n");
-            print("The timer counter used for the usage report is taken by a PWM pin\n");
-            print("Change USAGE_REPORT_TC in the config as necessary\n");
-        }
-        arr_size = uxTaskGetSystemState(task_statuses, 20, &total_runtime);
-
-        print("RAM & CPU usage report (free RAM: %d bytes):\n", xPortGetFreeHeapSize());
-        for (int x = 0; x<arr_size; x++) {
-            float pc = 0;
-            if (total_runtime != 0) {
-                pc = task_statuses[x].ulRunTimeCounter*100.;
-                pc /= total_runtime;
-            }
-            print("%8s - %3d spare words - %.1f%%\n",
-                task_statuses[x].pcTaskName,
-                task_statuses[x].usStackHighWaterMark,
-                pc);
-        }
-        vTaskDelay(USAGE_REPORT_INTERVAL);
-    }
-}
 
 void
 #if USAGE_REPORT_TC == 0
@@ -186,6 +158,41 @@ void vConfigureTimerForRunTimeStats(void) {
     NVIC_EnableIRQ(TCC0_IRQn + USAGE_REPORT_TC);
 
 }
+
+#endif
+
+#if USAGE_REPORT
+
+TaskStatus_t task_statuses[20];
+
+void usage_task(void *params) {
+    volatile UBaseType_t arr_size;
+    unsigned long total_runtime;
+    vTaskDelay(USAGE_REPORT_INITIAL_WAIT);
+    while (true) {
+        if (used_tcs[USAGE_REPORT_TC]) {
+            print("ERROR ERROR IMPORTANT ERROR ERROR\n");
+            print("The timer counter used for the usage report is taken by a PWM pin\n");
+            print("Change USAGE_REPORT_TC in the config as necessary\n");
+        }
+        arr_size = uxTaskGetSystemState(task_statuses, 20, &total_runtime);
+
+        print("RAM & CPU usage report (free RAM: %d bytes):\n", xPortGetFreeHeapSize());
+        for (int x = 0; x<arr_size; x++) {
+            float pc = 0;
+            if (total_runtime != 0) {
+                pc = task_statuses[x].ulRunTimeCounter*100.;
+                pc /= total_runtime;
+            }
+            print("%8s - %3d spare words - %.1f%%\n",
+                task_statuses[x].pcTaskName,
+                task_statuses[x].usStackHighWaterMark,
+                pc);
+        }
+        vTaskDelay(USAGE_REPORT_INTERVAL);
+    }
+}
+
 
 
 #endif

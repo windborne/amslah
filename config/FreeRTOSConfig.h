@@ -10,7 +10,11 @@
 
 #define configMINIMAL_STACK_SIZE ((uint16_t)64)
 
-#define configTOTAL_HEAP_SIZE ((size_t)(21500))
+#ifndef AMSLAH_HEAP_SIZE
+	#define configTOTAL_HEAP_SIZE ((size_t)(22000))
+#else
+	#define configTOTAL_HEAP_SIZE ((size_t)(AMSLAH_HEAP_SIZE))
+#endif
 
 #define configUSE_MUTEXES 1
 
@@ -88,7 +92,7 @@
 
 #define INCLUDE_xTaskGetCurrentTaskHandle 0
 
-#define INCLUDE_uxTaskGetStackHighWaterMark 0
+#define INCLUDE_uxTaskGetStackHighWaterMark 1
 
 #define INCLUDE_xTaskGetIdleTaskHandle 0
 
