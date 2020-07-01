@@ -14,6 +14,7 @@ const uint8_t tcs[] = {2, 2, -1, -1, 0, 0, 1, 1, 0, 0, 1, 1, // PA11
 bool used_tcs[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 void pwm_init(uint8_t pin) {
+    if (pin == 255) return;
     int tc = tcs[pin];
     configASSERT(tc != -1);
     used_tcs[tc] = 1;
@@ -59,6 +60,7 @@ void pwm_init(uint8_t pin) {
 }
 
 void pwm_set(uint8_t pin, int level) {
+    if (pin == 255) return;
     int tc = tcs[pin];
     if (tc >= 3) {
         TcCount8 *hw = (TcCount8*)(((char*)TCC0) + 1024 * tc);
