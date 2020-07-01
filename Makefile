@@ -1,4 +1,5 @@
 AMSLAH_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+PROJECT_NAME := $(shell basename $(shell pwd))
 
 CC = arm-none-eabi-gcc -B/usr/bin/arm-none-eabi-
 CXX = arm-none-eabi-g++ -B/usr/bin/arm-none-eabi-
@@ -93,6 +94,10 @@ ifneq ($(SERIAL),)
 ICE_SERIAL = -s $(SERIAL)
 endif
 
+ifneq ($(NAME_SUFFIX),)
+_NAME_SUFFIX = _$(NAME_SUFFIX)
+endif
+
 CPPOBJ := $(CPPSRC:%.cpp=%.o)
 COBJ := $(CSRC:%.c=%.o)
 
@@ -100,11 +105,11 @@ OBJ := $(COBJ) $(CPPOBJ)
 BUILTOBJ := $(addprefix $(BUILD_PATH)/,$(OBJ))
 
 $(APP): $(BUILTOBJ) 
-	$(LD) $(LFLAGS) -o build/amslah.elf $(BUILTOBJ)
-	$(OBJCOPY) --strip-unneeded -O binary build/amslah.elf build/amslah.bin
+	$(LD) $(LFLAGS) -o build/$(PROJECT_NAME)$(_NAME_SUFFIX).elf $(BUILTOBJ)
+	$(OBJCOPY) --strip-unneeded -O binary build/$(PROJECT_NAME)$(_NAME_SUFFIX).elf build/$(PROJECT_NAME)$(_NAME_SUFFIX).bin
 	cat hook_output
 	printf "INCLUDE: ${INCLUDE} \nCSRC: ${CSRC} \nCPPSRC: ${CPPSRC}" > build/filelist 
-	arm-none-eabi-size "build/amslah.elf"
+	arm-none-eabi-size "build/$(PROJECT_NAME)$(_NAME_SUFFIX).elf"
 
 $(BUILD_PATH)/%.o: %.cpp $(CONFIGS) $(HSRC)
 	mkdir -p $(@D)
@@ -118,10 +123,13 @@ clean:
 	rm -rf build
 
 u: $(APP)
-	edbg -bpv -t samd21 -f build/amslah.bin $(ICE_SERIAL)
+	edbg -bpv -t samd21 -f build/$(PROJECT_NAME)$(_NAME_SUFFIX).bin $(ICE_SERIAL)
 
 r: $(APP)
 	$(RUN)
+
+ohp:
+	$(shell basename $(shell pwd))
 
 test: $(APP) 
 	edbg -bpv -t samd21 -f build/amslah.bin 
@@ -129,4 +137,4 @@ ocd:
 	cd $(AMSLAH_PATH); openocd
 
 gdb:
-	arm-none-eabi-gdb build/amslah.elf -ex "target extended-remote :3333"
+	arm-none-eabi-gdb build/$(PROJECT_NAME)$(_NAME_SUFFIX).elf -ex "target extended-remote :3333"
