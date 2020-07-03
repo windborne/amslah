@@ -82,11 +82,13 @@ void adc_init() {
 }
 
 void adc_init_pin(uint8_t pin) {
+	if (pin == 255) return;
     gpio_function(pin, (pin << 16) | 1);
     configASSERT(adc_ains[pin] != -1);
 }
 
 int adc_sample(uint8_t pin) {
+	if (pin == 255) return 0;
 	if (!ADC->CTRLA.bit.ENABLE) return -1;
 	int ain;
 	if (pin == 137) ain = 0x18;
