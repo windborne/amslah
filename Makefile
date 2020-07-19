@@ -115,7 +115,7 @@ $(BUILD_PATH)/%.o: %.cpp $(CONFIGS) $(HSRC)
 	mkdir -p $(@D)
 	$(CXX) $(INCLUDE) $(CFLAGS) -o "$@" -c "$<"
 
-$(BUILD_PATH)/%.o: %.c $(CONFIGS)
+$(BUILD_PATH)/%.o: %.c $(CONFIGS) $(HSRC)
 	mkdir -p $(@D)
 	$(CC) $(INCLUDE) -x c $(CFLAGS) -o "$@" -c "$<"
 
