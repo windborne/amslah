@@ -14,6 +14,8 @@ SemaphoreHandle_t adc_mutex = 0;
 SemaphoreHandle_t adc_call_mutex = 0;
 volatile int adc_result;
 
+uint8_t runtime_adc_reference = ADC_REFERENCE;
+
 void ADC_Handler() {
     ADC->INTENCLR.reg = ADC_INTENCLR_RESRDY; 
     adc_result = ADC->RESULT.reg;
@@ -48,7 +50,7 @@ void adc_init() {
     while(GCLK->STATUS.bit.SYNCBUSY);
 
     ADC->REFCTRL.bit.REFCOMP = 1;
-    ADC->REFCTRL.bit.REFSEL = ADC_REFERENCE; /* 1.0 V voltage reference by default. */
+    ADC->REFCTRL.bit.REFSEL = runtime_adc_reference; /* 1.0 V voltage reference by default. */
 
     ADC->AVGCTRL.bit.SAMPLENUM = ADC_OVERSAMPLE;
 
