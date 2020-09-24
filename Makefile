@@ -56,6 +56,7 @@ CSRC += $(AMSLAH_PATH)/core/startup_samd21.c
 CSRC += $(AMSLAH_PATH)/core/gpio.c
 CSRC += $(AMSLAH_PATH)/core/util.c
 CSRC += $(AMSLAH_PATH)/core/uart.c
+CSRC += $(AMSLAH_PATH)/core/eeprom.c
 CSRC += $(AMSLAH_PATH)/core/spi.c
 CSRC += $(AMSLAH_PATH)/core/pwm.c
 CSRC += $(AMSLAH_PATH)/core/adc.c
