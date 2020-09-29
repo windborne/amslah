@@ -1,4 +1,4 @@
-#include "samd21.h"
+#include "sammy.h"
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -10,10 +10,12 @@
 
 #include "stream_buffer.h"
 
+#if _SAMD21_
 void vApplicationMallocFailedHook() {
 	print("out of RAM!!!!\n");
 	configASSERT(0);
 }
+#endif
 
 uart_t debug_uart;
 
@@ -66,6 +68,7 @@ void serial_task(void *params){
 
 #endif
 
+#if _SAMD21_
 
 #if USAGE_REPORT || HIGH_RESOLUTION_TIMER
 
@@ -159,6 +162,7 @@ void vConfigureTimerForRunTimeStats(void) {
 
 }
 
+#endif
 #endif
 
 #if USAGE_REPORT

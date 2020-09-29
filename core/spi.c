@@ -43,7 +43,29 @@ void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
     gpio_direction(pin_miso, GPIO_DIRECTION_IN);
     gpio_function(pin_miso, mux_miso); 
 
+#if _SAMD21_
     Sercom *hw = (Sercom*)((char*)SERCOM0 + 1024 * sercom);
+#else
+	Sercom *hw;
+	switch (sercom) {
+	case 0:
+		hw = SERCOM0; break;
+	case 1:
+		hw = SERCOM1; break;
+	case 2:
+		hw = SERCOM2; break;
+	case 3:
+		hw = SERCOM3; break;
+	case 4:
+		hw = SERCOM4; break;
+	case 5:
+		hw = SERCOM5; break;
+	case 6:
+		hw = SERCOM6; break;
+	case 7:
+		hw = SERCOM7; break;
+	}
+#endif
 
     while (hw->SPI.SYNCBUSY.bit.SWRST);
 
@@ -67,7 +89,7 @@ void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
     hw->SPI.CTRLA.bit.ENABLE = 1;
     while (hw->SPI.SYNCBUSY.bit.CTRLB);
 
-    NVIC_EnableIRQ(9 + sercom);
+	enable_sercom_irq(sercom);
 
     spi->hw = hw;
     spi->fn = spi_handler;

@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef _SAMD21_
+#define _SAMD21_
+
 /**
  * \defgroup SAMD21_definitions SAMD21 Device Definitions
  * \brief SAMD21 CMSIS Definitions.

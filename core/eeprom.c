@@ -1,6 +1,6 @@
 #include "eeprom.h"
 #include "serial.h"
-#include "samd21.h"
+#include "sammy.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"

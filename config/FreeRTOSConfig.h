@@ -106,10 +106,16 @@
 
 #define INCLUDE_xSemaphoreGetMutexHolder 1
 
+#ifdef _SAMD21_
+#define STOPMTB mtb_stop()
+#else
+#define STOPMTB
+#endif
+
 #define configASSERT(x) \
 	if ((x) == 0) { \
 		taskDISABLE_INTERRUPTS(); \
-		mtb_stop(); \
+		STOPMTB; \
 		for (;;) \
 			; \
 	}

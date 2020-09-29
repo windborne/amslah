@@ -1,6 +1,7 @@
 #include "uart.h"
 
 void uart_handler(int num) {
+	//configASSERT(0);
     uart_t *uart = (uart_t*)sercom_handlers[num];
     if ( (uart->hw->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE)
             && (uart->hw->USART.INTENSET.reg & SERCOM_USART_INTENSET_DRE) ) {
@@ -35,9 +36,34 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
 
     //PORT->Group[GPIO_PORT(pin_rx)].PINCFG[GPIO_PIN(pin_rx)].reg = PORT_PINCFG_PMUXEN | PORT_PINCFG_INEN ;
 
+#if _SAMD21_
     Sercom *hw = (Sercom*)((char*)SERCOM0 + 1024 * sercom);
+#else
+	Sercom *hw;
+	switch (sercom) {
+	case 0:
+		hw = SERCOM0; break;
+	case 1:
+		hw = SERCOM1; break;
+	case 2:
+		hw = SERCOM2; break;
+	case 3:
+		hw = SERCOM3; break;
+	case 4:
+		hw = SERCOM4; break;
+	case 5:
+		hw = SERCOM5; break;
+	case 6:
+		hw = SERCOM6; break;
+	case 7:
+		hw = SERCOM7; break;
+	}
+#endif
+
+#if _SAMD21_
     hw->USART.CTRLA.bit.SWRST = 1;
     while (hw->USART.CTRLA.bit.SWRST || hw->USART.SYNCBUSY.bit.SWRST);
+#endif
 
     hw->USART.CTRLA.bit.MODE = 1; // Internal clock
     hw->USART.CTRLA.bit.CMODE = 0;  // Asynchronous mode
@@ -49,15 +75,14 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
     hw->USART.CTRLB.bit.SBMODE = 0; // One stop bit
     hw->USART.BAUD.reg = _uart_get_baud_reg(baud);
 	hw->USART.CTRLB.bit.ENC = 0;
-    hw->USART.CTRLB.bit.RXEN = 1; // Receiver
+    hw->USART.CTRLB.bit.RXEN = 0; // Receiver
     hw->USART.CTRLB.bit.TXEN = 1; // Transmitter
-    hw->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
+    //hw->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
     hw->USART.CTRLA.reg |= 1 << SERCOM_USART_CTRLA_ENABLE_Pos; // Enable
 
     while (hw->USART.SYNCBUSY.bit.CTRLB);
     while (hw->USART.SYNCBUSY.bit.SWRST);
-
-    NVIC_EnableIRQ(9 + sercom);
+	enable_sercom_irq(sercom);
 
     uart->hw = hw;
     uart->fn = uart_handler;
