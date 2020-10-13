@@ -96,3 +96,14 @@ char uart_read(uart_t *uart) {
 uint32_t uart_available(uart_t *uart) {
     return xStreamBufferBytesAvailable(uart->rx_buffer);
 }
+
+void uart_start_listening(uart_t *uart) {
+    uart->hw->USART.CTRLB.bit.RXEN = 1;
+    uart->hw->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
+}
+
+void uart_stop_listening(uart_t *uart) {
+    uart->hw->USART.CTRLB.bit.RXEN = 0;
+    uart->hw->USART.INTENCLR.reg = SERCOM_USART_INTENCLR_RXC;
+    xStreamBufferReset(uart->rx_buffer);
+}
