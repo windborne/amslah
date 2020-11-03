@@ -15,7 +15,7 @@ extern "C" {
 
 enum gpio_port { GPIO_PORTA, GPIO_PORTB, GPIO_PORTC, GPIO_PORTD, GPIO_PORTE };
 enum gpio_direction { GPIO_DIRECTION_OFF, GPIO_DIRECTION_IN, GPIO_DIRECTION_OUT };
-enum gpio_pull_mode { GPIO_PULL_OFF, GPIO_PULL_UP, GPIO_PULL_DOWN };
+enum gpio_pull_mode { GPIO_PULL_OFF, GPIO_PULL_ON};
 
 
 /**
@@ -34,6 +34,8 @@ static inline void digital_set(uint8_t pin, uint8_t level) {
 	}
 }
 
+
+void gpio_direction_and_pull(uint8_t pin, enum gpio_direction direction, enum gpio_pull_mode);
 
 /**
  * @brief Sets the pin direction.
@@ -64,6 +66,8 @@ void gpio_function(uint8_t pin, uint32_t function);
 void digital_out_init(uint8_t pin);
 
 void digital_in_init(uint8_t pin);
+
+void digital_in_pull_init(uint8_t pin);
 
 uint8_t digital_get(uint8_t pin);
 
