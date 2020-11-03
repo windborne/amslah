@@ -4,8 +4,11 @@
 
 #include "gpio.h"
 
+void gpio_direction(uint8_t pin, enum gpio_direction direction){
+    gpio_direction_and_pull(pin, direction, GPIO_PULL_OFF);
+}
 
-void gpio_direction(uint8_t pin, enum gpio_direction direction) {
+void gpio_direction_and_pull(uint8_t pin, enum gpio_direction direction, enum gpio_pull_mode pull_mode) {
     if(pin==NOT_A_PIN) return;
     if (direction == GPIO_DIRECTION_OUT) {
         uint32_t pinsel = 1U << GPIO_PIN(pin);
@@ -19,10 +22,12 @@ void gpio_direction(uint8_t pin, enum gpio_direction direction) {
         uint32_t pinsel = 1U << GPIO_PIN(pin);
         PORT_IOBUS->Group[GPIO_PORT(pin)].DIRCLR.reg = pinsel;
 
+        uint32_t pull_mask = pull_mode == GPIO_PULL_ON ? PORT_WRCONFIG_PULLEN : 0;
+
         critical_section_enter();
-        PORT_IOBUS->Group[GPIO_PORT(pin)].WRCONFIG.reg = PORT_WRCONFIG_WRPINCFG | PORT_WRCONFIG_INEN | (pinsel & 0xffff);
+        PORT_IOBUS->Group[GPIO_PORT(pin)].WRCONFIG.reg = PORT_WRCONFIG_WRPINCFG | pull_mask | PORT_WRCONFIG_INEN | (pinsel & 0xffff);
         PORT_IOBUS->Group[GPIO_PORT(pin)].WRCONFIG.reg =
-                PORT_WRCONFIG_HWSEL | PORT_WRCONFIG_WRPINCFG | PORT_WRCONFIG_INEN | ((pinsel & 0xffff0000) >> 16);
+                PORT_WRCONFIG_HWSEL | PORT_WRCONFIG_WRPINCFG | pull_mask | PORT_WRCONFIG_INEN | ((pinsel & 0xffff0000) >> 16);
         critical_section_leave();
     } 
 
@@ -58,7 +63,12 @@ void digital_out_init(uint8_t pin) {
 
 void digital_in_init(uint8_t pin) {
     gpio_function(pin, GPIO_FUNCTION_OFF);
-    gpio_direction(pin, GPIO_DIRECTION_IN);
+    gpio_direction_and_pull(pin, GPIO_DIRECTION_IN, GPIO_PULL_OFF);
+}
+
+void digital_in_pull_init(uint8_t pin) {
+    gpio_function(pin, GPIO_FUNCTION_OFF);
+    gpio_direction_and_pull(pin, GPIO_DIRECTION_IN, GPIO_PULL_ON);
 }
 
 uint8_t digital_get(uint8_t pin) {
