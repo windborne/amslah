@@ -5,8 +5,6 @@
  * \brief SAMD21 CMSIS Definitions.
  */
 
-extern unsigned int function_pins[2];
-
 #if   defined(__SAMD21E15A__) || defined(__ATSAMD21E15A__)
   #include "samd21e15a.h"
 #elif defined(__SAMD21E16A__) || defined(__ATSAMD21E16A__)
@@ -106,3 +104,5 @@ extern unsigned int function_pins[2];
 #define PB31 GPIO(GPIO_PORTB, 31)
 
 #include "util.h"
+
+extern uint32_t function_pins[2];
