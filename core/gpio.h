@@ -62,7 +62,7 @@ static inline void digital_set(uint8_t pin, uint8_t level) {
 }
 
 
-void gpio_direction_and_pull(uint8_t pin, enum gpio_direction direction, enum gpio_pull_mode);
+void gpio_pull(uint8_t pin, enum gpio_pull_mode);
 
 /**
  * @brief Initialize a digital output pin. It sets it as an output and defaults
@@ -75,6 +75,7 @@ void digital_out_init(uint8_t pin);
 void digital_in_init(uint8_t pin);
 
 void digital_in_pull_init(uint8_t pin);
+
 
 uint8_t digital_get(uint8_t pin);
 
