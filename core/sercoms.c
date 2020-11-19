@@ -2,7 +2,7 @@
 
 dummy_type *sercom_handlers[NUM_SERCOMS] = {0};
 
-#if _SAMD21_
+#ifdef _SAMD21_
 #define register_handler(n) \
 void SERCOM##n##_Handler(void) { \
     if (sercom_handlers[n] != 0) { \

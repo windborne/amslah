@@ -3,7 +3,7 @@
 #include "task.h"
 
 void enable_sercom_irq(int sercom) {
-	#if _SAMD21_
+	#ifdef _SAMD21_
 		NVIC_EnableIRQ(9 + sercom);
 	#else
 		for (int i=0; i<4; i++) {
@@ -15,7 +15,7 @@ void enable_sercom_irq(int sercom) {
 }
 
 void enable_sercom_clock(int n) {
-#if _SAMD21_
+#ifdef _SAMD21_
     PM->APBCMASK.reg |= 1 << (n + 2);
     critical_section_enter();
     int channel = 20 + n;
@@ -55,7 +55,7 @@ void enable_sercom_clock(int n) {
 
 uint32_t get_32bit_core_id(){
 	//ohp maybe this adress is defined in a header files somewhere idk
-#if _SAMD21_
+#ifdef _SAMD21_
 	uint32_t* addr = 0x0080A00C;
 	uint32_t id = *(addr) ^ *(addr+1) ^ *(addr+2) ^ *(addr+3);
 #else

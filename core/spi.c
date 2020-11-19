@@ -43,7 +43,7 @@ void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
     gpio_direction(pin_miso, GPIO_DIRECTION_IN);
     gpio_function(pin_miso, mux_miso); 
 
-#if _SAMD21_
+#ifdef _SAMD21_
     Sercom *hw = (Sercom*)((char*)SERCOM0 + 1024 * sercom);
 #else
 	Sercom *hw;
