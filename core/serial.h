@@ -4,6 +4,14 @@
 extern "C" {
 #endif
 
+
+#if USAGE_REPORT_TC >= 3
+    #define HRT_RES 16
+#else
+    #define HRT_RES 24
+#endif
+
+
 #if USE_DEBUG_UART
 
 #include "uart.h"
@@ -19,6 +27,7 @@ extern uart_t debug_uart;
  */
 void init_serial();
 
+#endif
 
 /**
  * @brief printf-like debug interface that prints to the debug serial. It
@@ -28,14 +37,6 @@ void init_serial();
  * @param ... Optional formatting arguments.
  */
 void print(const char *fmt, ...);
-
-#endif
-
-#if USAGE_REPORT_TC >= 3
-    #define HRT_RES 16
-#else
-    #define HRT_RES 24
-#endif
 
 #ifdef __cplusplus
 }

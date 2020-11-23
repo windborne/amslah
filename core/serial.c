@@ -1,71 +1,7 @@
 #include "samd21.h"
 #include "FreeRTOS.h"
 #include "task.h"
-
-#if USE_DEBUG_UART
-
-#include "semphr.h"
 #include "serial.h"
-#include "pwm.h"
-
-#include "stream_buffer.h"
-
-void vApplicationMallocFailedHook() {
-	print("out of RAM!!!!\n");
-	configASSERT(0);
-}
-
-uart_t debug_uart;
-
-void print(const char *fmt, ...);
-
-#if SERIAL_TASK
-
-SemaphoreHandle_t serial_mutex;
-SemaphoreHandle_t printing_mutex;
-SemaphoreHandle_t postprint_mutex;
-StreamBufferHandle_t serial_stream;
-char printf_buffer[512];
-TaskHandle_t serial_handle = 0;
-char *printing_task;
-const char *printing_fmt;
-va_list printing_va;
-
-void raw_print(const char *fmt, ...) {
-    va_list va;
-    va_start(va, fmt);
-    int nb = vsnprintf_(printf_buffer, 512, fmt, va);
-
-    uart_write(&debug_uart, (uint8_t*)printf_buffer, nb);
-}
-
-void print(const char *fmt, ...) {
-    xSemaphoreTake(serial_mutex, portMAX_DELAY);
-    printing_task = pcGetCurrentTaskName();
-    printing_fmt = fmt;
-    va_start(printing_va, fmt);
-    
-    xSemaphoreGive(printing_mutex);
-    xSemaphoreTake(postprint_mutex, portMAX_DELAY);
-    va_end(printing_va);
-    xSemaphoreGive(serial_mutex);
-}
-
-void serial_task(void *params){
-    while (true) {
-        xSemaphoreTake(printing_mutex, portMAX_DELAY);
-        int ticks = xTaskGetTickCount()/1000;
-        int mins = ticks/60;
-        int secs = ticks%60;
-        int nc = snprintf_(printf_buffer, 21, "<%6s|%2d:%02d> ", printing_task, mins, secs);
-        int nb = vsnprintf_(printf_buffer + nc, 512 - nc, printing_fmt, printing_va);
-        uart_write(&debug_uart, (uint8_t*)printf_buffer, nc + nb);
-        xSemaphoreGive(postprint_mutex);
-    }
-}
-
-#endif
-
 
 #if USAGE_REPORT || HIGH_RESOLUTION_TIMER
 
@@ -159,6 +95,75 @@ void vConfigureTimerForRunTimeStats(void) {
 
 }
 
+#else
+void vConfigureTimerForRunTimeStats(void) {}
+uint32_t vGetRunTimeCounterValue(void) {}
+
+
+#endif
+
+
+#if USE_DEBUG_UART
+
+#include "semphr.h"
+#include "pwm.h"
+
+#include "stream_buffer.h"
+
+void vApplicationMallocFailedHook() {
+	print("out of RAM!!!!\n");
+	configASSERT(0);
+}
+
+uart_t debug_uart;
+
+void print(const char *fmt, ...);
+
+#if SERIAL_TASK
+
+SemaphoreHandle_t serial_mutex;
+SemaphoreHandle_t printing_mutex;
+SemaphoreHandle_t postprint_mutex;
+StreamBufferHandle_t serial_stream;
+char printf_buffer[512];
+TaskHandle_t serial_handle = 0;
+char *printing_task;
+const char *printing_fmt;
+va_list printing_va;
+
+void raw_print(const char *fmt, ...) {
+    va_list va;
+    va_start(va, fmt);
+    int nb = vsnprintf_(printf_buffer, 512, fmt, va);
+
+    uart_write(&debug_uart, (uint8_t*)printf_buffer, nb);
+}
+
+void print(const char *fmt, ...) {
+    xSemaphoreTake(serial_mutex, portMAX_DELAY);
+    printing_task = pcGetCurrentTaskName();
+    printing_fmt = fmt;
+    va_start(printing_va, fmt);
+    
+    xSemaphoreGive(printing_mutex);
+    xSemaphoreTake(postprint_mutex, portMAX_DELAY);
+    va_end(printing_va);
+    xSemaphoreGive(serial_mutex);
+}
+
+void serial_task(void *params){
+    while (true) {
+        xSemaphoreTake(printing_mutex, portMAX_DELAY);
+        int ticks = xTaskGetTickCount()/1000;
+        int mins = ticks/60;
+        int secs = ticks%60;
+        int nc = snprintf_(printf_buffer, 21, "<%6s|%2d:%02d> ", printing_task, mins, secs);
+        int nb = vsnprintf_(printf_buffer + nc, 512 - nc, printing_fmt, printing_va);
+        uart_write(&debug_uart, (uint8_t*)printf_buffer, nc + nb);
+        xSemaphoreGive(postprint_mutex);
+    }
+}
+
 #endif
 
 #if USAGE_REPORT
@@ -214,5 +219,9 @@ void init_serial() {
         xTaskCreate(usage_task, "usage", 150, 0, 1, NULL);
     #endif
 }
+
+#else
+
+void vApplicationMallocFailedHook() {}
 
 #endif
