@@ -30,7 +30,7 @@ void print(const char * fmt, ...);
 static inline void digital_set(uint8_t pin, uint8_t level) {
 	if(pin==NOT_A_PIN) return;
 
-#if _SAMD21_
+#ifdef _SAMD21_
 	if (level) {
 		PORT_IOBUS->Group[GPIO_PORT(pin)].OUTSET.reg = 1U << GPIO_PIN(pin);
 	} else {

@@ -6,7 +6,7 @@
 
 
 void gpio_direction(uint8_t pin, enum gpio_direction direction) {
-#if _SAMD21_
+#ifdef _SAMD21_
     if(pin==NOT_A_PIN) return;
     if (direction == GPIO_DIRECTION_OUT) {
         uint32_t pinsel = 1U << GPIO_PIN(pin);

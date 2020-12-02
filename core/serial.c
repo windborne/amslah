@@ -10,7 +10,7 @@
 
 #include "stream_buffer.h"
 
-#if _SAMD21_
+#ifdef _SAMD21_
 void vApplicationMallocFailedHook() {
 	print("out of RAM!!!!\n");
 	configASSERT(0);
@@ -68,7 +68,7 @@ void serial_task(void *params){
 
 #endif
 
-#if _SAMD21_
+#ifdef _SAMD21_
 
 #if USAGE_REPORT || HIGH_RESOLUTION_TIMER
 
