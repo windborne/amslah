@@ -47,6 +47,9 @@ void pwm_init(uint8_t pin);
  */
 void pwm_set(uint8_t pin, int level);
 
+void pwm51_init(uint8_t pin, uint8_t mux, uint8_t tc);
+void pwm51_set(uint8_t pin, uint8_t tc, int level);
+
 #ifdef __cplusplus
 }
 #endif
