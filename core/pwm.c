@@ -49,7 +49,7 @@ void pwm51_init(uint8_t pin, uint8_t mux, uint8_t tc) {
     gpio_function(pin, (pin << 16) | mux);
 
 		Tcc *hw = insts[tc];
-        hw->CTRLA.bit.PRESCALER = 4;
+        hw->CTRLA.bit.PRESCALER = 2;
         hw->WAVE.bit.WAVEGEN = 2;
         hw->PER.bit.PER = 4095;
 		int w = 2;
