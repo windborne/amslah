@@ -3,7 +3,7 @@
 #include "gpio.h"
 
 void i2c_handler(int num) {
-    i2c_t *i2c = (i2c_t*)sercom_handlers[num];
+    //2c_t *i2c = (i2c_t*)sercom_handlers[num];
 
 	/*
     if ( (spi->hw->SPI.INTFLAG.reg & SERCOM_SPI_INTFLAG_RXC)

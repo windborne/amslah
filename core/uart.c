@@ -73,7 +73,7 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
 
 int32_t uart_write(uart_t *uart, const uint8_t *buf, uint16_t len) {
     xSemaphoreTake(uart->bus_mutex, portMAX_DELAY);
-    uart->tx_buffer = buf;
+    uart->tx_buffer = (uint8_t*)buf;
     uart->tx_len = len;
     uart->tx_cur = 0;
     uart->hw->USART.INTENSET.bit.DRE = 1;

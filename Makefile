@@ -14,6 +14,8 @@ APP = app
 CFLAGS = -mthumb -DDEBUG -O2 -ffunction-sections -mlong-calls -Wall -g3 -fstack-usage
 CFLAGS += -c -D__$(shell (grep MCU amslah.cfg > /dev/null && sed -n 's/^.*MCU: //p' amslah.cfg 2>/dev/null) || echo "SAMD21J18A")__ -mcpu=cortex-m0plus -specs=nano.specs -specs=nosys.specs $(ADDITIONAL_CFLAGS)
 CFLAGS += -mfloat-abi=soft -msoft-float -fsingle-precision-constant
+USER_CFLAGS := $(shell sed -n 's/^.*CFLAGS: //p' amslah.cfg 2>/dev/null)
+CFLAGS += $(USER_CFLAGS)
 
 LFLAGS = -T"$(AMSLAH_PATH)/core/samd21j18a_flash.ld"
 LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus  -lm -specs=nano.specs -specs=nosys.specs

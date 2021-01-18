@@ -21,7 +21,7 @@ void eeprom_init(){
         eeprom_mutex = xSemaphoreCreateBinary();
     }
 	NVMCTRL->CTRLB.bit.MANW = 1;
-	uint8_t size_val = ((*((uint32_t*)NVMCTRL_FUSES_EEPROM_SIZE_ADDR)) >> NVMCTRL_FUSES_EEPROM_SIZE_Pos) & 0b111;
+	//uint8_t size_val = ((*((uint32_t*)NVMCTRL_FUSES_EEPROM_SIZE_ADDR)) >> NVMCTRL_FUSES_EEPROM_SIZE_Pos) & 0b111;
 	xSemaphoreGive(eeprom_mutex);
 }
 

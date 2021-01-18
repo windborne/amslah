@@ -548,19 +548,19 @@ void I2S_Handler                 ( void );
 /**  MEMORY MAPPING DEFINITIONS FOR SAMD21J18A */
 /* ************************************************************************** */
 
-#define FLASH_SIZE            _UL_(0x00040000) /* 256 kB */
+#define FLASH_SIZE            (uint32_t *)_UL_(0x00040000) /* 256 kB */
 #define FLASH_PAGE_SIZE       64
 #define FLASH_NB_OF_PAGES     4096
 #define FLASH_USER_PAGE_SIZE  64
-#define HMCRAMC0_SIZE         _UL_(0x00008000) /* 32 kB */
+#define HMCRAMC0_SIZE         (uint32_t *)_UL_(0x00008000) /* 32 kB */
 
-#define FLASH_ADDR            _UL_(0x00000000) /**< FLASH base address */
-#define FLASH_USER_PAGE_ADDR  _UL_(0x00800000) /**< FLASH_USER_PAGE base address */
-#define HMCRAMC0_ADDR         _UL_(0x20000000) /**< HMCRAMC0 base address */
-#define HPB0_ADDR             _UL_(0x40000000) /**< HPB0 base address */
-#define HPB1_ADDR             _UL_(0x41000000) /**< HPB1 base address */
-#define HPB2_ADDR             _UL_(0x42000000) /**< HPB2 base address */
-#define PPB_ADDR              _UL_(0xE0000000) /**< PPB base address */
+#define FLASH_ADDR            (uint32_t *)_UL_(0x00000000) /**< FLASH base address */
+#define FLASH_USER_PAGE_ADDR  (uint32_t *)_UL_(0x00800000) /**< FLASH_USER_PAGE base address */
+#define HMCRAMC0_ADDR         (uint32_t *)_UL_(0x20000000) /**< HMCRAMC0 base address */
+#define HPB0_ADDR             (uint32_t *)_UL_(0x40000000) /**< HPB0 base address */
+#define HPB1_ADDR             (uint32_t *)_UL_(0x41000000) /**< HPB1 base address */
+#define HPB2_ADDR             (uint32_t *)_UL_(0x42000000) /**< HPB2 base address */
+#define PPB_ADDR              (uint32_t *)_UL_(0xE0000000) /**< PPB base address */
 
 #define DSU_DID_RESETVALUE    _UL_(0x10010300)
 #define EIC_EXTINT_NUM        16
