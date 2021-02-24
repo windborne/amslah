@@ -72,7 +72,7 @@ void SysTick_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 /* Peripherals handlers */
 void PM_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 void SYSCTRL_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
-void WDT_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+void WDT_Handler(void) __attribute__((weak, alias("NOP_Handler")));
 void RTC_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 void EIC_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 void NVMCTRL_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
@@ -420,6 +420,8 @@ void Dummy_Handler(void)
 	while (1) {
 	}
 }
+
+void NOP_Handler(void){}
 
 void atomic_enter_critical(hal_atomic_t volatile *atomic) {
 	*atomic = __get_PRIMASK();

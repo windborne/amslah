@@ -56,7 +56,7 @@ void enable_sercom_clock(int n) {
 uint32_t get_32bit_core_id(){
 	//ohp maybe this adress is defined in a header files somewhere idk
 #ifdef _SAMD21_
-	uint32_t* addr = 0x0080A00C;
+	uint32_t* addr = (uint32_t*)0x0080A00C;
 	uint32_t id = *(addr) ^ *(addr+1) ^ *(addr+2) ^ *(addr+3);
 #else
 	uint32_t* addr = 0x008061FC;

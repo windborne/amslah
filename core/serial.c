@@ -1,10 +1,6 @@
 #include "sammy.h"
 #include "FreeRTOS.h"
 #include "task.h"
-
-#if USE_DEBUG_UART
-
-#include "semphr.h"
 #include "serial.h"
 #include "pwm.h"
 
@@ -162,7 +158,11 @@ void vConfigureTimerForRunTimeStats(void) {
 
 }
 
-#endif
+#else
+void vConfigureTimerForRunTimeStats(void) {}
+uint32_t vGetRunTimeCounterValue(void) {}
+
+
 #endif
 
 #if USAGE_REPORT
@@ -218,5 +218,9 @@ void init_serial() {
         xTaskCreate(usage_task, "usage", 150, 0, 1, NULL);
     #endif
 }
+
+#else
+
+void vApplicationMallocFailedHook() {}
 
 #endif

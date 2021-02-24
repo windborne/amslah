@@ -66,6 +66,32 @@ void gpio_direction(uint8_t pin, enum gpio_direction direction);
 void gpio_function(uint8_t pin, uint32_t function);
 
 
+
+/**
+ * @brief Set the digital output of a GPIO pin. Must have been initialized
+ *        with gpio_init(pin) first.
+ *
+ * @param pin Pin to set.
+ * @param level Digital level to set it (LOW and HIGH can be used).
+ */
+static inline void digital_set(uint8_t pin, uint8_t level) {
+	if(pin==NOT_A_PIN) return;
+	if (function_pins[GPIO_PORT(pin)] & (1U << GPIO_PIN(pin))) {
+		/* This pin is being used for some function (likely PWM)!!!! */
+		gpio_function(pin, GPIO_FUNCTION_OFF);
+		gpio_direction(pin, GPIO_DIRECTION_OUT);
+		function_pins[GPIO_PORT(pin)] &= ~(1U << GPIO_PIN(pin));
+	}
+	if (level) {
+		PORT_IOBUS->Group[GPIO_PORT(pin)].OUTSET.reg = 1U << GPIO_PIN(pin);
+	} else {
+		PORT_IOBUS->Group[GPIO_PORT(pin)].OUTCLR.reg = 1U << GPIO_PIN(pin);
+	}
+}
+
+
+void gpio_pull(uint8_t pin, enum gpio_pull_mode);
+
 /**
  * @brief Initialize a digital output pin. It sets it as an output and defaults
  *        to being LOW.
@@ -75,6 +101,9 @@ void gpio_function(uint8_t pin, uint32_t function);
 void digital_out_init(uint8_t pin);
 
 void digital_in_init(uint8_t pin);
+
+void digital_in_pull_init(uint8_t pin);
+
 
 uint8_t digital_get(uint8_t pin);
 

@@ -31,6 +31,9 @@ LFLAGS += -Wl,--gc-sections -mcpu=cortex-m4
 EDBG_FAMILY = samd51
 endif
 
+USER_CFLAGS := $(shell sed -n 's/^.*CFLAGS: //p' amslah.cfg 2>/dev/null)
+CFLAGS += $(USER_CFLAGS)
+
 CFLAGS += -specs=nano.specs -specs=nosys.specs $(ADDITIONAL_CFLAGS)
 
 LFLAGS += -lm -specs=nano.specs -specs=nosys.specs
@@ -79,6 +82,7 @@ CSRC += $(AMSLAH_PATH)/core/util.c
 CSRC += $(AMSLAH_PATH)/core/uart.c
 #CSRC += $(AMSLAH_PATH)/core/eeprom.c
 CSRC += $(AMSLAH_PATH)/core/spi.c
+CSRC += $(AMSLAH_PATH)/core/i2c.c
 CSRC += $(AMSLAH_PATH)/core/pwm.c
 #CSRC += $(AMSLAH_PATH)/core/adc.c
 #CSRC += $(AMSLAH_PATH)/core/dac.c

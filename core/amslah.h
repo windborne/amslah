@@ -13,6 +13,7 @@ extern "C" {
 #include "adc.h"
 #include "dac.h"
 #include "gpio.h"
+#include "i2c.h"
 #include "pwm.h"
 #include "sercoms.h"
 #include "serial.h"

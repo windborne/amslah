@@ -235,6 +235,8 @@ float adc_get_temp() {
 }
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 uint32_t adc_rng(int nbits) {
     uint32_t random = 0;
     nbits = (nbits > 32) ? 32 : nbits;
@@ -258,3 +260,4 @@ uint32_t adc_rng(int nbits) {
     }
     return random;
 }
+#pragma GCC diagnostic pop
