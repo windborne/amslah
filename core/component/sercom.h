@@ -878,9 +878,9 @@ typedef union { // __I to avoid read-modify-write on write-to-clear register
 typedef union { // __I to avoid read-modify-write on write-to-clear register
   struct {
     __I uint8_t  DRE:1;            /*!< bit:      0  Data Register Empty Interrupt      */
-    __I uint8_t  TXC:1;            /*!< bit:      1  Transmit Complete Interrupt        */
+    __IO uint8_t  TXC:1;            /*!< bit:      1  Transmit Complete Interrupt        */
     __I uint8_t  RXC:1;            /*!< bit:      2  Receive Complete Interrupt         */
-    __I uint8_t  SSL:1;            /*!< bit:      3  Slave Select Low Interrupt Flag    */
+    __IO uint8_t  SSL:1;            /*!< bit:      3  Slave Select Low Interrupt Flag    */
     __I uint8_t  :3;               /*!< bit:  4.. 6  Reserved                           */
     __I uint8_t  ERROR:1;          /*!< bit:      7  Combined Error Interrupt           */
   } bit;                       /*!< Structure used for bit  access                  */

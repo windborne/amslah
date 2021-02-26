@@ -1,10 +1,6 @@
 #include "sammy.h"
 #include "FreeRTOS.h"
 #include "task.h"
-
-#if USE_DEBUG_UART
-
-#include "semphr.h"
 #include "serial.h"
 #include "pwm.h"
 
@@ -67,6 +63,26 @@ void serial_task(void *params){
 }
 
 #endif
+
+void init_serial() {
+    uart_init(&debug_uart, DEBUG_UART_SERCOM, DEBUG_UART_BAUD,
+                DEBUG_UART_TX_PIN, DEBUG_UART_TX_MUX,
+                DEBUG_UART_RX_PIN, DEBUG_UART_RX_MUX);
+
+	#if SERIAL_TASK
+    serial_stream = xStreamBufferCreate(512, 64);
+    serial_mutex = xSemaphoreCreateBinary();
+    xSemaphoreGive(serial_mutex);
+    printing_mutex = xSemaphoreCreateBinary();
+    postprint_mutex = xSemaphoreCreateBinary();
+    xTaskCreate(serial_task, "serial", 130, 0, 1, &serial_handle);
+	#endif
+    #if USAGE_REPORT
+        xTaskCreate(usage_task, "usage", 150, 0, 1, NULL);
+    #endif
+}
+
+
 
 #ifdef _SAMD21_
 
@@ -162,7 +178,11 @@ void vConfigureTimerForRunTimeStats(void) {
 
 }
 
-#endif
+#else
+void vConfigureTimerForRunTimeStats(void) {}
+uint32_t vGetRunTimeCounterValue(void) {}
+
+
 #endif
 
 #if USAGE_REPORT
@@ -200,23 +220,5 @@ void usage_task(void *params) {
 
 
 #endif
-
-void init_serial() {
-    uart_init(&debug_uart, DEBUG_UART_SERCOM, DEBUG_UART_BAUD,
-                DEBUG_UART_TX_PIN, DEBUG_UART_TX_MUX,
-                DEBUG_UART_RX_PIN, DEBUG_UART_RX_MUX);
-
-	#if SERIAL_TASK
-    serial_stream = xStreamBufferCreate(512, 64);
-    serial_mutex = xSemaphoreCreateBinary();
-    xSemaphoreGive(serial_mutex);
-    printing_mutex = xSemaphoreCreateBinary();
-    postprint_mutex = xSemaphoreCreateBinary();
-    xTaskCreate(serial_task, "serial", 130, 0, 1, &serial_handle);
-	#endif
-    #if USAGE_REPORT
-        xTaskCreate(usage_task, "usage", 150, 0, 1, NULL);
-    #endif
-}
 
 #endif

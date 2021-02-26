@@ -44,6 +44,27 @@ typedef struct {
 
 void spi_init_with(spi_t *spi, spicfg_t cfg);
 
+typedef struct {
+	void *ptr;
+	int len;
+} spi_reg_t;
+
+typedef struct {
+    sercom_handler_f fn; 
+    Sercom *hw;
+
+	char *data;
+	uint16_t cur;
+	uint16_t max;
+
+	uint32_t xfer_t;
+
+	int nreg;
+	spi_reg_t *regs;
+	bool write;
+} spi_slave_t;
+
+
 /**
  * @brief Compute BAUD register for SPI operation
  *
@@ -80,6 +101,12 @@ inline uint16_t _spi_get_baud_reg(int baud) {
  * @param mux_miso Pinmux configuration for the MISO pin.
  */
 void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
+				uint8_t pin_sck, uint32_t mux_sck,
+				uint8_t pin_mosi, uint32_t mux_mosi,
+				uint8_t pin_miso, uint32_t mux_miso);
+
+void spi_init_slave(spi_slave_t *spi, int sercom, int dipo, int dopo,
+				uint8_t pin_ss, uint32_t mux_ss,
 				uint8_t pin_sck, uint32_t mux_sck,
 				uint8_t pin_mosi, uint32_t mux_mosi,
 				uint8_t pin_miso, uint32_t mux_miso);

@@ -76,7 +76,7 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
 
 int32_t uart_write(uart_t *uart, const uint8_t *buf, uint16_t len) {
     xSemaphoreTake(uart->bus_mutex, portMAX_DELAY);
-    uart->tx_buffer = buf;
+    uart->tx_buffer = (uint8_t*)buf;
     uart->tx_len = len;
     uart->tx_cur = 0;
     uart->hw->USART.INTENSET.bit.DRE = 1;
@@ -98,4 +98,15 @@ char uart_read(uart_t *uart) {
 
 uint32_t uart_available(uart_t *uart) {
     return xStreamBufferBytesAvailable(uart->rx_buffer);
+}
+
+void uart_start_listening(uart_t *uart) {
+    uart->hw->USART.CTRLB.bit.RXEN = 1;
+    uart->hw->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
+}
+
+void uart_stop_listening(uart_t *uart) {
+    uart->hw->USART.CTRLB.bit.RXEN = 0;
+    uart->hw->USART.INTENCLR.reg = SERCOM_USART_INTENCLR_RXC;
+    xStreamBufferReset(uart->rx_buffer);
 }

@@ -65,6 +65,10 @@ void pwm51_set(uint8_t pin, uint8_t tc, int level) {
         hw->CC[w].bit.CC = level;
 }
 
+#ifdef _SAMD21_
+uint32_t function_pins[2] = {0, 0};
+#endif
+
 void pwm_init(uint8_t pin) {
 #ifdef _SAMD21_
     if (pin == 255) return;
@@ -82,6 +86,9 @@ void pwm_init(uint8_t pin) {
     while(GCLK->STATUS.bit.SYNCBUSY);
 
     gpio_function(pin, (pin << 16) | 4);
+#ifdef _SAMD21_
+	function_pins[GPIO_PORT(pin)] |= (1U << GPIO_PIN(pin));
+#endif
 
     #if PWM_RESOLUTION > 8
         #error "PWM resolution above 8 bit unsupported"
@@ -113,7 +120,12 @@ void pwm_init(uint8_t pin) {
 }
 
 void pwm_set(uint8_t pin, int level) {
+#ifdef _SAMD21_
     if (pin == 255) return;
+	if (!(function_pins[GPIO_PORT(pin)] & (1U << GPIO_PIN(pin)))) {
+		/* This pin is somehow not marked as a function pin! GPIO stole it from us!!! */
+		pwm_init(pin);
+	}
     int tc = tcs[pin];
     if (tc >= 3) {
         TcCount8 *hw = (TcCount8*)(((char*)TCC0) + 1024 * tc);
@@ -122,4 +134,5 @@ void pwm_set(uint8_t pin, int level) {
         Tcc *hw = (Tcc*)(((char*)TCC0) + 1024 * tc);
         hw->CC[pin & 1].bit.CC= level;
     }
+#endif
 }

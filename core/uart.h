@@ -99,6 +99,10 @@ char uart_read(uart_t *uart);
 
 uint32_t uart_available(uart_t *uart);
 
+void uart_start_listening(uart_t *uart);
+
+void uart_stop_listening(uart_t *uart);
+
 #ifdef __cplusplus
 }
 #endif

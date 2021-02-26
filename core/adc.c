@@ -286,6 +286,8 @@ float adc_get_temp() {
 }
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 uint32_t adc_rng(int nbits) {
 #ifdef _SAMD21_
     uint32_t random = 0;
@@ -313,3 +315,4 @@ uint32_t adc_rng(int nbits) {
 	return 4; // chosen by fair dice roll
 #endif
 }
+#pragma GCC diagnostic pop
