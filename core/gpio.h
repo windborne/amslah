@@ -30,13 +30,14 @@ void print(const char * fmt, ...);
 static inline void digital_set(uint8_t pin, uint8_t level) {
 	if(pin==NOT_A_PIN) return;
 
-#ifdef _SAMD21_
 	if (function_pins[GPIO_PORT(pin)] & (1U << GPIO_PIN(pin))) {
 		/* This pin is being used for some function (likely PWM)!!!! */
 		gpio_function(pin, GPIO_FUNCTION_OFF);
 		gpio_direction(pin, GPIO_DIRECTION_OUT);
 		function_pins[GPIO_PORT(pin)] &= ~(1U << GPIO_PIN(pin));
 	}
+
+#ifdef _SAMD21_
 	if (level) {
 		PORT_IOBUS->Group[GPIO_PORT(pin)].OUTSET.reg = 1U << GPIO_PIN(pin);
 	} else {

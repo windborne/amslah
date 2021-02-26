@@ -13,6 +13,7 @@ byP = defaultdict(list)
 for pin, mux, per, pad in tots:
     byP[per].append((pin, ord(mux)-ord('A'), pad))
 
+"""
 ains = {}
 for x in byP['ADC0']:
     if x[2].startswith('AIN'):
@@ -28,6 +29,13 @@ pprint([x for x in byP['ADC0'] if x[2].startswith('AIN')])
 pprint(byP['ADC1'])
 print(byP.keys())
 exit()
+"""
+
+def tc2num(s):
+    if s.startswith('TCC'):
+        return 10 + int(s[3:])
+    else:
+        return int(s[2:])
 
 defs = []
 for s in range(8):
@@ -66,6 +74,17 @@ for s in range(8):
                                     }))
             
 
+pwmseen = set()
+for src in ['TCC'+x for x in '01234'] + ['TC'+x for x in '01234567']:
+    for pin, mux, pad in byP[src]:
+        defs.append(("PWM_%s_%s"%(pin, src),
+                    {"pin": pin, "timer": tc2num(src), "mux": mux, "output": int(pad[2:])}))
+        nn = "PWM_%s"%pin
+        if nn not in pwmseen:
+            defs.append((nn, defs[-1][1]))
+            pwmseen.add(nn)
+
+
 _= """    uint8_t sercom;
     uint8_t pin_tx;
     uint8_t mux_tx;
@@ -81,7 +100,11 @@ _= """    uint8_t sercom;
     uint8_t mux_miso;
     uint8_t dipo;
     uint8_t dopo;
-    uint32_t baud; """
+    uint32_t baud;
+    uint8_t pin;
+    uint8_t timer;
+    uint8_t mux;
+    uint8_t output;"""
 order = []
 for x in _.split("\n"):
     order.append(x.split(';')[0].split(' ')[-1])

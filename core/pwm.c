@@ -12,65 +12,10 @@ const uint8_t tcs[] = {2, 2, -1, -1, 0, 0, 1, 1, 0, 0, 1, 1, // PA11
                        4, 4, 5, 5, 6, 6, -1, -1, -1, -1, 7, 7, // PB23
                        -1, -1, -1, -1, -1, -1, 0, 0}; // PB31
 bool used_tcs[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-
-uint8_t tc51[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-
-Tcc *insts[5] = TCC_INSTS;
-
-void pwm51_init(uint8_t pin, uint8_t mux, uint8_t tc) {
-
-	uint8_t n = tc;
-	uint8_t ids[8] = {TCC0_GCLK_ID, TCC1_GCLK_ID, TCC2_GCLK_ID, TCC3_GCLK_ID, TCC4_GCLK_ID, TC5_GCLK_ID, TC6_GCLK_ID, TC7_GCLK_ID};
-	configASSERT(n >= 0 && n < 8);
-    critical_section_enter();
-	//GCLK->PCHCTRL[ids[n]].reg = 1 | (1 << GCLK_PCHCTRL_CHEN_Pos); // GEN0 is the peripheral clock
-	GCLK->PCHCTRL[ids[n]].reg = 0 | (1 << GCLK_PCHCTRL_CHEN_Pos); // GEN0 is the peripheral clock
-	switch (n) {
-	case 0:
-		MCLK->APBBMASK.reg |= MCLK_APBBMASK_TCC0; break;
-	case 1:
-		MCLK->APBBMASK.reg |= MCLK_APBBMASK_TCC1; break;
-	case 2:
-		MCLK->APBCMASK.reg |= MCLK_APBCMASK_TCC2; break;
-	case 3:
-		MCLK->APBCMASK.reg |= MCLK_APBCMASK_TCC3; break;
-	case 4:
-		MCLK->APBDMASK.reg |= MCLK_APBDMASK_TCC4; break;
-	case 5:
-		MCLK->APBCMASK.reg |= MCLK_APBCMASK_TC5; break;
-	case 6:
-		MCLK->APBDMASK.reg |= MCLK_APBDMASK_TC6; break;
-	case 7:
-		MCLK->APBDMASK.reg |= MCLK_APBDMASK_TC7; break;
-	}
-	critical_section_leave();
-
-
-    gpio_function(pin, (pin << 16) | mux);
-
-		Tcc *hw = insts[tc];
-        hw->CTRLA.bit.PRESCALER = 2;
-        hw->WAVE.bit.WAVEGEN = 2;
-        hw->PER.bit.PER = 4095;
-		int w = 2;
-		if (pin == PB31) w = 1;
-        hw->CC[w].bit.CC = 0;
-        hw->CTRLA.bit.ENABLE = 1;
-}
-
-void pwm51_set(uint8_t pin, uint8_t tc, int level) {
-		Tcc *hw = insts[tc];
-		int w = 2;
-		if (pin == PB31) w = 1;
-        hw->CC[w].bit.CC = level;
-}
-
 #ifdef _SAMD21_
 uint32_t function_pins[2] = {0, 0};
-#endif
 
 void pwm_init(uint8_t pin) {
-#ifdef _SAMD21_
     if (pin == 255) return;
     int tc = tcs[pin];
     configASSERT(tc != -1);
@@ -86,9 +31,7 @@ void pwm_init(uint8_t pin) {
     while(GCLK->STATUS.bit.SYNCBUSY);
 
     gpio_function(pin, (pin << 16) | 4);
-#ifdef _SAMD21_
 	function_pins[GPIO_PORT(pin)] |= (1U << GPIO_PIN(pin));
-#endif
 
     #if PWM_RESOLUTION > 8
         #error "PWM resolution above 8 bit unsupported"
@@ -116,11 +59,9 @@ void pwm_init(uint8_t pin) {
         hw->CC[pin & 1].bit.CC = 0;
         hw->CTRLA.bit.ENABLE = 1;
     }
-#endif
 }
 
 void pwm_set(uint8_t pin, int level) {
-#ifdef _SAMD21_
     if (pin == 255) return;
 	if (!(function_pins[GPIO_PORT(pin)] & (1U << GPIO_PIN(pin)))) {
 		/* This pin is somehow not marked as a function pin! GPIO stole it from us!!! */
@@ -134,5 +75,73 @@ void pwm_set(uint8_t pin, int level) {
         Tcc *hw = (Tcc*)(((char*)TCC0) + 1024 * tc);
         hw->CC[pin & 1].bit.CC= level;
     }
-#endif
 }
+#else
+
+uint32_t function_pins[3] = {0, 0, 0};
+
+uint16_t pwm_status[96] = {0};
+
+const Tcc *insts[5] = TCC_INSTS;
+
+void pwm_init_with(pwmcfg_t cfg) {
+
+	gpio_function(cfg.pin, (cfg.pin << 16) | cfg.mux);
+
+	function_pins[GPIO_PORT(cfg.pin)] |= (1U << GPIO_PIN(cfg.pin));
+
+	configASSERT(cfg.timer >= 10);
+
+	if (cfg.timer >= 10) {
+		uint8_t n = cfg.timer - 10;
+		pwm_status[cfg.pin] = (cfg.mux << 8) | (cfg.timer << 4) | (cfg.output);
+
+		const uint8_t ids[5] = {TCC0_GCLK_ID, TCC1_GCLK_ID, TCC2_GCLK_ID, TCC3_GCLK_ID, TCC4_GCLK_ID};
+		critical_section_enter();
+		GCLK->PCHCTRL[ids[n]].reg = 0 | (1 << GCLK_PCHCTRL_CHEN_Pos);
+		switch (n) {
+		case 0:
+			MCLK->APBBMASK.reg |= MCLK_APBBMASK_TCC0; break;
+		case 1:
+			MCLK->APBBMASK.reg |= MCLK_APBBMASK_TCC1; break;
+		case 2:
+			MCLK->APBCMASK.reg |= MCLK_APBCMASK_TCC2; break;
+		case 3:
+			MCLK->APBCMASK.reg |= MCLK_APBCMASK_TCC3; break;
+		case 4:
+			MCLK->APBDMASK.reg |= MCLK_APBDMASK_TCC4; break;
+		}
+		critical_section_leave();
+
+		int resolution = cfg.resolution;
+		if (resolution == 0) resolution = PWM_RESOLUTION;
+
+		int prescaler = cfg.prescaler;
+		if (prescaler == 0) prescaler = PWM_PRESCALER;
+
+		Tcc *hw = insts[n];
+        hw->CTRLA.bit.PRESCALER = prescaler;
+        hw->WAVE.bit.WAVEGEN = 2;
+        hw->PER.bit.PER = (1 << resolution) - 1;
+
+        hw->CC[cfg.output].bit.CC = 0;
+        hw->CTRLA.bit.ENABLE = 1;
+	}
+}
+
+void pwm_set(uint8_t pin, int level) {
+	configASSERT(pwm_status[pin] != 0); // must have been initialized
+	uint8_t mux = (pwm_status[pin] >> 8);
+	if (!(function_pins[GPIO_PORT(pin)] & (1U << GPIO_PIN(pin)))) {
+		/* This pin is somehow not marked as a function pin! GPIO stole it from us!!! */
+		gpio_function(pin, (pin << 16) | mux);
+	}
+	uint8_t timer = (pwm_status[pin] >> 4) & 15;
+	uint8_t output = (pwm_status[pin] & 15);
+	if (timer >= 10) {
+		Tcc *hw = insts[timer - 10];
+        hw->CC[output].bit.CC = level;
+	}
+}
+
+#endif

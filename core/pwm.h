@@ -10,6 +10,15 @@ extern "C" {
 
 extern bool used_tcs[8];
 
+typedef struct {
+	uint8_t pin;
+	uint8_t timer;
+	uint8_t mux;
+	uint8_t output;
+	uint8_t prescaler;
+	uint8_t resolution;
+} pwmcfg_t;
+
 /**
  * @brief Initialize a pin so that it can be pulse width modulated.
  * 
@@ -31,6 +40,8 @@ extern bool used_tcs[8];
  *          The function also possibly starts one of the TC or TCCs.
  */
 void pwm_init(uint8_t pin);
+
+void pwm_init_with(pwmcfg_t cfg);
 
 
 /**

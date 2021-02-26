@@ -196,6 +196,7 @@
 #define PD31 GPIO(GPIO_PORTD, 31)
 
 
+extern uint32_t function_pins[3];
 
 #endif /* _SAMD51_ */
 
