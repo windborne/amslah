@@ -65,3 +65,30 @@ uint32_t get_32bit_core_id(){
 #endif
 	return id;
 }
+
+Sercom *get_sercom(int sercom) {
+#ifdef _SAMD21_
+    Sercom *hw = (Sercom*)((char*)SERCOM0 + 1024 * sercom);
+#else
+	Sercom *hw;
+	switch (sercom) {
+	case 0:
+		hw = SERCOM0; break;
+	case 1:
+		hw = SERCOM1; break;
+	case 2:
+		hw = SERCOM2; break;
+	case 3:
+		hw = SERCOM3; break;
+	case 4:
+		hw = SERCOM4; break;
+	case 5:
+		hw = SERCOM5; break;
+	case 6:
+		hw = SERCOM6; break;
+	case 7:
+		hw = SERCOM7; break;
+	}
+#endif
+	return hw;
+}

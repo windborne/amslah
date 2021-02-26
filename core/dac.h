@@ -8,6 +8,12 @@ extern "C" {
 
 #include "gpio.h"
 
+#define DAC_REF_VDDANA 0x1
+
+typedef struct {
+	uint8_t pin;
+	uint8_t ref;
+} daccfg_t;
 
 /**
  * @brief Initializes the DAC driver.
@@ -21,6 +27,7 @@ extern "C" {
  */
 void dac_init();
 
+void dac_init_with(daccfg_t cfg);
 
 /**
  * @brief Sets the number of counts for the DAC, which is always the PA02 pin.
@@ -29,6 +36,8 @@ void dac_init();
  *        range of 0 to 1023).
  */
 void dac_set(int level);
+
+void dac_set_pin(uint8_t pin, int level);
 
 #ifdef __cplusplus
 }

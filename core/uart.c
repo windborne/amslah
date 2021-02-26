@@ -36,29 +36,7 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
 
     //PORT->Group[GPIO_PORT(pin_rx)].PINCFG[GPIO_PIN(pin_rx)].reg = PORT_PINCFG_PMUXEN | PORT_PINCFG_INEN ;
 
-#ifdef _SAMD21_
-    Sercom *hw = (Sercom*)((char*)SERCOM0 + 1024 * sercom);
-#else
-	Sercom *hw;
-	switch (sercom) {
-	case 0:
-		hw = SERCOM0; break;
-	case 1:
-		hw = SERCOM1; break;
-	case 2:
-		hw = SERCOM2; break;
-	case 3:
-		hw = SERCOM3; break;
-	case 4:
-		hw = SERCOM4; break;
-	case 5:
-		hw = SERCOM5; break;
-	case 6:
-		hw = SERCOM6; break;
-	case 7:
-		hw = SERCOM7; break;
-	}
-#endif
+	Sercom *hw = get_sercom(sercom);
 
 #ifdef _SAMD21_
     hw->USART.CTRLA.bit.SWRST = 1;

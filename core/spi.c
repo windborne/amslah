@@ -28,6 +28,14 @@ void spi_handler(int num) {
     }
 }
 
+void spi_init_with(spi_t *spi, spicfg_t cfg) {
+	spi_init(spi, cfg.sercom, cfg.dipo, cfg.dopo,
+				cfg.pin_sck, (cfg.pin_sck << 16) | cfg.mux_sck,
+				cfg.pin_mosi, (cfg.pin_mosi << 16) | cfg.mux_mosi,
+				cfg.pin_miso, (cfg.pin_miso << 16) | cfg.mux_miso);
+	if (cfg.baud != 0) spi_set_baud(spi, cfg.baud);
+}
+
 void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
                 uint8_t pin_sck, uint32_t mux_sck,
                 uint8_t pin_mosi, uint32_t mux_mosi,
@@ -43,29 +51,7 @@ void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
     gpio_direction(pin_miso, GPIO_DIRECTION_IN);
     gpio_function(pin_miso, mux_miso); 
 
-#ifdef _SAMD21_
-    Sercom *hw = (Sercom*)((char*)SERCOM0 + 1024 * sercom);
-#else
-	Sercom *hw;
-	switch (sercom) {
-	case 0:
-		hw = SERCOM0; break;
-	case 1:
-		hw = SERCOM1; break;
-	case 2:
-		hw = SERCOM2; break;
-	case 3:
-		hw = SERCOM3; break;
-	case 4:
-		hw = SERCOM4; break;
-	case 5:
-		hw = SERCOM5; break;
-	case 6:
-		hw = SERCOM6; break;
-	case 7:
-		hw = SERCOM7; break;
-	}
-#endif
+	Sercom *hw = get_sercom(sercom);
 
     while (hw->SPI.SYNCBUSY.bit.SWRST);
 

@@ -66,7 +66,7 @@ void pwm51_set(uint8_t pin, uint8_t tc, int level) {
 }
 
 void pwm_init(uint8_t pin) {
-#if _SAMD21_
+#ifdef _SAMD21_
     if (pin == 255) return;
     int tc = tcs[pin];
     configASSERT(tc != -1);

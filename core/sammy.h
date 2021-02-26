@@ -5,6 +5,7 @@
 #define NUM_SERCOMS 6
 #else
 #include "samd51.h"
+#include "samd51defs.h"
 #define NUM_SERCOMS 8
 #endif
 
