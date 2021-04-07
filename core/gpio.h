@@ -20,6 +20,29 @@ enum gpio_pull_mode { GPIO_PULL_OFF, GPIO_PULL_ON};
 
 void print(const char * fmt, ...);
 
+
+
+/**
+ * @brief Sets the pin direction.
+ *
+ * @param pin Pin to set the direction of.
+ * @param direction One of enum gpio_direction (off, in, or out).
+ */
+void gpio_direction(uint8_t pin, enum gpio_direction direction);
+
+
+/**
+ * @brief Sets the pin function. The function will be something other than OFF
+ *        if it's being used as part of some peripheral (e.g. a SERCOM or an
+ *        ADC input.
+ *
+ * @param pin Pin to set the function of.
+ * @param function Pin function, or GPIO_FUNCTION_OFF if none.
+ */
+void gpio_function(uint8_t pin, uint32_t function);
+
+
+
 /**
  * @brief Set the digital output of a GPIO pin. Must have been initialized
  *        with gpio_init(pin) first.
@@ -51,27 +74,6 @@ static inline void digital_set(uint8_t pin, uint8_t level) {
 	}
 #endif
 }
-
-
-/**
- * @brief Sets the pin direction.
- *
- * @param pin Pin to set the direction of.
- * @param direction One of enum gpio_direction (off, in, or out).
- */
-void gpio_direction(uint8_t pin, enum gpio_direction direction);
-
-
-/**
- * @brief Sets the pin function. The function will be something other than OFF
- *        if it's being used as part of some peripheral (e.g. a SERCOM or an
- *        ADC input.
- *
- * @param pin Pin to set the function of.
- * @param function Pin function, or GPIO_FUNCTION_OFF if none.
- */
-void gpio_function(uint8_t pin, uint32_t function);
-
 
 void gpio_pull(uint8_t pin, enum gpio_pull_mode);
 

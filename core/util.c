@@ -84,10 +84,12 @@ Sercom *get_sercom(int sercom) {
 		hw = SERCOM4; break;
 	case 5:
 		hw = SERCOM5; break;
+	#ifdef SERCOM6
 	case 6:
 		hw = SERCOM6; break;
 	case 7:
 		hw = SERCOM7; break;
+	#endif
 	}
 #endif
 	return hw;

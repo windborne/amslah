@@ -3,6 +3,7 @@
 #include "eic.h"
 #include "gpio.h"
 
+#ifdef _SAMD21_
 extern void* pxCurrentTCB;
 
 xTaskHandle eic_handles[16] = {0};
@@ -62,3 +63,11 @@ bool eic_wait(uint8_t pin, uint8_t level, uint32_t timeout) {
     eic_handles[eic] = 0;
     return ret;
 }
+#else
+void eic_init() {}
+
+bool eic_wait(uint8_t pin, uint8_t level, uint32_t timeout) {
+	vTaskDelay(1000);
+	return true;
+}
+#endif

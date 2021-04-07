@@ -632,6 +632,11 @@ void SDHC0_Handler               ( void );
 #include "instance_samd51/sercom3.h"
 #include "instance_samd51/sercom4.h"
 #include "instance_samd51/sercom5.h"
+
+// fake news!!!
+#include "instance_samd51/sercom6.h"
+#include "instance_samd51/sercom7.h"
+
 #include "instance_samd51/supc.h"
 #include "instance_samd51/tc0.h"
 #include "instance_samd51/tc1.h"
@@ -770,6 +775,11 @@ void SDHC0_Handler               ( void );
 #define SERCOM3                       (0x41014000) /**< \brief (SERCOM3) APB Base Address */
 #define SERCOM4                       (0x43000000) /**< \brief (SERCOM4) APB Base Address */
 #define SERCOM5                       (0x43000400) /**< \brief (SERCOM5) APB Base Address */
+
+// fake news!!
+#define SERCOM6                       (0x43000800) /**< \brief (SERCOM6) APB Base Address */
+#define SERCOM7                       (0x43000C00) /**< \brief (SERCOM7) APB Base Address */
+
 #define SUPC                          (0x40001800) /**< \brief (SUPC) APB Base Address */
 #define TC0                           (0x40003800) /**< \brief (TC0) APB Base Address */
 #define TC1                           (0x40003C00) /**< \brief (TC1) APB Base Address */
