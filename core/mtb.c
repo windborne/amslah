@@ -2,6 +2,9 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#pragma GCC diagnostic ignored "-Wstringop-overflow="
+
 extern uint32_t _smtb;
 extern uint32_t _emtb;
 
