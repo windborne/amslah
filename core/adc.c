@@ -124,7 +124,7 @@ void adc_init() {
     NVIC_EnableIRQ(ADC_IRQn);
 #else
 	//NVIC_EnableIRQ(ADC0_0_IRQn);
-	NVIC_SetPriority(ADC0_1_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY+1);
+	NVIC_SetPriority(ADC0_1_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 	NVIC_EnableIRQ(ADC0_1_IRQn);
 #endif
     xSemaphoreGive(adc_mutex);

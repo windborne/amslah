@@ -83,6 +83,7 @@ uint32_t function_pins[3] = {0, 0, 0};
 uint16_t pwm_status[96] = {0};
 
 const Tcc *insts[5] = TCC_INSTS;
+const Tc *tc_insts[8] = TC_INSTS;
 
 void pwm_init_with(pwmcfg_t cfg) {
 
@@ -90,11 +91,19 @@ void pwm_init_with(pwmcfg_t cfg) {
 
 	function_pins[GPIO_PORT(cfg.pin)] |= (1U << GPIO_PIN(cfg.pin));
 
-	configASSERT(cfg.timer >= 10);
+	//configASSERT(cfg.timer >= 10);
 
+    int resolution = cfg.resolution;
+    if (resolution == 0) resolution = PWM_RESOLUTION;
+
+    int prescaler = cfg.prescaler;
+    if (prescaler == 0) prescaler = PWM_PRESCALER;
+
+    pwm_status[cfg.pin] = (cfg.mux << 8) | (cfg.timer << 4) | (cfg.output);
+
+    configASSERT(cfg.timer != 10);
 	if (cfg.timer >= 10) {
 		uint8_t n = cfg.timer - 10;
-		pwm_status[cfg.pin] = (cfg.mux << 8) | (cfg.timer << 4) | (cfg.output);
 
 		const uint8_t ids[5] = {TCC0_GCLK_ID, TCC1_GCLK_ID, TCC2_GCLK_ID, TCC3_GCLK_ID, TCC4_GCLK_ID};
 		critical_section_enter();
@@ -113,12 +122,6 @@ void pwm_init_with(pwmcfg_t cfg) {
 		}
 		critical_section_leave();
 
-		int resolution = cfg.resolution;
-		if (resolution == 0) resolution = PWM_RESOLUTION;
-
-		int prescaler = cfg.prescaler;
-		if (prescaler == 0) prescaler = PWM_PRESCALER;
-
 		Tcc *hw = insts[n];
         hw->CTRLA.bit.PRESCALER = prescaler;
         hw->WAVE.bit.WAVEGEN = 2;
@@ -126,7 +129,24 @@ void pwm_init_with(pwmcfg_t cfg) {
 
         hw->CC[cfg.output].bit.CC = 0;
         hw->CTRLA.bit.ENABLE = 1;
-	}
+	} else {
+        const uint8_t ids[8] = {TC0_GCLK_ID, TC1_GCLK_ID, TC2_GCLK_ID, TC3_GCLK_ID, TC4_GCLK_ID, TC5_GCLK_ID, TC6_GCLK_ID, TC7_GCLK_ID};
+        GCLK->PCHCTRL[ids[cfg.timer]].reg = 0 | (1 << GCLK_PCHCTRL_CHEN_Pos);
+
+        TcCount8* hw = tc_insts[cfg.timer];
+		if (prescaler == 0) prescaler = PWM_PRESCALER;
+
+        hw->CTRLA.bit.MODE = 1; /* 8 bit mode. */
+        hw->CTRLA.bit.PRESCALER = prescaler; /* Undivided. */
+        hw->WAVE.bit.WAVEGEN = 2; /* Normal PWM. */
+
+        hw->PER.reg = (1 << resolution) - 1;
+
+        hw->CC[cfg.output].reg = 0;
+
+        hw->CTRLA.bit.ENABLE = 1;
+
+    }
 }
 
 void pwm_set(uint8_t pin, int level) {
@@ -141,7 +161,10 @@ void pwm_set(uint8_t pin, int level) {
 	if (timer >= 10) {
 		Tcc *hw = insts[timer - 10];
         hw->CC[output].bit.CC = level;
-	}
+	} else {
+        TcCount8* hw = tc_insts[timer];
+        hw->CC[output].bit.CC = level;
+    }
 }
 
 #endif

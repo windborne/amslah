@@ -5,13 +5,17 @@
 #include "gpio.h"
 
 void gpio_pull(uint8_t pin, enum gpio_pull_mode pull_mode) {
-#ifdef _SAMD21_
     if(pin==NOT_A_PIN) return;
-
+#ifdef _SAMD21_
     if(pull_mode == GPIO_PULL_ON)
         PORT_IOBUS->Group[GPIO_PORT(pin)].PINCFG[GPIO_PIN(pin)].bit.PULLEN = true;
     else
         PORT_IOBUS->Group[GPIO_PORT(pin)].PINCFG[GPIO_PIN(pin)].bit.PULLEN = false;
+#else
+    if(pull_mode == GPIO_PULL_ON)
+        PORT->Group[GPIO_PORT(pin)].PINCFG[GPIO_PIN(pin)].bit.PULLEN = true;
+    else
+        PORT->Group[GPIO_PORT(pin)].PINCFG[GPIO_PIN(pin)].bit.PULLEN = false;
 #endif
 }
 
@@ -54,10 +58,12 @@ void gpio_direction(uint8_t pin, enum gpio_direction direction) {
         uint32_t pinsel = 1U << GPIO_PIN(pin);
         PORT->Group[GPIO_PORT(pin)].DIRCLR.reg = pinsel;
 
+        uint32_t pull_mask = PORT->Group[GPIO_PORT(pin)].PINCFG[GPIO_PIN(pin)].bit.PULLEN ? PORT_WRCONFIG_PULLEN : 0;
+
         critical_section_enter();
-        PORT->Group[GPIO_PORT(pin)].WRCONFIG.reg = PORT_WRCONFIG_WRPINCFG | PORT_WRCONFIG_INEN | (pinsel & 0xffff);
+        PORT->Group[GPIO_PORT(pin)].WRCONFIG.reg = PORT_WRCONFIG_WRPINCFG | pull_mask | PORT_WRCONFIG_INEN | (pinsel & 0xffff);
         PORT->Group[GPIO_PORT(pin)].WRCONFIG.reg =
-                PORT_WRCONFIG_HWSEL | PORT_WRCONFIG_WRPINCFG | PORT_WRCONFIG_INEN | ((pinsel & 0xffff0000) >> 16);
+                PORT_WRCONFIG_HWSEL | PORT_WRCONFIG_WRPINCFG | pull_mask | PORT_WRCONFIG_INEN | ((pinsel & 0xffff0000) >> 16);
         critical_section_leave();
     } else {
         configASSERT(0);

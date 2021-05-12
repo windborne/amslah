@@ -12,7 +12,7 @@ BUILD_PATH = build
 APP = app
 
 BOARD = $(shell (grep MCU amslah.cfg > /dev/null && sed -n 's/^.*MCU: //p' amslah.cfg 2>/dev/null) || echo "SAMD21J18A")
-CFLAGS = -mthumb -DDEBUG -O2 -ffunction-sections -mlong-calls -Wall -g3 -fstack-usage
+CFLAGS = -mthumb -DDEBUG -O3 -ffunction-sections -mlong-calls -Wall -g3 -fstack-usage
 CFLAGS += -c -D__$(BOARD)__
 
 ifneq (,$(findstring SAMD21, $(BOARD)))
@@ -27,7 +27,7 @@ CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant  -mfloat-abi=hard
 LFLAGS += -mfloat-abi=hard -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16
 LFLAGS += -T"$(AMSLAH_PATH)/core/samd51n20a_flash.ld"
-LFLAGS += -Wl,--gc-sections -mcpu=cortex-m4
+LFLAGS += -Wl,--gc-sections -mcpu=cortex-m4 -mtune=cortex-m4
 EDBG_FAMILY = samd51
 endif
 
@@ -87,7 +87,7 @@ CSRC += $(AMSLAH_PATH)/core/pwm.c
 CSRC += $(AMSLAH_PATH)/core/adc.c
 CSRC += $(AMSLAH_PATH)/core/dac.c
 CSRC += $(AMSLAH_PATH)/core/eic.c
-#CSRC += $(AMSLAH_PATH)/core/watchdog.c
+CSRC += $(AMSLAH_PATH)/core/watchdog.c
 CSRC += $(AMSLAH_PATH)/core/sercoms.c
 CSRC += $(AMSLAH_PATH)/core/serial.c
 CSRC += $(AMSLAH_PATH)/core/printf.c

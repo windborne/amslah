@@ -6,10 +6,16 @@
 
 #include "stream_buffer.h"
 
+void usage_task(void *params);
+
 #ifdef _SAMD21_
 void vApplicationMallocFailedHook() {
 	print("out of RAM!!!!\n");
 	configASSERT(0);
+}
+#else
+void vApplicationMallocFailedHook() {
+	configASSERT(4 == 5);
 }
 #endif
 
@@ -84,11 +90,12 @@ void init_serial() {
 
 
 
-#ifdef _SAMD21_
 
 #if USAGE_REPORT || HIGH_RESOLUTION_TIMER
 
 uint32_t hrt_base = 0;
+
+#ifdef _SAMD21_
 
 
 void
@@ -123,7 +130,7 @@ void
     #endif
 }
 
-inline uint32_t vGetRunTimeCounterValue(void) {
+uint32_t vGetRunTimeCounterValue(void) {
     #if USAGE_REPORT_TC >= 3
         TcCount16 *hw = (TcCount16*)(((char*)TCC0) + 1024 * USAGE_REPORT_TC);
     #else
@@ -179,15 +186,57 @@ void vConfigureTimerForRunTimeStats(void) {
 }
 
 #else
-void vConfigureTimerForRunTimeStats(void) {}
-uint32_t vGetRunTimeCounterValue(void) {}
+
+uint32_t last_ret = 0;
+
+uint32_t vGetRunTimeCounterValue(void) {
+    uint32_t cyc = DWT->CYCCNT >> 3;
+    if (cyc < last_ret) cyc += (1 << 29);
+    last_ret = cyc;
+    return cyc;
+}
+
+void vConfigureTimerForRunTimeStats(void) {
+    DWT->CYCCNT = 0;
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CYCCNT = 0;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+    DWT->CYCCNT = 0;
+
+    return;
+
+    GCLK->PCHCTRL[TCC0_GCLK_ID].reg = 0 | (1 << GCLK_PCHCTRL_CHEN_Pos);
+
+    MCLK->APBBMASK.reg |= MCLK_APBBMASK_TCC0;
+    Tcc *hw = (Tcc*)TCC0;
+    #if (PERIPHERAL_FREQUENCY/1000000) == 1
+        hw->CTRLA.bit.PRESCALER = 0;
+    #elif (PERIPHERAL_FREQUENCY/1000000) == 2
+        hw->CTRLA.bit.PRESCALER = 1;
+    #elif (PERIPHERAL_FREQUENCY/1000000) == 4
+        hw->CTRLA.bit.PRESCALER = 2;
+    #elif (PERIPHERAL_FREQUENCY/1000000) == 8
+        hw->CTRLA.bit.PRESCALER = 3;
+    #elif (PERIPHERAL_FREQUENCY/1000000) == 16
+        hw->CTRLA.bit.PRESCALER = 4;
+    #else
+        #error "whooops please use a power of two or poke Joan"
+    #endif
+    hw->WAVE.bit.WAVEGEN = 0;
+    hw->INTENSET.bit.OVF = 1;
+    hw->CTRLBSET.bit.CMD = TCC_CTRLBSET_CMD_READSYNC_Val;
+    hw->CTRLA.bit.ENABLE = 1;
+    while (hw->SYNCBUSY.bit.ENABLE) {};
+    NVIC_EnableIRQ(TCC0_0_IRQn);
+}
 
 
 #endif
 
 #if USAGE_REPORT
 
-TaskStatus_t task_statuses[20];
+TaskStatus_t task_statuses[25];
+extern float timerpercent;
 
 void usage_task(void *params) {
     volatile UBaseType_t arr_size;
@@ -199,19 +248,21 @@ void usage_task(void *params) {
             print("The timer counter used for the usage report is taken by a PWM pin\n");
             print("Change USAGE_REPORT_TC in the config as necessary\n");
         }
-        arr_size = uxTaskGetSystemState(task_statuses, 20, &total_runtime);
+        arr_size = uxTaskGetSystemState(task_statuses, 25, &total_runtime);
 
-        print("RAM & CPU usage report (free RAM: %d bytes):\n", xPortGetFreeHeapSize());
+        print("Usage report (RAM: %d bytes, hh %lu):\n", xPortGetFreeHeapSize(), total_runtime);
         for (int x = 0; x<arr_size; x++) {
             float pc = 0;
             if (total_runtime != 0) {
                 pc = task_statuses[x].ulRunTimeCounter*100.;
                 pc /= total_runtime;
             }
-            print("%8s - %3d spare words - %.1f%%\n",
+            if (task_statuses[x].pcTaskName[0] == 'T' && task_statuses[x].pcTaskName[1] == 'm') timerpercent = pc;
+            print("%15s - %3d spare words - %.1f%%\n",
                 task_statuses[x].pcTaskName,
                 task_statuses[x].usStackHighWaterMark,
                 pc);
+            vTaskDelay(50);
         }
         vTaskDelay(USAGE_REPORT_INTERVAL);
     }
@@ -220,5 +271,11 @@ void usage_task(void *params) {
 
 
 #endif
+
+#else
+
+void vConfigureTimerForRunTimeStats(void) {}
+uint32_t vGetRunTimeCounterValue(void) {}
+
 
 #endif

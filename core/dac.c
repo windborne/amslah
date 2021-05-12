@@ -64,7 +64,7 @@ void dac_set_pin(uint8_t pin, int level) {
     DAC->DATA.reg = level;
 #else
 	int which = (pin == PA02) ? 0 : 1;
-    DAC->DATA[which].reg = level;
+    DAC->DATA[which].reg = level << 2;
 #endif
 }
 
