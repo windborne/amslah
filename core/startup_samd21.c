@@ -346,6 +346,11 @@ void init_chip() {
 void Reset_Handler(void)
 {
     mtb_stop();
+
+    //marks the binary file to be able to easiy tell what MCU it's for
+    volatile const char metadata[] = "TARGET_MCU:SAMD21\n";
+    (void)metadata;
+
 	uint32_t *pSrc, *pDest;
 
 #if(USE_PERSISTENT_INFO == 1)

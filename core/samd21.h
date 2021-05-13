@@ -109,3 +109,5 @@
 #include "util.h"
 
 extern uint32_t function_pins[2];
+
+#endif

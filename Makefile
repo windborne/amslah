@@ -11,11 +11,14 @@ SIZE = arm-none-eabi-size
 BUILD_PATH = build
 APP = app
 
-BOARD = $(shell (grep MCU amslah.cfg > /dev/null && sed -n 's/^.*MCU: //p' amslah.cfg 2>/dev/null) || echo "SAMD21J18A")
-CFLAGS = -mthumb -DDEBUG -O3 -ffunction-sections -mlong-calls -Wall -g3 -fstack-usage
-CFLAGS += -c -D__$(BOARD)__
 
-ifneq (,$(findstring SAMD21, $(BOARD)))
+ifndef MCU
+MCU = $(shell (grep MCU amslah.cfg > /dev/null && sed -n 's/^.*MCU: //p' amslah.cfg 2>/dev/null) || echo "SAMD21J18A")
+endif
+CFLAGS = -mthumb -DDEBUG -O3 -ffunction-sections -mlong-calls -Wall -g3 -fstack-usage
+CFLAGS += -c -D__$(MCU)__
+
+ifneq (,$(findstring SAMD21, $(MCU)))
 CFLAGS += -mcpu=cortex-m0plus
 CFLAGS += -mfloat-abi=soft -msoft-float -fsingle-precision-constant
 LFLAGS += -mfloat-abi=soft -mthumb -msoft-float
@@ -71,7 +74,7 @@ HSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.h))
 
 CPPSRC += $(AMSLAH_PATH)/extra/mutex.cpp
 
-ifneq (,$(findstring SAMD21, $(BOARD)))
+ifneq (,$(findstring SAMD21, $(MCU)))
 CSRC += $(AMSLAH_PATH)/core/startup_samd21.c
 CSRC += $(AMSLAH_PATH)/core/mtb.c
 else

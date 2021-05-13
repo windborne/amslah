@@ -30,6 +30,13 @@
 #include "amslah_config.h"
 #include "samd51.h"
 
+
+#if(USE_PERSISTENT_INFO == 1)
+    #include "persistent_info.h"
+    extern persistent_info_t prev_info;
+    extern persistent_info_t curr_info;
+#endif
+
 void init_serial();
 
 void atomic_enter_critical(hal_atomic_t volatile *atomic)
@@ -686,8 +693,16 @@ void init_chip() {
  */
 void Reset_Handler(void)
 {
-	uint32_t *pSrc, *pDest;
+        //marks the binary file to be able to easiy tell what MCU it's for
+        volatile const char metadata[] = "TARGET_MCU:SAMD51\n";
+        (void)metadata;
+	
+        uint32_t *pSrc, *pDest;
 
+        #if(USE_PERSISTENT_INFO == 1)
+                persistent_info_t info_save;
+                memcpy(&info_save,&curr_info,sizeof(persistent_info_t));
+        #endif
 	/* Initialize the relocate segment */
 	pSrc  = &_etext;
 	pDest = &_srelocate;
@@ -702,6 +717,11 @@ void Reset_Handler(void)
 	for (pDest = &_szero; pDest < &_ezero;) {
 		*pDest++ = 0;
 	}
+
+#if(USE_PERSISTENT_INFO == 1)
+    if(info_save.identifier == PERSISTENT_INFO_IDENTIFIER) memcpy(&prev_info,&info_save,sizeof(persistent_info_t));
+    curr_info.identifier = PERSISTENT_INFO_IDENTIFIER;
+#endif
 
 	/* Set the vector table base address */
 	pSrc      = (uint32_t *)&_sfixed;
