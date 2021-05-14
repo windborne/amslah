@@ -60,7 +60,7 @@ void dac_init() {
 }
 
 void dac_set_pin(uint8_t pin, int level) {
-#if _SAMD21_
+#ifdef _SAMD21_
     DAC->DATA.reg = level;
 #else
 	int which = (pin == PA02) ? 0 : 1;

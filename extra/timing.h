@@ -47,7 +47,7 @@ public:
     }
 
     uint32_t get() {
-#ifdef _SAMD21
+#ifdef _SAMD21_
         taskENTER_CRITICAL(); 
         uint32_t nbase = hrt_base;
 		#if USAGE_REPORT_TC >= 3
