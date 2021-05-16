@@ -236,7 +236,6 @@ void vConfigureTimerForRunTimeStats(void) {
 #if USAGE_REPORT
 
 TaskStatus_t task_statuses[25];
-extern float timerpercent;
 
 void usage_task(void *params) {
     volatile UBaseType_t arr_size;
@@ -257,7 +256,6 @@ void usage_task(void *params) {
                 pc = task_statuses[x].ulRunTimeCounter*100.;
                 pc /= total_runtime;
             }
-            if (task_statuses[x].pcTaskName[0] == 'T' && task_statuses[x].pcTaskName[1] == 'm') timerpercent = pc;
             print("%15s - %3d spare words - %.1f%%\n",
                 task_statuses[x].pcTaskName,
                 task_statuses[x].usStackHighWaterMark,
