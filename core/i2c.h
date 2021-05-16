@@ -27,6 +27,11 @@ typedef struct {
 	SemaphoreHandle_t call_mutex;
 
 	int cs;
+	bool bitbang;
+	uint8_t pin_sda;
+	uint8_t pin_scl;
+	bool nostop;
+	bool slow;
 } i2c_t;
 
 void i2c_init(i2c_t *i2c, int sercom,
