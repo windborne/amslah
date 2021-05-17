@@ -41,6 +41,9 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
 #ifdef _SAMD21_
     hw->USART.CTRLA.bit.SWRST = 1;
     while (hw->USART.CTRLA.bit.SWRST || hw->USART.SYNCBUSY.bit.SWRST);
+#else
+    hw->USART.CTRLA.bit.SWRST = 1;
+    while (hw->USART.CTRLA.bit.SWRST || hw->USART.SYNCBUSY.bit.SWRST);
 #endif
 
     hw->USART.CTRLA.bit.MODE = 1; // Internal clock
