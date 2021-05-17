@@ -4,7 +4,7 @@
 
 #if (CPU_FREQUENCY == 8000000)
     #define LOGFAC 3
-#elif (CPU_FREQUENCY == 1600000)
+#elif (CPU_FREQUENCY == 16000000)
     #define LOGFAC 4
 #elif (CPU_FREQUENCY == 4000000)
     #define LOGFAC 2
