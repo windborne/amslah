@@ -63,7 +63,7 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
 
     while (hw->USART.SYNCBUSY.bit.CTRLB);
     while (hw->USART.SYNCBUSY.bit.SWRST);
-	enable_sercom_irq(sercom);
+    enable_sercom_irq(sercom);
 
     uart->hw = hw;
     uart->fn = uart_handler;

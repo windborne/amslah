@@ -160,7 +160,7 @@ void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
     gpio_direction(pin_miso, GPIO_DIRECTION_IN);
     gpio_function(pin_miso, mux_miso); 
 
-	Sercom *hw = get_sercom(sercom);
+    Sercom *hw = get_sercom(sercom);
 
     while (hw->SPI.SYNCBUSY.bit.SWRST);
 
@@ -184,7 +184,7 @@ void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
     hw->SPI.CTRLA.bit.ENABLE = 1;
     while (hw->SPI.SYNCBUSY.bit.CTRLB);
 
-	enable_sercom_irq(sercom);
+    enable_sercom_irq(sercom);
 
     spi->hw = hw;
     spi->fn = spi_handler;
