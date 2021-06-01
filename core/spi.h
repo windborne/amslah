@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#include "samd21.h"
+#include "sammy.h"
 #include "amslah_config.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
@@ -30,6 +30,21 @@ typedef struct {
 } spi_t;
 
 typedef struct {
+	uint8_t sercom;
+	uint8_t pin_sck;
+	uint8_t mux_sck;
+	uint8_t pin_mosi;
+	uint8_t mux_mosi;
+	uint8_t pin_miso;
+	uint8_t mux_miso;
+	uint8_t dipo;
+	uint8_t dopo;
+	uint32_t baud;
+} spicfg_t;
+
+void spi_init_with(spi_t *spi, spicfg_t cfg);
+
+typedef struct {
 	void *ptr;
 	int len;
 } spi_reg_t;
@@ -48,7 +63,6 @@ typedef struct {
 	spi_reg_t *regs;
 	bool write;
 } spi_slave_t;
-
 
 
 /**

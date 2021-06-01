@@ -1,6 +1,7 @@
 #include "uart.h"
 
 void uart_handler(int num) {
+	//configASSERT(0);
     uart_t *uart = (uart_t*)sercom_handlers[num];
     if ( (uart->hw->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_DRE)
             && (uart->hw->USART.INTENSET.reg & SERCOM_USART_INTENSET_DRE) ) {
@@ -35,9 +36,15 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
 
     //PORT->Group[GPIO_PORT(pin_rx)].PINCFG[GPIO_PIN(pin_rx)].reg = PORT_PINCFG_PMUXEN | PORT_PINCFG_INEN ;
 
-    Sercom *hw = (Sercom*)((char*)SERCOM0 + 1024 * sercom);
+	Sercom *hw = get_sercom(sercom);
+
+#ifdef _SAMD21_
     hw->USART.CTRLA.bit.SWRST = 1;
     while (hw->USART.CTRLA.bit.SWRST || hw->USART.SYNCBUSY.bit.SWRST);
+#else
+    hw->USART.CTRLA.bit.SWRST = 1;
+    while (hw->USART.CTRLA.bit.SWRST || hw->USART.SYNCBUSY.bit.SWRST);
+#endif
 
     hw->USART.CTRLA.bit.MODE = 1; // Internal clock
     hw->USART.CTRLA.bit.CMODE = 0;  // Asynchronous mode
@@ -56,8 +63,7 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
 
     while (hw->USART.SYNCBUSY.bit.CTRLB);
     while (hw->USART.SYNCBUSY.bit.SWRST);
-
-    NVIC_EnableIRQ(9 + sercom);
+    enable_sercom_irq(sercom);
 
     uart->hw = hw;
     uart->fn = uart_handler;

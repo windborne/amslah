@@ -2,7 +2,20 @@
 
 #include "amslah.h"
 
+#if (CPU_FREQUENCY == 8000000)
+    #define LOGFAC 3
+#elif (CPU_FREQUENCY == 16000000)
+    #define LOGFAC 4
+#elif (CPU_FREQUENCY == 4000000)
+    #define LOGFAC 2
+#elif (CPU_FREQUENCY == 2000000)
+    #define LOGFAC 1
+#elif (CPU_FREQUENCY == 1000000)
+    #define LOGFAC 0
+#endif
+
 extern int hrt_base;
+
 
 class elapsed {
 public:
@@ -16,6 +29,7 @@ public:
     uint32_t count;
     
     void start() {
+#ifdef _SAMD21_
         taskENTER_CRITICAL(); 
         base = hrt_base;
 	#if USAGE_REPORT_TC >= 3
@@ -27,9 +41,13 @@ public:
     	#endif
 		count = hw->COUNT.reg;
         taskEXIT_CRITICAL(); 
+#else
+        count = DWT->CYCCNT;
+#endif
     }
 
     uint32_t get() {
+#ifdef _SAMD21_
         taskENTER_CRITICAL(); 
         uint32_t nbase = hrt_base;
 		#if USAGE_REPORT_TC >= 3
@@ -42,6 +60,10 @@ public:
 		uint32_t ncount = hw->COUNT.reg;
         taskEXIT_CRITICAL(); 
         return (nbase << HRT_RES) + ncount - ((base << HRT_RES) + count);
+#else
+        uint32_t ncount = DWT->CYCCNT;
+        return (ncount - count) >> LOGFAC;
+#endif
     }
 
     void print() {

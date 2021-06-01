@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#include "samd21.h"
+#include "sammy.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -23,6 +23,20 @@ typedef struct {
 	SemaphoreHandle_t bus_mutex;
 	SemaphoreHandle_t call_mutex;
 } uart_t;
+
+typedef struct {
+	uint8_t sercom;
+	uint8_t pin_tx;
+	uint8_t mux_tx;
+	uint8_t pin_rx;
+	uint8_t mux_rx;
+	uint8_t txpo;
+	uint8_t rxpo;
+	uint32_t baud;
+	uint32_t def;
+} uartcfg_t;
+
+//void uart_init_with(uartcfg_t cfg);
 
 
 /**

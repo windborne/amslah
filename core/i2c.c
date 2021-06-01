@@ -1,5 +1,7 @@
 #include "i2c.h"
 
+#ifdef _SAMD21_
+
 #include "gpio.h"
 
 void i2c_handler(int num) {
@@ -285,3 +287,15 @@ portEXIT_CRITICAL();
 	return 0;
 }
 }
+
+#else
+
+int i2c_read(i2c_t *i2c, uint8_t addr, uint8_t *bytes, int len) { return 1; }
+int i2c_write(i2c_t *i2c, uint8_t addr, uint8_t *bytes, int len) { return 1; }
+
+void i2c_init(i2c_t *i2c, int sercom,
+                uint8_t pin_sda, uint32_t mux_sda,
+                uint8_t pin_scl, uint32_t mux_scl) {}
+
+#endif
+

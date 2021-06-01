@@ -28,6 +28,13 @@ void spi_handler(int num) {
     }
 }
 
+void spi_init_with(spi_t *spi, spicfg_t cfg) {
+	spi_init(spi, cfg.sercom, cfg.dipo, cfg.dopo,
+				cfg.pin_sck, (cfg.pin_sck << 16) | cfg.mux_sck,
+				cfg.pin_mosi, (cfg.pin_mosi << 16) | cfg.mux_mosi,
+				cfg.pin_miso, (cfg.pin_miso << 16) | cfg.mux_miso);
+	if (cfg.baud != 0) spi_set_baud(spi, cfg.baud);
+}
 
 uint8_t Read = 255;
 int nb = 0;
@@ -82,38 +89,6 @@ void spi_handler_slave(int num) {
 		spi->hw->SPI.INTFLAG.bit.TXC = 1;
 	}
 
-	/*
-    if ( (spi->hw->SPI.INTFLAG.reg & SERCOM_SPI_INTFLAG_TXC)
-             && (spi->hw->SPI.INTENSET.reg & SERCOM_SPI_INTENSET_TXC) ) {
-		spi->hw->SPI.INTFLAG.bit.TXC = 1;
-		Read = 0;
-		//spi->hw->SPI.DATA.reg = 0;
-	}
-	*/
-
-	/*
-    if ( (spi->hw->SPI.INTFLAG.reg & SERCOM_SPI_INTFLAG_RXC)
-             && (spi->hw->SPI.INTENSET.reg & SERCOM_SPI_INTENSET_RXC) ) {
-        if (spi->rx_buffer != 0) {
-            spi->rx_buffer[spi->cur] = spi->hw->SPI.DATA.reg;
-        } else {
-            volatile int nop = spi->hw->SPI.DATA.reg; // this guy
-            (void)nop;
-        }
-        spi->cur++;
-        if (spi->cur < spi->size) {
-            if (spi->tx_buffer != 0) {
-                spi->hw->SPI.DATA.reg = spi->tx_buffer[spi->cur];
-            } else {
-                spi->hw->SPI.DATA.reg = spi->dummy_byte;
-            }
-        } else {
-            spi->hw->SPI.INTENCLR.reg = SERCOM_SPI_INTENCLR_RXC;
-            xSemaphoreGiveFromISR(spi->call_mutex, 0);
-            portYIELD_FROM_ISR(pdTRUE);
-        }
-    }
-	*/
 }
 
 
@@ -185,7 +160,7 @@ void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
     gpio_direction(pin_miso, GPIO_DIRECTION_IN);
     gpio_function(pin_miso, mux_miso); 
 
-    Sercom *hw = (Sercom*)((char*)SERCOM0 + 1024 * sercom);
+    Sercom *hw = get_sercom(sercom);
 
     while (hw->SPI.SYNCBUSY.bit.SWRST);
 
@@ -209,7 +184,7 @@ void spi_init(spi_t *spi, int sercom, int dipo, int dopo,
     hw->SPI.CTRLA.bit.ENABLE = 1;
     while (hw->SPI.SYNCBUSY.bit.CTRLB);
 
-    NVIC_EnableIRQ(9 + sercom);
+    enable_sercom_irq(sercom);
 
     spi->hw = hw;
     spi->fn = spi_handler;

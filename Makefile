@@ -11,22 +11,42 @@ SIZE = arm-none-eabi-size
 BUILD_PATH = build
 APP = app
 
-CFLAGS = -mthumb -DDEBUG -O2 -ffunction-sections -mlong-calls -Wall -g3 -fstack-usage
-CFLAGS += -c -D__$(shell (grep MCU amslah.cfg > /dev/null && sed -n 's/^.*MCU: //p' amslah.cfg 2>/dev/null) || echo "SAMD21J18A")__ -mcpu=cortex-m0plus -specs=nano.specs -specs=nosys.specs $(ADDITIONAL_CFLAGS)
+
+ifndef MCU
+MCU = $(shell (grep MCU amslah.cfg > /dev/null && sed -n 's/^.*MCU: //p' amslah.cfg 2>/dev/null) || echo "SAMD21J18A")
+endif
+CFLAGS = -mthumb -DDEBUG -O3 -ffunction-sections -mlong-calls -Wall -g3 -fstack-usage
+CFLAGS += -c -D__$(MCU)__
+
+ifneq (,$(findstring SAMD21, $(MCU)))
+CFLAGS += -mcpu=cortex-m0plus
 CFLAGS += -mfloat-abi=soft -msoft-float -fsingle-precision-constant
+LFLAGS += -mfloat-abi=soft -mthumb -msoft-float
+LFLAGS += -T"$(AMSLAH_PATH)/core/samd21j18a_flash.ld"
+LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus
+EDBG_FAMILY = samd21
+else
+CFLAGS += -mcpu=cortex-m4
+CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant  -mfloat-abi=hard
+LFLAGS += -mfloat-abi=hard -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16
+LFLAGS += -T"$(AMSLAH_PATH)/core/samd51n20a_flash.ld"
+LFLAGS += -Wl,--gc-sections -mcpu=cortex-m4 -mtune=cortex-m4
+EDBG_FAMILY = samd51
+endif
+
 USER_CFLAGS := $(shell sed -n 's/^.*CFLAGS: //p' amslah.cfg 2>/dev/null)
 CFLAGS += $(USER_CFLAGS)
 
-LFLAGS = -T"$(AMSLAH_PATH)/core/samd21j18a_flash.ld"
-LFLAGS += -Wl,--gc-sections -mcpu=cortex-m0plus  -lm -specs=nano.specs -specs=nosys.specs
-LFLAGS += -mfloat-abi=soft -mthumb -msoft-float
+CFLAGS += -specs=nano.specs -specs=nosys.specs $(ADDITIONAL_CFLAGS)
+
+LFLAGS += -lm -specs=nano.specs -specs=nosys.specs
 LFLAGS += -Wl,-Map="$(BUILD_PATH)/memory.map",--cref
 LFLAGS += -Wl,--undefined=uxTopUsedPriority
 
 SHELL:=/bin/bash
 LIBDIRS := $(shell realpath $(shell sed -n 's/^.*LIBS: //p' amslah.cfg 2>/dev/null) 2>/dev/null)
 
-INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable" -I"$(AMSLAH_PATH)/extra" -I"."
+INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable_$(EDBG_FAMILY)" -I"$(AMSLAH_PATH)/extra" -I"."
 INCLUDE += $(foreach LIBDIR,$(LIBDIRS),-I"$(LIBDIR)")
 INCLUDE += $(foreach LIBDIR,$(shell ls -d */),-I"$(LIBDIR)")
 
@@ -54,7 +74,12 @@ HSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.h))
 
 CPPSRC += $(AMSLAH_PATH)/extra/mutex.cpp
 
+ifneq (,$(findstring SAMD21, $(MCU)))
 CSRC += $(AMSLAH_PATH)/core/startup_samd21.c
+CSRC += $(AMSLAH_PATH)/core/mtb.c
+else
+CSRC += $(AMSLAH_PATH)/core/startup_samd51.c
+endif
 CSRC += $(AMSLAH_PATH)/core/gpio.c
 CSRC += $(AMSLAH_PATH)/core/util.c
 CSRC += $(AMSLAH_PATH)/core/uart.c
@@ -63,7 +88,6 @@ CSRC += $(AMSLAH_PATH)/core/spi.c
 CSRC += $(AMSLAH_PATH)/core/i2c.c
 CSRC += $(AMSLAH_PATH)/core/pwm.c
 CSRC += $(AMSLAH_PATH)/core/adc.c
-CSRC += $(AMSLAH_PATH)/core/mtb.c
 CSRC += $(AMSLAH_PATH)/core/dac.c
 CSRC += $(AMSLAH_PATH)/core/eic.c
 CSRC += $(AMSLAH_PATH)/core/watchdog.c
@@ -85,7 +109,7 @@ else
 CSRC += $(AMSLAH_PATH)/freertos/heap_1.c
 endif
 
-CSRC += $(AMSLAH_PATH)/freertos/portable/port.c
+CSRC += $(AMSLAH_PATH)/freertos/portable_$(EDBG_FAMILY)/port.c
 ifeq ($(MAKECMDGOALS), test)
 HSRC += test/testheader.h
 $(eval CPPSRC += test/$(TESTFILE).cpp)
@@ -127,7 +151,7 @@ clean:
 	rm -rf build
 
 u: $(APP)
-	edbg -bpv -t samd21 -f build/$(PROJECT_NAME)$(_NAME_SUFFIX).bin $(ICE_SERIAL)
+	edbg -bpv -t $(EDBG_FAMILY) -f build/$(PROJECT_NAME)$(_NAME_SUFFIX).bin $(ICE_SERIAL)
 
 r: $(APP)
 	$(RUN)
@@ -136,7 +160,7 @@ ohp:
 	$(shell basename $(shell pwd))
 
 test: $(APP) 
-	edbg -bpv -t samd21 -f build/amslah.bin 
+	edbg -bpv -t $(EDBG_FAMILY) -f build/amslah.bin 
 ocd:
 	cd $(AMSLAH_PATH); openocd
 

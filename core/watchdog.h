@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#include "samd21.h"
+#include "sammy.h"
 
 void watchdog_init(int period);
 void watchdog_kick();

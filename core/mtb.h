@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#include "samd21.h"
+#include "sammy.h"
 
 // NOTE: if the size is changed here, the size _and_ alignment in the linker must be manually changed
 #define MTB_MAGNITUDE 6

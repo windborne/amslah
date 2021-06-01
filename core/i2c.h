@@ -4,7 +4,8 @@
 extern "C" {
 #endif
 
-#include "samd21.h"
+#include "sammy.h"
+
 #include "amslah_config.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
@@ -41,6 +42,7 @@ void i2c_init(i2c_t *i2c, int sercom,
 int i2c_write(i2c_t *i2c, uint8_t addr, uint8_t *bytes, int len);
 
 int i2c_read(i2c_t *i2c, uint8_t addr, uint8_t *bytes, int len);
+
 
 #ifdef __cplusplus
 }

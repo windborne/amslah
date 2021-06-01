@@ -4,11 +4,20 @@
 extern "C" {
 #endif
 
-#include "samd21.h"
+#include "sammy.h"
 
 #include "gpio.h"
 
 extern bool used_tcs[8];
+
+typedef struct {
+	uint8_t pin;
+	uint8_t timer;
+	uint8_t mux;
+	uint8_t output;
+	uint8_t prescaler;
+	uint8_t resolution;
+} pwmcfg_t;
 
 /**
  * @brief Initialize a pin so that it can be pulse width modulated.
@@ -32,6 +41,8 @@ extern bool used_tcs[8];
  */
 void pwm_init(uint8_t pin);
 
+void pwm_init_with(pwmcfg_t cfg);
+
 
 /**
  * @brief Sets the PWM level of of a pin to a given number of counts, with 100%
@@ -46,6 +57,9 @@ void pwm_init(uint8_t pin);
  *          timer value happens.
  */
 void pwm_set(uint8_t pin, int level);
+
+void pwm51_init(uint8_t pin, uint8_t mux, uint8_t tc);
+void pwm51_set(uint8_t pin, uint8_t tc, int level);
 
 #ifdef __cplusplus
 }

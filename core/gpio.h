@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#include "samd21.h"
+#include "sammy.h"
 #include "FreeRTOS.h"
 
 #define GPIO_PIN(n) (((n)&0x1Fu) << 0)
@@ -16,6 +16,10 @@ extern "C" {
 enum gpio_port { GPIO_PORTA, GPIO_PORTB, GPIO_PORTC, GPIO_PORTD, GPIO_PORTE };
 enum gpio_direction { GPIO_DIRECTION_OFF, GPIO_DIRECTION_IN, GPIO_DIRECTION_OUT };
 enum gpio_pull_mode { GPIO_PULL_OFF, GPIO_PULL_ON};
+
+
+void print(const char * fmt, ...);
+
 
 
 /**
@@ -48,19 +52,28 @@ void gpio_function(uint8_t pin, uint32_t function);
  */
 static inline void digital_set(uint8_t pin, uint8_t level) {
 	if(pin==NOT_A_PIN) return;
+
 	if (function_pins[GPIO_PORT(pin)] & (1U << GPIO_PIN(pin))) {
 		/* This pin is being used for some function (likely PWM)!!!! */
 		gpio_function(pin, GPIO_FUNCTION_OFF);
 		gpio_direction(pin, GPIO_DIRECTION_OUT);
 		function_pins[GPIO_PORT(pin)] &= ~(1U << GPIO_PIN(pin));
 	}
+
+#ifdef _SAMD21_
 	if (level) {
 		PORT_IOBUS->Group[GPIO_PORT(pin)].OUTSET.reg = 1U << GPIO_PIN(pin);
 	} else {
 		PORT_IOBUS->Group[GPIO_PORT(pin)].OUTCLR.reg = 1U << GPIO_PIN(pin);
 	}
+#else
+	if (level) {
+		PORT->Group[GPIO_PORT(pin)].OUTSET.reg = 1U << GPIO_PIN(pin);
+	} else {
+		PORT->Group[GPIO_PORT(pin)].OUTCLR.reg = 1U << GPIO_PIN(pin);
+	}
+#endif
 }
-
 
 void gpio_pull(uint8_t pin, enum gpio_pull_mode);
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "samd21.h"
+#include "sammy.h"
 
 #ifdef __cplusplus
 extern "C" {

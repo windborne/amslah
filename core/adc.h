@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#include "samd21.h"
+#include "sammy.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
