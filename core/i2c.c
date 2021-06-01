@@ -133,7 +133,7 @@ static inline void digital_set_fast(uint8_t pin, uint8_t level) {
 
 //#define _bitbang_delay() asm("nop"); // vTaskDelay(1);
 
-inline void _bitbang_start(i2c_t *i2c) {
+inline static void _bitbang_start(i2c_t *i2c) {
 	clk_high();
 	data_high();
 	_bitbang_delay();
@@ -144,9 +144,9 @@ inline void _bitbang_start(i2c_t *i2c) {
 	clk_low();
 }
 
-inline uint8_t _bitbang_write(i2c_t *i2c, uint8_t byte) {
+inline static uint8_t _bitbang_write(i2c_t *i2c, uint8_t byte) {
 	uint8_t ret = 0;
-	uint8_t inbit;
+	//uint8_t inbit;
 	
 	for (int i=0; i<8; i++) {
 		if (byte & 0x80) {
@@ -177,7 +177,7 @@ inline uint8_t _bitbang_write(i2c_t *i2c, uint8_t byte) {
 #define ACK 0
 #define NACK 1
 
-inline uint8_t _bitbang_read(i2c_t *i2c, uint8_t a) {
+inline static uint8_t _bitbang_read(i2c_t *i2c, uint8_t a) {
 	data_high();
 	uint8_t c = 0;
 	for (int i=0; i<8; i++) {
@@ -196,7 +196,7 @@ inline uint8_t _bitbang_read(i2c_t *i2c, uint8_t a) {
 	return c;
 }
 
-inline void _bitbang_stop(i2c_t *i2c) {
+inline static void _bitbang_stop(i2c_t *i2c) {
 	data_low();
 	clk_high();
 	_bitbang_delay();
@@ -207,7 +207,7 @@ int i2c_write(i2c_t *i2c, uint8_t addr, uint8_t *bytes, int len) {
 if (!i2c->bitbang) {
 	i2c->hw->I2CM.ADDR.reg = (addr << 1) | 0;
 
-	int i=0;
+	//int i=0;
 	while (i2c->hw->I2CM.INTFLAG.bit.MB == 0) {;}
 	/*
 		if (i++ > 10) print("waiting 1\n");
@@ -223,7 +223,7 @@ if (!i2c->bitbang) {
 
 	for (int i=0; i<len; i++) {
 		i2c->hw->I2CM.DATA.reg = bytes[i];
-		int j = 0;
+		//int j = 0;
 		while (i2c->hw->I2CM.INTFLAG.bit.MB == 0) {/*
 				if (j++ > 10) print("waiting 2\n");
 
@@ -298,4 +298,3 @@ void i2c_init(i2c_t *i2c, int sercom,
                 uint8_t pin_scl, uint32_t mux_scl) {}
 
 #endif
-
