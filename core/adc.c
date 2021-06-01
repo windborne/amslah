@@ -10,6 +10,9 @@
 #define ADC_BUSY_MASK ADC_STATUS_SYNCBUSY
 #endif
 
+#pragma GCC diagnostic ignored "-Warray-bounds"
+
+
 #ifdef _SAMD21_
 const uint8_t adc_ains[] = {-1, -1, 0, 1, 4, 5, 6, 7, 16, 17, 18, 19, /* PA11 */
                             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* PA25 */
