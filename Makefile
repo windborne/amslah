@@ -15,7 +15,7 @@ APP = app
 ifndef MCU
 MCU = $(shell (grep MCU amslah.cfg > /dev/null && sed -n 's/^.*MCU: //p' amslah.cfg 2>/dev/null) || echo "SAMD21J18A")
 endif
-CFLAGS = -mthumb -DDEBUG -O3 -ffunction-sections -mlong-calls -Wall -g3 -fstack-usage
+CFLAGS = -mthumb -DDEBUG -O2 -ffunction-sections -mlong-calls -Wall -g3 -fstack-usage
 CFLAGS += -c -D__$(MCU)__
 
 ifneq (,$(findstring SAMD21, $(MCU)))
