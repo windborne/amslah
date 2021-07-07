@@ -67,13 +67,14 @@ void serial_task(void *params){
         xSemaphoreGive(postprint_mutex);
     }
 }
-
 #endif
 
 void init_serial() {
+	#if USE_DEBUG_UART
     uart_init(&debug_uart, DEBUG_UART_SERCOM, DEBUG_UART_BAUD,
                 DEBUG_UART_TX_PIN, DEBUG_UART_TX_MUX,
                 DEBUG_UART_RX_PIN, DEBUG_UART_RX_MUX);
+	#endif
 
 	#if SERIAL_TASK
     serial_stream = xStreamBufferCreate(512, 64);

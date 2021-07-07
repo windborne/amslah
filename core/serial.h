@@ -11,10 +11,10 @@ extern "C" {
     #define HRT_RES 24
 #endif
 
+#include "uart.h"
 
 #if USE_DEBUG_UART
 
-#include "uart.h"
 #include "printf.h"
 
 extern uart_t debug_uart;

@@ -133,6 +133,15 @@ void pwm_init_with(pwmcfg_t cfg) {
         const uint8_t ids[8] = {TC0_GCLK_ID, TC1_GCLK_ID, TC2_GCLK_ID, TC3_GCLK_ID, TC4_GCLK_ID, TC5_GCLK_ID, TC6_GCLK_ID, TC7_GCLK_ID};
         GCLK->PCHCTRL[ids[cfg.timer]].reg = 0 | (1 << GCLK_PCHCTRL_CHEN_Pos);
 
+		if (cfg.timer == 0) MCLK->APBAMASK.reg |= MCLK_APBAMASK_TC0;
+		if (cfg.timer == 1) MCLK->APBAMASK.reg |= MCLK_APBAMASK_TC1;
+		if (cfg.timer == 2) MCLK->APBBMASK.reg |= MCLK_APBBMASK_TC2;
+		if (cfg.timer == 3) MCLK->APBBMASK.reg |= MCLK_APBBMASK_TC3;
+		if (cfg.timer == 4) MCLK->APBCMASK.reg |= MCLK_APBCMASK_TC4;
+		if (cfg.timer == 5) MCLK->APBCMASK.reg |= MCLK_APBCMASK_TC5;
+		if (cfg.timer == 6) MCLK->APBDMASK.reg |= MCLK_APBDMASK_TC6;
+		if (cfg.timer == 7) MCLK->APBDMASK.reg |= MCLK_APBDMASK_TC6;
+
         TcCount8* hw = tc_insts[cfg.timer];
 		if (prescaler == 0) prescaler = PWM_PRESCALER;
 
