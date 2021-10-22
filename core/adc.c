@@ -144,8 +144,8 @@ int adc_sample(uint8_t pin) {
 	if (!ADC->CTRLA.bit.ENABLE) return -1;
 	int ain;
 	if (pin == 137) ain = 0x18;
-    if (pin == 138) ain = 0x1a;
-    if (pin == 139) ain = 0x1b;
+    else if (pin == 138) ain = 0x1a;
+    else if (pin == 139) ain = 0x1b;
 	else if (adc_ains[pin] == -1) return -1;
 	else ain = adc_ains[pin];
     xSemaphoreTake(adc_mutex, portMAX_DELAY);
