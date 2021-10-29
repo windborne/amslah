@@ -122,7 +122,7 @@ void pwm_init_with(pwmcfg_t cfg) {
 		}
 		critical_section_leave();
 
-		Tcc *hw = insts[n];
+		Tcc *hw = (Tcc*)insts[n];
         hw->CTRLA.bit.PRESCALER = prescaler;
         hw->WAVE.bit.WAVEGEN = 2;
         hw->PER.bit.PER = (1 << resolution) - 1;
@@ -142,7 +142,7 @@ void pwm_init_with(pwmcfg_t cfg) {
 		if (cfg.timer == 6) MCLK->APBDMASK.reg |= MCLK_APBDMASK_TC6;
 		if (cfg.timer == 7) MCLK->APBDMASK.reg |= MCLK_APBDMASK_TC6;
 
-        TcCount8* hw = tc_insts[cfg.timer];
+        TcCount8* hw = (TcCount8*)tc_insts[cfg.timer];
 		if (prescaler == 0) prescaler = PWM_PRESCALER;
 
         hw->CTRLA.bit.MODE = 1; /* 8 bit mode. */
@@ -168,10 +168,10 @@ void pwm_set(uint8_t pin, int level) {
 	uint8_t timer = (pwm_status[pin] >> 4) & 15;
 	uint8_t output = (pwm_status[pin] & 15);
 	if (timer >= 10) {
-		Tcc *hw = insts[timer - 10];
+		Tcc *hw = (Tcc*)insts[timer - 10];
         hw->CC[output].bit.CC = level;
 	} else {
-        TcCount8* hw = tc_insts[timer];
+        TcCount8* hw = (TcCount8*)tc_insts[timer];
         hw->CC[output].bit.CC = level;
     }
 }

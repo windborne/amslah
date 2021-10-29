@@ -92,7 +92,8 @@ void test_flash51(){
 	NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMDEX_KEY | NVMCTRL_CTRLB_CMD_PBC;
 	while (NVMCTRL->STATUS.bit.READY == 0) { }
     while (NVMCTRL->INTFLAG.bit.DONE == 0) { };
-	NVMCTRL->INTFLAG.bit.DONE = 1;
+	//NVMCTRL->INTFLAG.bit.DONE = 1;
+	NVMCTRL->INTFLAG.reg = NVMCTRL_INTFLAG_DONE;
 	//print('yo\n');
 	for (int i=0; i<(NVMCTRL_PAGE_SIZE/4); i++) {
       *dst_addr = 0xfcfcfcfc;
@@ -102,7 +103,8 @@ void test_flash51(){
 	NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMDEX_KEY | NVMCTRL_CTRLB_CMD_WP;   
 	while (NVMCTRL->STATUS.bit.READY == 0) { }
 	while (NVMCTRL->INTFLAG.bit.DONE == 0) {};
-	NVMCTRL->INTFLAG.bit.DONE = 1;
+	//NVMCTRL->INTFLAG.bit.DONE = 1;
+	NVMCTRL->INTFLAG.reg = NVMCTRL_INTFLAG_DONE;
     invalidate_CMCC_cache();
     // Restore original NVMCTRL cache settings.
     NVMCTRL->CTRLA.bit.CACHEDIS0 = original_CACHEDIS0;
@@ -129,14 +131,16 @@ void write_flash51(uint32_t word){
 	NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMDEX_KEY | NVMCTRL_CTRLB_CMD_PBC;
 	while (NVMCTRL->STATUS.bit.READY == 0) { }
     while (NVMCTRL->INTFLAG.bit.DONE == 0) { };
-	NVMCTRL->INTFLAG.bit.DONE = 1;
+	//NVMCTRL->INTFLAG.bit.DONE = 1;
+	NVMCTRL->INTFLAG.reg = NVMCTRL_INTFLAG_DONE;
 	//print('yo\n');
     *dst_addr = word;
 	// Execute Write Page
 	NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMDEX_KEY | NVMCTRL_CTRLB_CMD_WP;   
 	while (NVMCTRL->STATUS.bit.READY == 0) { }
 	while (NVMCTRL->INTFLAG.bit.DONE == 0) {};
-	NVMCTRL->INTFLAG.bit.DONE = 1;
+	//NVMCTRL->INTFLAG.bit.DONE = 1;
+	NVMCTRL->INTFLAG.reg = NVMCTRL_INTFLAG_DONE;
     invalidate_CMCC_cache();
     // Restore original NVMCTRL cache settings.
     NVMCTRL->CTRLA.bit.CACHEDIS0 = original_CACHEDIS0;

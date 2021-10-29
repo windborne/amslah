@@ -47,7 +47,8 @@ void spi_handler_slave(int num) {
 
     if ( (flag & SERCOM_SPI_INTFLAG_SSL)
              && (set & SERCOM_SPI_INTENSET_SSL) ) {
-		spi->hw->SPI.INTFLAG.bit.SSL = 1;
+		spi->hw->SPI.INTFLAG.reg |= SERCOM_SPI_INTFLAG_SSL;
+		//spi->hw->SPI.INTFLAG.bit.SSL = 1;
 		Read = 255;
 		nb = 0;
 	}
@@ -86,7 +87,8 @@ void spi_handler_slave(int num) {
     if ( (flag & SERCOM_SPI_INTFLAG_TXC)
              && (set & SERCOM_SPI_INTENSET_TXC) ) {
 		spi->xfer_t = xTaskGetTickCount();
-		spi->hw->SPI.INTFLAG.bit.TXC = 1;
+		spi->hw->SPI.INTFLAG.reg |= SERCOM_SPI_INTFLAG_TXC;
+		//spi->hw->SPI.INTFLAG.bit.TXC = 1;
 	}
 
 }

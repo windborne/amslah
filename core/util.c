@@ -59,8 +59,8 @@ uint32_t get_32bit_core_id(){
 	uint32_t* addr = (uint32_t*)0x0080A00C;
 	uint32_t id = *(addr) ^ *(addr+1) ^ *(addr+2) ^ *(addr+3);
 #else
-	uint32_t* addr = 0x008061FC;
-	uint32_t* addr2 = 0x00806010;
+	uint32_t* addr = (uint32_t*)0x008061FC;
+	uint32_t* addr2 = (uint32_t*)0x00806010;
 	uint32_t id = (*addr) ^ (*(addr2)) ^ (*(addr2+1)) ^ (*(addr2+2));
 #endif
 	return id;
@@ -70,7 +70,7 @@ Sercom *get_sercom(int sercom) {
 #ifdef _SAMD21_
     Sercom *hw = (Sercom*)((char*)SERCOM0 + 1024 * sercom);
 #else
-	Sercom *hw;
+	Sercom *hw = 0;
 	switch (sercom) {
 	case 0:
 		hw = SERCOM0; break;

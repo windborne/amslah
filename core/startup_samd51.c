@@ -29,7 +29,7 @@
 
 #include "amslah_config.h"
 #include "samd51.h"
-
+#include <string.h>
 
 #if(USE_PERSISTENT_INFO == 1)
     #include "persistent_info.h"
