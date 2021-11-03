@@ -21,6 +21,7 @@ public:
 	bool take();
 	void give();
 	bool take_nowarnings();
+	bool take_notimeout();
 	void give_nowarnings();
 	SemaphoreHandle_t mutex = NULL;
 

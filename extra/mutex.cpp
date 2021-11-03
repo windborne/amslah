@@ -57,6 +57,10 @@ void Mutex::give(){
 xSemaphoreGive(mutex);
 }
 
+bool Mutex::take_notimeout(){
+	return xSemaphoreTake(mutex,portMAX_DELAY);
+}
+
 bool Mutex::take_nowarnings(){
 	if(xSemaphoreTake(mutex, MUTEX_TIMEOUT_TIME)){
 		return true;
