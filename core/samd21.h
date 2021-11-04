@@ -10,10 +10,12 @@
 
 #if   defined(__SAMD21E15A__) || defined(__ATSAMD21E15A__)
   #include "samd21e15a.h"
-#elif defined(__SAMD21E16A__) || defined(__ATSAMD21E16A__)
-  #include "samd21e16a.h"
+#elif defined(__SAMD21E16B__) || defined(__ATSAMD21E16B__)
+  #include "samd21e16b.h"
 #elif defined(__SAMD21E17A__) || defined(__ATSAMD21E17A__)
   #include "samd21e17a.h"
+#elif defined(__SAMD21E17D__) || defined(__ATSAMD21E17D__)
+  #include "samd21e17d.h"
 #elif defined(__SAMD21E18A__) || defined(__ATSAMD21E18A__)
   #include "samd21e18a.h"
 #elif defined(__SAMD21G15A__) || defined(__ATSAMD21G15A__)

@@ -12,10 +12,11 @@ void gpio_pull(uint8_t pin, enum gpio_pull_mode pull_mode) {
     else
         PORT_IOBUS->Group[GPIO_PORT(pin)].PINCFG[GPIO_PIN(pin)].bit.PULLEN = false;
 #else
-    if(pull_mode == GPIO_PULL_ON)
+    if(pull_mode == GPIO_PULL_ON) {
         PORT->Group[GPIO_PORT(pin)].PINCFG[GPIO_PIN(pin)].bit.PULLEN = true;
-    else
+    } else {
         PORT->Group[GPIO_PORT(pin)].PINCFG[GPIO_PIN(pin)].bit.PULLEN = false;
+	}
 #endif
 }
 

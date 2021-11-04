@@ -1,6 +1,6 @@
 #include "i2c.h"
 
-#ifdef _SAMD21_
+#if 1
 
 #include "gpio.h"
 
@@ -48,7 +48,7 @@ void i2c_init(i2c_t *i2c, int sercom,
     gpio_direction(pin_scl, GPIO_DIRECTION_OUT);
     gpio_function(pin_scl, mux_scl); 
 
-    Sercom *hw = (Sercom*)((char*)SERCOM0 + 1024 * sercom);
+    Sercom *hw = get_sercom(sercom);
 
     while (hw->I2CM.SYNCBUSY.bit.SWRST);
 
@@ -62,7 +62,7 @@ void i2c_init(i2c_t *i2c, int sercom,
     hw->I2CM.CTRLA.bit.ENABLE = 1;
 	while (hw->I2CM.SYNCBUSY.reg);
 
-    NVIC_EnableIRQ(9 + sercom);
+    enable_sercom_irq(sercom);
 
     i2c->hw = hw;
     i2c->fn = i2c_handler;
@@ -71,13 +71,20 @@ void i2c_init(i2c_t *i2c, int sercom,
 
 	while (hw->I2CM.SYNCBUSY.reg);
 
-    sercom_handlers[sercom] = (dummy_type*)i2c;
+	//print("hey wtf sercom is %d\n", sercom);
+
+    //sercom_handlers[sercom] = (dummy_type*)i2c;
 
     i2c->bus_mutex = xSemaphoreCreateBinary();
+
     xSemaphoreGive(i2c->bus_mutex);
 
     i2c->call_mutex = xSemaphoreCreateBinary();
 }
+
+#ifndef _SAMD21_
+#define PORT_IOBUS PORT
+#endif
 
 static inline void gpio_direction_fast(uint8_t pin, enum gpio_direction direction) {
     if (direction == GPIO_DIRECTION_OUT) {
@@ -94,8 +101,6 @@ static inline void gpio_direction_fast(uint8_t pin, enum gpio_direction directio
                 PORT_WRCONFIG_HWSEL | PORT_WRCONFIG_WRPINCFG | PORT_WRCONFIG_INEN | ((pinsel & 0xffff0000) >> 16);
     } 
 }
-
-
 
 static inline void digital_set_fast(uint8_t pin, uint8_t level) {
     if (level) {
@@ -207,8 +212,9 @@ int i2c_write(i2c_t *i2c, uint8_t addr, uint8_t *bytes, int len) {
 if (!i2c->bitbang) {
 	i2c->hw->I2CM.ADDR.reg = (addr << 1) | 0;
 
-	//int i=0;
+	uint32_t t0 = xTaskGetTickCount();
 	while (i2c->hw->I2CM.INTFLAG.bit.MB == 0) {;}
+	print("took %d ms\n", xTaskGetTickCount()-t0);
 	/*
 		if (i++ > 10) print("waiting 1\n");
 
@@ -224,11 +230,14 @@ if (!i2c->bitbang) {
 	for (int i=0; i<len; i++) {
 		i2c->hw->I2CM.DATA.reg = bytes[i];
 		//int j = 0;
+		//micros.start();
+		t0 = xTaskGetTickCount();
 		while (i2c->hw->I2CM.INTFLAG.bit.MB == 0) {/*
 				if (j++ > 10) print("waiting 2\n");
 
 				vTaskDelay(10);*/
 		}
+		print("took %d ms\n", xTaskGetTickCount()-t0);
 		if (i2c->hw->I2CM.STATUS.bit.RXNACK) {
 			i2c->hw->I2CM.CTRLB.bit.CMD = 3;
 			return 2;
