@@ -23,6 +23,7 @@ typedef struct {
 
     uint16_t size;
     uint16_t cur;
+	uint16_t baud;
 
 	SemaphoreHandle_t bus_mutex;
 	SemaphoreHandle_t call_mutex;

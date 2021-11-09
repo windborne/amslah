@@ -57,7 +57,11 @@ void i2c_init(i2c_t *i2c, int sercom,
     hw->I2CM.CTRLB.bit.SMEN = 1;
     hw->I2CM.CTRLA.bit.SPEED = 0;
     hw->I2CM.CTRLA.bit.INACTOUT = 0;
-    hw->I2CM.BAUD.bit.BAUD = i2c->slow ? 20 : 0;
+	if (i2c->baud != 0) {
+    	hw->I2CM.BAUD.bit.BAUD = i2c->baud;
+	} else {
+    	hw->I2CM.BAUD.bit.BAUD = i2c->slow ? 20 : 0;
+	}
 
     hw->I2CM.CTRLA.bit.ENABLE = 1;
 	while (hw->I2CM.SYNCBUSY.reg);
@@ -213,8 +217,8 @@ if (!i2c->bitbang) {
 	i2c->hw->I2CM.ADDR.reg = (addr << 1) | 0;
 
 	uint32_t t0 = xTaskGetTickCount();
-	while (i2c->hw->I2CM.INTFLAG.bit.MB == 0) {;}
-	print("took %d ms\n", xTaskGetTickCount()-t0);
+	while (i2c->hw->I2CM.INTFLAG.bit.MB == 0 && (xTaskGetTickCount() - t0 < 20)) {;}
+	//print("took %d ms\n", xTaskGetTickCount()-t0);
 	/*
 		if (i++ > 10) print("waiting 1\n");
 
@@ -222,7 +226,7 @@ if (!i2c->bitbang) {
 	}
 */
 
-	if (i2c->hw->I2CM.STATUS.bit.RXNACK) {
+	if (i2c->hw->I2CM.STATUS.bit.RXNACK || i2c->hw->I2CM.INTFLAG.bit.MB == 0) {
     	i2c->hw->I2CM.CTRLB.bit.CMD = 3;
 		return 1;
 	}
@@ -232,13 +236,13 @@ if (!i2c->bitbang) {
 		//int j = 0;
 		//micros.start();
 		t0 = xTaskGetTickCount();
-		while (i2c->hw->I2CM.INTFLAG.bit.MB == 0) {/*
+		while (i2c->hw->I2CM.INTFLAG.bit.MB == 0 && (xTaskGetTickCount() - t0 < 20)) {/*
 				if (j++ > 10) print("waiting 2\n");
 
 				vTaskDelay(10);*/
 		}
-		print("took %d ms\n", xTaskGetTickCount()-t0);
-		if (i2c->hw->I2CM.STATUS.bit.RXNACK) {
+		//print("took %d ms\n", xTaskGetTickCount()-t0);
+		if (i2c->hw->I2CM.STATUS.bit.RXNACK || i2c->hw->I2CM.INTFLAG.bit.MB == 0) {
 			i2c->hw->I2CM.CTRLB.bit.CMD = 3;
 			return 2;
 		}
@@ -263,9 +267,10 @@ int i2c_read(i2c_t *i2c, uint8_t addr, uint8_t *bytes, int len) {
 if (!i2c->bitbang) {
 	i2c->hw->I2CM.ADDR.reg = (addr << 1) | 1;
 
-	while (i2c->hw->I2CM.INTFLAG.bit.SB == 0);
+	uint32_t t0 = xTaskGetTickCount();
+	while (i2c->hw->I2CM.INTFLAG.bit.SB == 0 && (xTaskGetTickCount()-t0 < 20));
 
-	if (i2c->hw->I2CM.STATUS.bit.RXNACK) {
+	if (i2c->hw->I2CM.STATUS.bit.RXNACK || i2c->hw->I2CM.INTFLAG.bit.SB == 0) {
     	i2c->hw->I2CM.CTRLB.bit.CMD = 3;
 		return 1;
 	}
@@ -274,7 +279,8 @@ if (!i2c->bitbang) {
 
 	for (int i=0; i<(len-1); i++) {
 		bytes[i] = i2c->hw->I2CM.DATA.reg;
-		while (i2c->hw->I2CM.INTFLAG.bit.SB == 0);
+		t0 = xTaskGetTickCount();
+		while (i2c->hw->I2CM.INTFLAG.bit.SB == 0 && (xTaskGetTickCount()-t0 < 20));
 	}
 
 	if (len) {
