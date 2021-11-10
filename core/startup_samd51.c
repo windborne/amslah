@@ -734,8 +734,8 @@ void Reset_Handler(void)
 	__ISB();
 #endif
 
-    NVMCTRL->CTRLA.bit.RWS = 0;
-    CMCC->CTRL.bit.CEN = 1;
+    NVMCTRL->CTRLA.bit.RWS = SAMD51_WAIT_STATES;
+    CMCC->CTRL.bit.CEN = SAMD51_CACHE_ENABLE;
 
 	/* Initialize the C library */
 	__libc_init_array();

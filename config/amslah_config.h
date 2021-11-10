@@ -2,6 +2,14 @@
 
 #include <user_amslah_config.h>
 
+#ifndef SAMD51_WAIT_STATES
+	#define SAMD51_WAIT_STATES 0
+#endif
+
+#ifndef SAMD51_CACHE_ENABLE
+	#define SAMD51_CACHE_ENABLE 1
+#endif
+
 #ifndef IO_MAX_DELAY
 	#define IO_MAX_DELAY 5000
 #endif
