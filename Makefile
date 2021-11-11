@@ -37,7 +37,7 @@ endif
 USER_CFLAGS := $(shell sed -n 's/^.*CFLAGS: //p' amslah.cfg 2>/dev/null)
 CFLAGS += $(USER_CFLAGS)
 
-CFLAGS += -specs=nano.specs -specs=nosys.specs $(ADDITIONAL_CFLAGS)
+CFLAGS += -specs=nano.specs -specs=nosys.specs $(ADDITIONAL_CFLAGS) $(CF)
 
 LFLAGS += -lm -specs=nano.specs -specs=nosys.specs
 LFLAGS += -Wl,-Map="$(BUILD_PATH)/memory.map",--cref
