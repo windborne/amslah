@@ -217,7 +217,7 @@ if (!i2c->bitbang) {
 	i2c->hw->I2CM.ADDR.reg = (addr << 1) | 0;
 
 	uint32_t t0 = xTaskGetTickCount();
-	while (i2c->hw->I2CM.INTFLAG.bit.MB == 0 && (xTaskGetTickCount() - t0 < 20)) {;}
+	while (i2c->hw->I2CM.INTFLAG.bit.MB == 0 && (xTaskGetTickCount() - t0 < 10)) {;}
 	//print("took %d ms\n", xTaskGetTickCount()-t0);
 	/*
 		if (i++ > 10) print("waiting 1\n");
@@ -236,7 +236,7 @@ if (!i2c->bitbang) {
 		//int j = 0;
 		//micros.start();
 		t0 = xTaskGetTickCount();
-		while (i2c->hw->I2CM.INTFLAG.bit.MB == 0 && (xTaskGetTickCount() - t0 < 20)) {/*
+		while (i2c->hw->I2CM.INTFLAG.bit.MB == 0 && (xTaskGetTickCount() - t0 < 10)) {/*
 				if (j++ > 10) print("waiting 2\n");
 
 				vTaskDelay(10);*/
@@ -268,7 +268,7 @@ if (!i2c->bitbang) {
 	i2c->hw->I2CM.ADDR.reg = (addr << 1) | 1;
 
 	uint32_t t0 = xTaskGetTickCount();
-	while (i2c->hw->I2CM.INTFLAG.bit.SB == 0 && (xTaskGetTickCount()-t0 < 20));
+	while (i2c->hw->I2CM.INTFLAG.bit.SB == 0 && (xTaskGetTickCount()-t0 < 10));
 
 	if (i2c->hw->I2CM.STATUS.bit.RXNACK || i2c->hw->I2CM.INTFLAG.bit.SB == 0) {
     	i2c->hw->I2CM.CTRLB.bit.CMD = 3;
@@ -280,7 +280,7 @@ if (!i2c->bitbang) {
 	for (int i=0; i<(len-1); i++) {
 		bytes[i] = i2c->hw->I2CM.DATA.reg;
 		t0 = xTaskGetTickCount();
-		while (i2c->hw->I2CM.INTFLAG.bit.SB == 0 && (xTaskGetTickCount()-t0 < 20));
+		while (i2c->hw->I2CM.INTFLAG.bit.SB == 0 && (xTaskGetTickCount()-t0 < 10));
 	}
 
 	if (len) {

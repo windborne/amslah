@@ -2,10 +2,16 @@
 
 #include "amslah.h"
 
+// fake news for 48 MHz but whatever
+
 #if (CPU_FREQUENCY == 8000000)
     #define LOGFAC 3
 #elif (CPU_FREQUENCY == 16000000)
     #define LOGFAC 4
+#elif (CPU_FREQUENCY == 32000000)
+    #define LOGFAC 5
+#elif (CPU_FREQUENCY == 48000000)
+    #define LOGFAC 6
 #elif (CPU_FREQUENCY == 4000000)
     #define LOGFAC 2
 #elif (CPU_FREQUENCY == 2000000)

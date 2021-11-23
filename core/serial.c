@@ -206,6 +206,7 @@ void vConfigureTimerForRunTimeStats(void) {
 
     return;
 
+/*
     GCLK->PCHCTRL[TCC0_GCLK_ID].reg = 0 | (1 << GCLK_PCHCTRL_CHEN_Pos);
 
     MCLK->APBBMASK.reg |= MCLK_APBBMASK_TCC0;
@@ -229,6 +230,7 @@ void vConfigureTimerForRunTimeStats(void) {
     hw->CTRLA.bit.ENABLE = 1;
     while (hw->SYNCBUSY.bit.ENABLE) {};
     NVIC_EnableIRQ(TCC0_0_IRQn);
+*/
 }
 
 
