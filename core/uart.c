@@ -28,6 +28,10 @@ void uart_handler(int num) {
     }
 }
 
+void uart_init_with(uart_t *uart, uartcfg_t cfg) {
+	uart_init(uart, cfg.sercom, cfg.baud, cfg.pin_tx, (cfg.pin_tx << 16) | cfg.mux_tx, cfg.pin_rx, (cfg.pin_rx << 16) | cfg.mux_rx);
+}
+
 void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_tx, uint8_t pin_rx, uint32_t mux_rx) {
     enable_sercom_clock(sercom);
 

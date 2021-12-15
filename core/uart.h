@@ -36,7 +36,7 @@ typedef struct {
 	uint32_t def;
 } uartcfg_t;
 
-//void uart_init_with(uartcfg_t cfg);
+void uart_init_with(uart_t *uart, uartcfg_t cfg);
 
 
 /**
