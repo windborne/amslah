@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(__SAMD21J18A__) || defined(__SAMD21E18A__) || defined(__SAMD21E16B__) || defined(__SAMD21E17D__)
+#if defined(__SAMD21J18A__) || defined(__SAMD21E18A__) || defined(__SAMD21E16B__) || defined(__SAMD21E17D__) || defined(__SAMD21E17A__)
 #include "samd21.h"
 #define NUM_SERCOMS 6
 #else
