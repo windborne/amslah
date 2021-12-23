@@ -85,7 +85,11 @@ void init_serial() {
     xTaskCreate(serial_task, "serial", 130, 0, 1, &serial_handle);
 	#endif
     #if USAGE_REPORT
-        xTaskCreate(usage_task, "usage", 150, 0, 1, NULL);
+
+	#ifndef USAGE_REPORT_RAM
+		#define USAGE_REPORT_RAM  300
+	#endif
+        xTaskCreate(usage_task, "usage", USAGE_REPORT_RAM, 0, 1, NULL);
     #endif
 }
 
@@ -238,7 +242,11 @@ void vConfigureTimerForRunTimeStats(void) {
 
 #if USAGE_REPORT
 
-TaskStatus_t task_statuses[25];
+#ifndef USAGE_REPORT_N
+	#define USAGE_REPORT_N 32
+#endif
+
+TaskStatus_t task_statuses[USAGE_REPORT_N ];
 
 void usage_task(void *params) {
     volatile UBaseType_t arr_size;
@@ -250,7 +258,7 @@ void usage_task(void *params) {
             print("The timer counter used for the usage report is taken by a PWM pin\n");
             print("Change USAGE_REPORT_TC in the config as necessary\n");
         }
-        arr_size = uxTaskGetSystemState(task_statuses, 25, &total_runtime);
+        arr_size = uxTaskGetSystemState(task_statuses, USAGE_REPORT_N, &total_runtime);
 
         print("Usage report (RAM: %d bytes, hh %lu):\n", xPortGetFreeHeapSize(), total_runtime);
         for (int x = 0; x<arr_size; x++) {
