@@ -17,6 +17,7 @@ MCU = $(shell (grep MCU amslah.cfg > /dev/null && sed -n 's/^.*MCU: //p' amslah.
 endif
 CFLAGS = -mthumb -DDEBUG -O2 -ffunction-sections -mlong-calls -Wall -g3 -fstack-usage
 CFLAGS += -c -D__$(MCU)__
+CFLAGS += -mfp16-format=ieee
 
 ifneq (,$(findstring SAMD21, $(MCU)))
 CFLAGS += -mcpu=cortex-m0plus
