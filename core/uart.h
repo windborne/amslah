@@ -69,6 +69,11 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
 
 
 /**
+ *@brief Like the above function for for reiniting uart
+ */
+void uart_reinit(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_tx, uint8_t pin_rx, uint32_t mux_rx);
+
+/**
  * @brief Writes a buffer to a given UART port.
  *
  * @param uart UART bus to write to.
