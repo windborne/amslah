@@ -44,6 +44,12 @@ LFLAGS += -lm -specs=nano.specs -specs=nosys.specs
 LFLAGS += -Wl,-Map="$(BUILD_PATH)/memory.map",--cref
 LFLAGS += -Wl,--undefined=uxTopUsedPriority
 
+RAMSIZE = $(shell (grep RAMSIZE amslah.cfg > /dev/null && sed -n 's/^.*RAMSIZE: //p' amslah.cfg 2>/dev/null) || echo "")
+ifneq ($(RAMSIZE),)
+LFLAGS += -Xlinker --defsym=SAMD_RAM_SIZE=$(RAMSIZE)
+endif
+
+
 SHELL:=/bin/bash
 LIBDIRS := $(shell realpath $(shell sed -n 's/^.*LIBS: //p' amslah.cfg 2>/dev/null) 2>/dev/null)
 
