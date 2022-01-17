@@ -65,6 +65,8 @@ $(error "The hook failed! See hook_output.")
 endif
 endif
 
+HOOK_POST := $(shell sed -n 's/^.*HOOKS_POST: //p' amslah.cfg)
+
 TEXT := $(shell cat hook_output)
 
 CONFIGS = $(AMSLAH_PATH)/config/FreeRTOSConfig.h
@@ -145,6 +147,7 @@ $(APP): $(BUILTOBJ)
 	cat hook_output
 	printf "INCLUDE: ${INCLUDE} \nCSRC: ${CSRC} \nCPPSRC: ${CPPSRC}" > build/filelist 
 	arm-none-eabi-size "build/$(PROJECT_NAME)$(_NAME_SUFFIX).elf"
+	$(HOOK_POST) build/$(PROJECT_NAME)$(_NAME_SUFFIX).bin
 
 $(BUILD_PATH)/%.o: %.cpp $(CONFIGS) $(HSRC)
 	mkdir -p $(@D)

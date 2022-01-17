@@ -81,6 +81,50 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
     sercom_handlers[sercom] = (dummy_type*)uart;
 }
 
+void uart_reinit(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_tx, uint8_t pin_rx, uint32_t mux_rx){
+    enable_sercom_clock(sercom);
+
+    gpio_function(pin_tx, mux_tx);
+    gpio_function(pin_rx, mux_rx); 
+
+    //PORT->Group[GPIO_PORT(pin_rx)].PINCFG[GPIO_PIN(pin_rx)].reg = PORT_PINCFG_PMUXEN | PORT_PINCFG_INEN ;
+
+	Sercom *hw = get_sercom(sercom);
+
+#ifdef _SAMD21_
+    hw->USART.CTRLA.bit.SWRST = 1;
+    while (hw->USART.CTRLA.bit.SWRST || hw->USART.SYNCBUSY.bit.SWRST);
+#else
+    hw->USART.CTRLA.bit.SWRST = 1;
+    while (hw->USART.CTRLA.bit.SWRST || hw->USART.SYNCBUSY.bit.SWRST);
+#endif
+
+    hw->USART.CTRLA.bit.MODE = 1; // Internal clock
+    hw->USART.CTRLA.bit.CMODE = 0;  // Asynchronous mode
+    hw->USART.CTRLA.bit.TXPO = 0;
+    hw->USART.CTRLA.bit.RXPO = 1;
+    hw->USART.CTRLA.bit.DORD = 1; // LSB first
+    hw->USART.CTRLB.bit.CHSIZE = 0; // 8 bits
+    hw->USART.CTRLA.bit.FORM = 0;  // No parity bit
+    hw->USART.CTRLB.bit.SBMODE = 0; // One stop bit
+    hw->USART.BAUD.reg = _uart_get_baud_reg(baud);
+	hw->USART.CTRLB.bit.ENC = 0;
+    hw->USART.CTRLB.bit.RXEN = 1; // Receiver
+    hw->USART.CTRLB.bit.TXEN = 1; // Transmitter
+    hw->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
+    hw->USART.CTRLA.reg |= 1 << SERCOM_USART_CTRLA_ENABLE_Pos; // Enable
+
+    while (hw->USART.SYNCBUSY.bit.CTRLB);
+    while (hw->USART.SYNCBUSY.bit.SWRST);
+    enable_sercom_irq(sercom);
+
+    uart->hw = hw;
+    uart->fn = uart_handler;
+    xSemaphoreGive(uart->bus_mutex);
+
+    sercom_handlers[sercom] = (dummy_type*)uart;
+}
+
 int32_t uart_write(uart_t *uart, const uint8_t *buf, uint16_t len) {
     xSemaphoreTake(uart->bus_mutex, portMAX_DELAY);
     uart->tx_buffer = (uint8_t*)buf;

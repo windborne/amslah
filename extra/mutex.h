@@ -64,3 +64,14 @@ public:
 	}
 	Mutex& _mutex;
 };
+
+class LockGuardNoTimeout {
+public:
+	LockGuardNoTimeout(Mutex& mutex) : _mutex(mutex){
+		_mutex.take_notimeout();
+	}
+	~LockGuardNoTimeout(){
+		_mutex.give_nowarnings();
+	}
+	Mutex& _mutex;
+};
