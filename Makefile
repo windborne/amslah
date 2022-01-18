@@ -65,6 +65,10 @@ $(error "The hook failed! See hook_output.")
 endif
 endif
 
+ifneq ($(NAME_SUFFIX),)
+_NAME_SUFFIX = _$(NAME_SUFFIX)
+endif
+
 HOOK_POST := $(shell sed -n 's/^.*HOOKS_POST: //p' amslah.cfg)
 ifneq ($(HOOK_POST),)
 	HOOK_POST := $(HOOK_POST) build/$(PROJECT_NAME)$(_NAME_SUFFIX).bin
@@ -132,10 +136,6 @@ endif
 
 ifneq ($(SERIAL),)
 ICE_SERIAL = -s $(SERIAL)
-endif
-
-ifneq ($(NAME_SUFFIX),)
-_NAME_SUFFIX = _$(NAME_SUFFIX)
 endif
 
 CPPOBJ := $(CPPSRC:%.cpp=%.o)
