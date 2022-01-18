@@ -38,7 +38,7 @@ endif
 USER_CFLAGS := $(shell sed -n 's/^.*CFLAGS: //p' amslah.cfg 2>/dev/null)
 CFLAGS += $(USER_CFLAGS)
 
-CFLAGS += -specs=nano.specs -specs=nosys.specs $(ADDITIONAL_CFLAGS) $(CF)
+CFLAGS += -DCOMPILE_TIME=$(shell date '+%s') -specs=nano.specs -specs=nosys.specs $(ADDITIONAL_CFLAGS) $(CF)
 
 LFLAGS += -lm -specs=nano.specs -specs=nosys.specs
 LFLAGS += -Wl,-Map="$(BUILD_PATH)/memory.map",--cref
@@ -66,6 +66,9 @@ endif
 endif
 
 HOOK_POST := $(shell sed -n 's/^.*HOOKS_POST: //p' amslah.cfg)
+ifneq ($(HOOK_POST),)
+	HOOK_POST := $(HOOK_POST) build/$(PROJECT_NAME)$(_NAME_SUFFIX).bin
+endif
 
 TEXT := $(shell cat hook_output)
 
@@ -147,7 +150,7 @@ $(APP): $(BUILTOBJ)
 	cat hook_output
 	printf "INCLUDE: ${INCLUDE} \nCSRC: ${CSRC} \nCPPSRC: ${CPPSRC}" > build/filelist 
 	arm-none-eabi-size "build/$(PROJECT_NAME)$(_NAME_SUFFIX).elf"
-	$(HOOK_POST) build/$(PROJECT_NAME)$(_NAME_SUFFIX).bin
+	$(HOOK_POST)
 
 $(BUILD_PATH)/%.o: %.cpp $(CONFIGS) $(HSRC)
 	mkdir -p $(@D)
