@@ -72,6 +72,9 @@ void eeprom_read(uint8_t * buf, uint8_t size, uint8_t num){
 //also it takes a full flash block
 __attribute__((__aligned__(8192)))
 static const uint8_t flash_block[8192] = { };
+
+volatile uint32_t* get_raw_flash() { return (volatile uint32_t*)flash_block; }
+
 void test_flash51(){
 	NVMCTRL->ADDR.reg = ((uint32_t)flash_block);
   	NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMDEX_KEY | NVMCTRL_CTRLB_CMD_EB;
@@ -133,7 +136,7 @@ void write_flash51(uint32_t word){
     while (NVMCTRL->INTFLAG.bit.DONE == 0) { };
 	//NVMCTRL->INTFLAG.bit.DONE = 1;
 	NVMCTRL->INTFLAG.reg = NVMCTRL_INTFLAG_DONE;
-	//print('yo\n');
+	//print("yo word %d\n", word);
     *dst_addr = word;
 	// Execute Write Page
 	NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMDEX_KEY | NVMCTRL_CTRLB_CMD_WP;   
@@ -148,8 +151,48 @@ void write_flash51(uint32_t word){
 
 }
 
-uint32_t read_flash51(){
-	return *((uint32_t*)flash_block);
+
+void write_flash51_array(uint32_t* words, int n){
+	NVMCTRL->ADDR.reg = ((uint32_t)flash_block);
+  	NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMDEX_KEY | NVMCTRL_CTRLB_CMD_EB;
+	while (!NVMCTRL->INTFLAG.bit.DONE) { }
+	invalidate_CMCC_cache();
+	volatile uint32_t *dst_addr = (volatile uint32_t *)flash_block;
+
+	// Disable auto page write
+	NVMCTRL->CTRLA.bit.WMODE = 0;
+	while (NVMCTRL->STATUS.bit.READY == 0) { }
+	// Disable NVMCTRL cache while writing, per SAMD51 errata.
+	bool original_CACHEDIS0 = NVMCTRL->CTRLA.bit.CACHEDIS0;
+	bool original_CACHEDIS1 = NVMCTRL->CTRLA.bit.CACHEDIS1;
+	NVMCTRL->CTRLA.bit.CACHEDIS0 = true;
+	NVMCTRL->CTRLA.bit.CACHEDIS1 = true;
+	
+	// Execute Page Buffer Clear
+	NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMDEX_KEY | NVMCTRL_CTRLB_CMD_PBC;
+	while (NVMCTRL->STATUS.bit.READY == 0) { }
+    while (NVMCTRL->INTFLAG.bit.DONE == 0) { };
+	//NVMCTRL->INTFLAG.bit.DONE = 1;
+	NVMCTRL->INTFLAG.reg = NVMCTRL_INTFLAG_DONE;
+	//print("yo word %d\n", word);
+	for (int i=0; i<n; i++) {
+		*(dst_addr + i) = words[i];
+	}
+	// Execute Write Page
+	NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMDEX_KEY | NVMCTRL_CTRLB_CMD_WP;   
+	while (NVMCTRL->STATUS.bit.READY == 0) { }
+	while (NVMCTRL->INTFLAG.bit.DONE == 0) {};
+	//NVMCTRL->INTFLAG.bit.DONE = 1;
+	NVMCTRL->INTFLAG.reg = NVMCTRL_INTFLAG_DONE;
+    invalidate_CMCC_cache();
+    // Restore original NVMCTRL cache settings.
+    NVMCTRL->CTRLA.bit.CACHEDIS0 = original_CACHEDIS0;
+    NVMCTRL->CTRLA.bit.CACHEDIS1 = original_CACHEDIS1;
+
+}
+
+volatile uint32_t read_flash51(){
+	return *((volatile uint32_t*)flash_block);
 }
 
 
