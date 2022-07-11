@@ -42,7 +42,7 @@ void eeprom_init(){
 
 void eeprom_write(uint8_t * buf, uint8_t size, uint8_t num){
 	xSemaphoreTake(eeprom_mutex,portMAX_DELAY);
-	uint32_t * row_base = FLASH_SIZE - (1+num)*NVMCTRL_ROW_SIZE;
+	volatile uint32_t * row_base = FLASH_SIZE - (1+num)*NVMCTRL_ROW_SIZE;
 	for(int i = 0;i<size/4;i++){
 		*(row_base + i) = *((uint32_t*)buf + i);
 	} 
@@ -50,16 +50,24 @@ void eeprom_write(uint8_t * buf, uint8_t size, uint8_t num){
 		*(row_base + i) = 0;	
 	}
 	NVMCTRL->CTRLA.reg = (NVMCTRL_CTRLA_CMD_ER_Val | NVMCTRL_CTRLA_CMDEX_KEY);
+
+	for(int i = 0;i<size/4;i++){
+		*(row_base + i) = *((uint32_t*)buf + i);
+	} 
+	for(int i = size/4;i<NVMCTRL_PAGE_SIZE/4;i++){
+		*(row_base + i) = 0;	
+	}
+
 	NVMCTRL->CTRLA.reg = (NVMCTRL_CTRLA_CMD_WP_Val | NVMCTRL_CTRLA_CMDEX_KEY);
 	xSemaphoreGive(eeprom_mutex);
 }
 
 void eeprom_read(uint8_t * buf, uint8_t size, uint8_t num){
 	xSemaphoreTake(eeprom_mutex,portMAX_DELAY);
-	uint32_t * row_base = FLASH_SIZE - (1+num)*NVMCTRL_ROW_SIZE;
-	for(int i = 0;i<size;i++){
-		//print("%d,%x\n",i,buf[i]);
-		buf[i] = *((uint8_t*)row_base + i);
+	volatile uint32_t * row_base = FLASH_SIZE - (1+num)*NVMCTRL_ROW_SIZE;
+	volatile uint32_t *bufx = (volatile uint32_t*)(buf);
+	for(int i = 0;i<size/4;i++){
+		bufx[i] = *(row_base + i);
 	}
 	xSemaphoreGive(eeprom_mutex);
 }
