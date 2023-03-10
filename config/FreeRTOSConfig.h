@@ -36,7 +36,7 @@
 
 #define configUSE_MALLOC_FAILED_HOOK 1
 
-#define configUSE_IDLE_HOOK 0
+#define configUSE_IDLE_HOOK AMSLAH_IDLE_HOOK
 
 #define configUSE_TICK_HOOK 0
 

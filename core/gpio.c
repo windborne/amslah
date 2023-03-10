@@ -66,7 +66,16 @@ void gpio_direction(uint8_t pin, enum gpio_direction direction) {
         PORT->Group[GPIO_PORT(pin)].WRCONFIG.reg =
                 PORT_WRCONFIG_HWSEL | PORT_WRCONFIG_WRPINCFG | pull_mask | PORT_WRCONFIG_INEN | ((pinsel & 0xffff0000) >> 16);
         critical_section_leave();
-    } else {
+    } else if (direction == GPIO_DIRECTION_OFF) {
+        uint32_t pinsel = 1U << GPIO_PIN(pin);
+        PORT->Group[GPIO_PORT(pin)].DIRCLR.reg = pinsel;
+
+        critical_section_enter();
+        PORT->Group[GPIO_PORT(pin)].WRCONFIG.reg = PORT_WRCONFIG_WRPINCFG | (pinsel & 0xffff);
+        PORT->Group[GPIO_PORT(pin)].WRCONFIG.reg =
+                PORT_WRCONFIG_HWSEL | PORT_WRCONFIG_WRPINCFG | ((pinsel & 0xffff0000) >> 16);
+        critical_section_leave();
+    }  else {
         configASSERT(0);
     }
 #endif
@@ -102,6 +111,13 @@ void digital_in_init(uint8_t pin) {
     gpio_pull(pin, GPIO_PULL_OFF);
     gpio_direction(pin, GPIO_DIRECTION_IN);
 }
+
+void digital_hiz(uint8_t pin) {
+    gpio_function(pin, GPIO_FUNCTION_OFF);
+    gpio_pull(pin, GPIO_PULL_OFF);
+    gpio_direction(pin, GPIO_DIRECTION_OFF);
+}
+
 
 void digital_in_pull_init(uint8_t pin) {
     gpio_function(pin, GPIO_FUNCTION_OFF);

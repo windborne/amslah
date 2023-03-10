@@ -33,7 +33,9 @@ uint8_t runtime_adc_reference = ADC_REFERENCE;
 #define ADC_Fn \
     ADC->INTENCLR.reg = ADC_INTENCLR_RESRDY; \
     adc_result = ADC->RESULT.reg; \
-    xSemaphoreGiveFromISR(adc_call_mutex, 0);
+	BaseType_t woke = pdFALSE; \
+    xSemaphoreGiveFromISR(adc_call_mutex, &woke); \
+	portYIELD_FROM_ISR(woke);
 
 void ADC_Handler() {
 	ADC_Fn

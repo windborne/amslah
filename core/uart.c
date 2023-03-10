@@ -13,10 +13,11 @@ void uart_handler(int num) {
             uart->hw->USART.INTENSET.bit.TXC = 1;
         }
     }
+	BaseType_t woke = pdFALSE;
     if ( (uart->hw->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_TXC)
              && (uart->hw->USART.INTENSET.reg & SERCOM_USART_INTENSET_TXC) ) {
         uart->hw->USART.INTENCLR.reg = SERCOM_USART_INTENCLR_TXC;
-        xSemaphoreGiveFromISR(uart->call_mutex, 0);
+        xSemaphoreGiveFromISR(uart->call_mutex, &woke);
         //gpio_set(GPIO(GPIO_PORTB, 30), LOW);
     }
     if ( (uart->hw->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_RXC)
@@ -24,8 +25,9 @@ void uart_handler(int num) {
         char byte = uart->hw->USART.DATA.reg;
         //gpio_set(GPIO(GPIO_PORTB, 30), LOW);
         //while (1) {};
-        xStreamBufferSendFromISR(uart->rx_buffer, &byte, 1, 0);
+        xStreamBufferSendFromISR(uart->rx_buffer, &byte, 1, &woke);
     }
+	portYIELD_FROM_ISR(woke);
 }
 
 void uart_init_with(uart_t *uart, uartcfg_t cfg) {

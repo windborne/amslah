@@ -89,6 +89,7 @@ void digital_in_init(uint8_t pin);
 
 void digital_in_pull_init(uint8_t pin);
 
+void digital_hiz(uint8_t pin);
 
 uint8_t digital_get(uint8_t pin);
 

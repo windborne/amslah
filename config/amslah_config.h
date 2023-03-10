@@ -127,3 +127,7 @@
 		#define PERSISTENT_INFO_IDENTIFIER 0xaabbccdd
 	#endif
 #endif
+
+#ifndef AMSLAH_IDLE_HOOK
+	#define AMSLAH_IDLE_HOOK 0
+#endif
