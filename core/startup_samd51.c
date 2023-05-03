@@ -747,8 +747,10 @@ void Reset_Handler(void)
 	/* Initialize the C library */
 	__libc_init_array();
 
+	#if SAMD51_BUCK
 	SUPC->VREG.bit.SEL = 1;
 	while (!(SUPC->STATUS.bit.VREGRDY)) {};
+	#endif
 
 	/*
 	OSC32KCTRL->XOSC32K.bit.ENABLE = 0;

@@ -131,3 +131,7 @@
 #ifndef AMSLAH_IDLE_HOOK
 	#define AMSLAH_IDLE_HOOK 0
 #endif
+
+#ifndef SAMD51_BUCK
+	#define SAMD51_BUCK 0
+#endif
