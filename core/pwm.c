@@ -101,7 +101,7 @@ void pwm_init_with(pwmcfg_t cfg) {
 
     pwm_status[cfg.pin] = (cfg.mux << 8) | (cfg.timer << 4) | (cfg.output);
 
-    configASSERT(cfg.timer != 10);
+    //configASSERT(cfg.timer != 10);
 	if (cfg.timer >= 10) {
 		uint8_t n = cfg.timer - 10;
 
