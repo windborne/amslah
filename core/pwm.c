@@ -95,6 +95,7 @@ void pwm_init_with(pwmcfg_t cfg) {
 
     int resolution = cfg.resolution;
     if (resolution == 0) resolution = PWM_RESOLUTION;
+	if (cfg.timer < 10 && resolution > 8) resolution = 8;
 
     int prescaler = cfg.prescaler;
     if (prescaler == 0) prescaler = PWM_PRESCALER;
