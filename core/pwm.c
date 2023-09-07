@@ -15,6 +15,65 @@ bool used_tcs[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 #ifdef _SAMD21_
 uint32_t function_pins[2] = {0, 0};
 
+
+void pwm_init_with(pwmcfg_t cfg) {
+    uint8_t pin = cfg.pin;
+    int tc = cfg.timer;
+
+    configASSERT(cfg.resolution == 8);
+
+    int channel = 0x1a + (tc/2);
+
+    PM->APBCMASK.reg |= (1 << (8 + tc));
+
+    GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(channel)
+                        | GCLK_CLKCTRL_GEN_GCLK1
+                        | (1 << GCLK_CLKCTRL_CLKEN_Pos);
+    while(GCLK->STATUS.bit.SYNCBUSY);
+
+    gpio_function(pin, (pin << 16) | cfg.mux); // 4 is mux (e)
+	function_pins[GPIO_PORT(pin)] |= (1U << GPIO_PIN(pin));
+
+    if (tc >= 3) {
+        TcCount8 *hw = (TcCount8*)(((char*)TCC0) + 1024 * tc);
+
+        hw->CTRLA.bit.MODE = 1; /* 8 bit mode. */
+        hw->CTRLA.bit.PRESCALER = cfg.prescaler; /* Undivided. */
+        hw->CTRLA.bit.WAVEGEN = 2; /* Normal PWM. */
+
+	if (cfg.period == 0)
+		hw->PER.reg = (1 << cfg.resolution) - 1;
+	else
+		hw->PER.reg = cfg.period;
+
+        int out = pin & 1;
+
+        hw->CC[out].reg = 0;
+	hw->COUNT.reg = cfg.start_count;
+
+        hw->CTRLA.bit.ENABLE = 1;
+
+        // hw->CTRLC.bit.INVEN[out] = cfg.invert;
+
+    } else {
+        Tcc *hw = (Tcc*)(((char*)TCC0) + 1024 * tc);
+        hw->CTRLA.bit.PRESCALER = cfg.prescaler;
+        hw->WAVE.bit.WAVEGEN = 2;
+
+	if (cfg.period == 0)
+		hw->PER.bit.PER = (1 << cfg.resolution) - 1;
+	else
+		hw->PER.bit.PER = cfg.period;
+
+        hw->CC[pin & 1].bit.CC = 0;
+	hw->COUNT.reg = cfg.start_count;
+
+        hw->CTRLA.bit.ENABLE = 1;
+
+        // hw->CTRLC.bit.INVEN[out] = cfg.invert;
+    }
+}
+
 void pwm_init(uint8_t pin) {
     if (pin == 255) return;
     int tc = tcs[pin];

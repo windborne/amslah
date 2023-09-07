@@ -11,12 +11,15 @@ extern "C" {
 extern bool used_tcs[8];
 
 typedef struct {
-	uint8_t pin;
-	uint8_t timer;
-	uint8_t mux;
-	uint8_t output;
-	uint8_t prescaler;
-	uint8_t resolution;
+	uint8_t pin; //which pin
+	uint8_t timer; //which TC(C) to use
+	uint8_t mux; // make sure it matches the TCC, defults to 4 (E)
+	uint8_t output; //not sure - something on samd51 only???
+	uint8_t prescaler; //do we divide?
+	uint8_t resolution; //must be 8
+	uint8_t period; //when do we loop
+	uint8_t start_count; // what value do we start at
+	// uint8_t invert; // should we invert the pin?
 } pwmcfg_t;
 
 /**
