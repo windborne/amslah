@@ -51,12 +51,15 @@ endif
 
 
 SHELL:=/bin/bash
+LINKOBJS := $(shell realpath $(shell sed -n 's/^.*LINKOBJS: //p' amslah.cfg 2>/dev/null) 2>/dev/null)
+
 LIBDIRS := $(shell realpath $(shell sed -n 's/^.*LIBS: //p' amslah.cfg 2>/dev/null) 2>/dev/null)
 
 INCLUDE = -I"$(AMSLAH_PATH)/core" -I"$(AMSLAH_PATH)/config" -I"$(AMSLAH_PATH)/freertos/include" -I"$(AMSLAH_PATH)/freertos/portable_$(EDBG_FAMILY)" -I"$(AMSLAH_PATH)/extra" -I"."
 INCLUDE += $(foreach LIBDIR,$(LIBDIRS),-I"$(LIBDIR)")
 INCLUDE += $(foreach LIBDIR,$(shell ls -d */),-I"$(LIBDIR)")
 
+EXCLUDE := $(shell sed -n 's/^.*EXCLUDE: //p' amslah.cfg 2>/dev/null)
 
 ifndef IGNORE_HOOK
 HOOK_VAL := $(shell $(shell sed -n 's/^.*HOOKS: //p' amslah.cfg 2>&1) &> hook_output; echo $$?)
@@ -83,6 +86,7 @@ CONFIGS += user_amslah_config.h
 DIRS = .
 DIRS += $(LIBDIRS)
 DIRS += $(shell ls -d */ | grep -v ^build| grep -v ^test)
+DIRS := $(filter-out $(EXCLUDE)/,$(DIRS))
 
 CPPSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.cpp)) 
 CSRC = $(foreach DIR,$(DIRS),$(wildcard $(DIR)/*.c)) 
@@ -144,8 +148,8 @@ COBJ := $(CSRC:%.c=%.o)
 OBJ := $(COBJ) $(CPPOBJ)
 BUILTOBJ := $(addprefix $(BUILD_PATH)/,$(OBJ))
 
-$(APP): $(BUILTOBJ) 
-	$(LD) $(LFLAGS) -o build/$(PROJECT_NAME)$(_NAME_SUFFIX).elf $(BUILTOBJ)
+$(APP): $(BUILTOBJ)
+	$(LD) $(LFLAGS) -o build/$(PROJECT_NAME)$(_NAME_SUFFIX).elf $(BUILTOBJ) $(LINKOBJS)
 	$(OBJCOPY) --strip-unneeded -O binary build/$(PROJECT_NAME)$(_NAME_SUFFIX).elf build/$(PROJECT_NAME)$(_NAME_SUFFIX).bin
 	cat hook_output
 	printf "INCLUDE: ${INCLUDE} \nCSRC: ${CSRC} \nCPPSRC: ${CPPSRC}" > build/filelist 
