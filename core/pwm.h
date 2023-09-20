@@ -19,7 +19,7 @@ typedef struct {
 	uint8_t resolution; //must be 8
 	uint8_t period; //when do we loop
 	uint8_t start_count; // what value do we start at
-	// uint8_t invert; // should we invert the pin?
+	uint8_t invert; // should we invert the pin?
 } pwmcfg_t;
 
 /**

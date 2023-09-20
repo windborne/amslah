@@ -53,7 +53,11 @@ void pwm_init_with(pwmcfg_t cfg) {
 
         hw->CTRLA.bit.ENABLE = 1;
 
-        // hw->CTRLC.bit.INVEN[out] = cfg.invert;
+	if (out){
+		hw->CTRLC.bit.INVEN1 = cfg.invert;
+	}else{
+		hw->CTRLC.bit.INVEN0 = cfg.invert;
+	}
 
     } else {
         Tcc *hw = (Tcc*)(((char*)TCC0) + 1024 * tc);
@@ -69,8 +73,6 @@ void pwm_init_with(pwmcfg_t cfg) {
 	hw->COUNT.reg = cfg.start_count;
 
         hw->CTRLA.bit.ENABLE = 1;
-
-        // hw->CTRLC.bit.INVEN[out] = cfg.invert;
     }
 }
 
