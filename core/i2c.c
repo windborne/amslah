@@ -134,23 +134,23 @@ static inline void digital_set_fast(uint8_t pin, uint8_t level) {
 #define clk_low()  gpio_direction_fast(i2c->pin_scl, GPIO_DIRECTION_OUT); digital_set_fast(i2c->pin_scl, LOW);
 
 
-#define _bitbang_delay() 
-
-//for (volatile int ii=0; ii<1; ii++) { asm("nop"); } 
+#define _bitbang_delay() for (volatile int ii=0; ii<50; ii++) { asm("nop"); } 
 
 // if (i2c->slow) { asm("nop"); asm("nop"); asm("nop"); asm("nop"); asm("nop"); asm("nop"); asm("nop"); asm("nop"); asm("nop"); asm("nop"); }
 
-//#define _bitbang_delay() asm("nop"); // vTaskDelay(1);
+//#define _bitbang_delay() vTaskDelay(1);
 
 inline static void _bitbang_start(i2c_t *i2c) {
-	clk_high();
 	data_high();
+	_bitbang_delay();
+	clk_high();
 	_bitbang_delay();
 	data_low();
 	_bitbang_delay();
 	//uint32_t t0 = xTaskGetTickCount();
     //while((!digital_get(i2c->pin_scl)) && (xTaskGetTickCount() - t0) < 5) {};
 	clk_low();
+	_bitbang_delay();
 }
 
 inline static uint8_t _bitbang_write(i2c_t *i2c, uint8_t byte) {
@@ -168,6 +168,7 @@ inline static uint8_t _bitbang_write(i2c_t *i2c, uint8_t byte) {
 		clk_high();
 		_bitbang_delay();
 		clk_low();
+		_bitbang_delay();
 	}
 	data_high();
 	_bitbang_delay();
@@ -175,11 +176,12 @@ inline static uint8_t _bitbang_write(i2c_t *i2c, uint8_t byte) {
 	_bitbang_delay();
 	//uint32_t t0 = xTaskGetTickCount();
     //while((!digital_get(i2c->pin_scl)) && (xTaskGetTickCount() - t0) < 5) {};
-	for (volatile int ii=0; ii<4; ii++) { asm("nop"); }
+	//for (volatile int ii=0; ii<4; ii++) { asm("nop"); }
 
 	if (digital_get(i2c->pin_sda)) ret = 1;
 	/* read data here */
 	clk_low();
+	_bitbang_delay();
 	return ret;
 }
 
@@ -191,25 +193,34 @@ inline static uint8_t _bitbang_read(i2c_t *i2c, uint8_t a) {
 	uint8_t c = 0;
 	for (int i=0; i<8; i++) {
 		c <<= 1;
-		if (digital_get(i2c->pin_sda)) c |= 1;
 		clk_high();
 		_bitbang_delay();
+		if (digital_get(i2c->pin_sda)) c |= 1;
 		clk_low();
+		_bitbang_delay();
 	}
 	if (a == ACK) {
 		data_low();
+	} else {
+		data_high();
 	}
 	clk_high();
 	_bitbang_delay();
 	clk_low();
+	_bitbang_delay();
+	data_low();
 	return c;
 }
 
 inline static void _bitbang_stop(i2c_t *i2c) {
 	data_low();
+	_bitbang_delay();
 	clk_high();
 	_bitbang_delay();
 	data_high();
+	_bitbang_delay();
+	clk_low();
+	_bitbang_delay();
 }
 
 int i2c_write(i2c_t *i2c, uint8_t addr, uint8_t *bytes, int len) {
