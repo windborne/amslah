@@ -68,7 +68,12 @@ public:
         return (nbase << HRT_RES) + ncount - ((base << HRT_RES) + count);
 #else
         uint32_t ncount = DWT->CYCCNT;
+#if LOGFAC != 6
         return (ncount - count) >> LOGFAC;
+#else
+		uint32_t delta = (ncount - count)/48;
+		return delta;
+#endif
 #endif
     }
 
