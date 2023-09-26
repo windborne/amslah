@@ -158,6 +158,7 @@ void pwm_init_with(pwmcfg_t cfg) {
 
     int prescaler = cfg.prescaler;
     if (prescaler == 0) prescaler = PWM_PRESCALER;
+	if (prescaler == 8) prescaler = 0;
 
     pwm_status[cfg.pin] = (cfg.mux << 8) | (cfg.timer << 4) | (cfg.output);
 
@@ -203,7 +204,7 @@ void pwm_init_with(pwmcfg_t cfg) {
 		if (cfg.timer == 7) MCLK->APBDMASK.reg |= MCLK_APBDMASK_TC6;
 
         TcCount8* hw = (TcCount8*)tc_insts[cfg.timer];
-		if (prescaler == 0) prescaler = PWM_PRESCALER;
+		//if (prescaler == 0) prescaler = PWM_PRESCALER;
 
         hw->CTRLA.bit.MODE = 1; /* 8 bit mode. */
         hw->CTRLA.bit.PRESCALER = prescaler; /* Undivided. */
