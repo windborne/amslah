@@ -219,6 +219,8 @@ void pwm_init_with(pwmcfg_t cfg) {
     }
 }
 
+uint8_t num_channels[5] = {6,4,3,2,2};
+
 void pwm_set(uint8_t pin, int level) {
 	configASSERT(pwm_status[pin] != 0); // must have been initialized
 	uint8_t mux = (pwm_status[pin] >> 8);
@@ -230,7 +232,7 @@ void pwm_set(uint8_t pin, int level) {
 	uint8_t output = (pwm_status[pin] & 15);
 	if (timer >= 10) {
 		Tcc *hw = (Tcc*)insts[timer - 10];
-        hw->CC[output].bit.CC = level;
+        hw->CC[output % num_channels[timer - 10]].bit.CC = level;
 	} else {
         TcCount8* hw = (TcCount8*)tc_insts[timer];
         hw->CC[output].bit.CC = level;
