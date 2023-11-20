@@ -62,7 +62,14 @@ INCLUDE += $(foreach LIBDIR,$(shell ls -d */),-I"$(LIBDIR)")
 EXCLUDE := $(shell sed -n 's/^.*EXCLUDE: //p' amslah.cfg 2>/dev/null)
 
 ifndef IGNORE_HOOK
-HOOK_VAL := $(shell $(shell sed -n 's/^.*HOOKS: //p' amslah.cfg 2>&1) &> hook_output; echo $$?)
+HOOKS_CMD_RAW := $(shell sed -n 's/^HOOKS: //p' amslah.cfg 2>&1)
+HOOK_VARS := $(shell echo '$(HOOKS_CMD_RAW)' | grep -o '__[^_]*__' | tr -d '_' | sort | uniq)
+
+replace_vars = $(foreach var,$(1),$(subst __$(var)__,"${$(var)}",$(2)))
+HOOKS_CMD := $(call replace_vars,$(HOOK_VARS),$(HOOKS_CMD_RAW))
+$(info HOOKS_CMD: `$(HOOKS_CMD)`)
+
+HOOK_VAL := $(shell $(HOOKS_CMD) &> hook_output; echo $$?)
 ifneq ($(HOOK_VAL), 0)
 $(error "The hook failed! See hook_output.")
 endif
