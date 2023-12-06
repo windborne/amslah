@@ -65,9 +65,9 @@ ifndef IGNORE_HOOK
 HOOKS_CMD_RAW := $(shell sed -n 's/^HOOKS: //p' amslah.cfg 2>&1)
 HOOK_VARS := $(shell echo '$(HOOKS_CMD_RAW)' | grep -o '__[^_]*__' | tr -d '_' | sort | uniq)
 
-replace_vars = $(foreach var,$(1),$(subst __$(var)__,"${$(var)}",$(2)))
+replace_vars = $(if $(1),$(foreach var,$(1),$(subst __$(var)__,"${$(var)}",$(2))),$(2))
 HOOKS_CMD := $(call replace_vars,$(HOOK_VARS),$(HOOKS_CMD_RAW))
-$(info HOOKS_CMD: `$(HOOKS_CMD)`)
+$(info HOOKS_CMD: `$(HOOKS_CMD_RAW)` --> `$(HOOKS_CMD)`)
 
 HOOK_VAL := $(shell $(HOOKS_CMD) &> hook_output; echo $$?)
 ifneq ($(HOOK_VAL), 0)
