@@ -48,7 +48,7 @@ void uart_init_with(uart_t *uart, uartcfg_t cfg);
  *
  * @return Baud register value.
  */
-inline uint16_t _uart_get_baud_reg(int baud);
+uint16_t _uart_get_baud_reg(int baud);
 
 
 /**

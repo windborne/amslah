@@ -1,6 +1,6 @@
 #include "uart.h"
 
-inline uint16_t _uart_get_baud_reg(int baud) {
+uint16_t _uart_get_baud_reg(int baud) {
     return 65536 - ((65536 * 16.0f * baud) / PERIPHERAL_FREQUENCY);
 }
 
