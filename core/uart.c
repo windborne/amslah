@@ -1,5 +1,9 @@
 #include "uart.h"
 
+inline uint16_t _uart_get_baud_reg(int baud) {
+    return 65536 - ((65536 * 16.0f * baud) / PERIPHERAL_FREQUENCY);
+}
+
 void uart_handler(int num) {
 	//configASSERT(0);
     uart_t *uart = (uart_t*)sercom_handlers[num];

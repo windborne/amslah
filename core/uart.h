@@ -48,9 +48,7 @@ void uart_init_with(uart_t *uart, uartcfg_t cfg);
  *
  * @return Baud register value.
  */
-inline uint16_t _uart_get_baud_reg(int baud) {
-    return 65536 - ((65536 * 16.0f * baud) / PERIPHERAL_FREQUENCY);
-}
+inline uint16_t _uart_get_baud_reg(int baud);
 
 
 /**
