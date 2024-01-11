@@ -263,14 +263,15 @@ if (!i2c->bitbang) {
 	return 0;
 } else {
 portENTER_CRITICAL();
+	int ret = 0;
 	_bitbang_start(i2c);
 	_bitbang_write(i2c, (addr << 1) | 0);
 	for (int i=0; i<len; i++) {
-		_bitbang_write(i2c, bytes[i]);
+		ret = _bitbang_write(i2c, bytes[i]);
 	}
 	if (!i2c->nostop) _bitbang_stop(i2c);
 portEXIT_CRITICAL();
-	return 0;
+	return ret;
 }
 }
 
