@@ -295,8 +295,6 @@ void init_sources() {
     //GCLK->GENCTRL.bit.GENEN = 1;
 
 
-	SYSCTRL->BOD33.reg = 0;
-
     PM->APBCMASK.reg = 0;
 
     USB->DEVICE.CTRLA.reg &= ~USB_CTRLA_ENABLE;
