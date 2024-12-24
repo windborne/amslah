@@ -4,7 +4,7 @@ dummy_type *sercom_handlers[NUM_SERCOMS] = {0};
 
 #ifdef _SAMD21_
 #define register_handler(n) \
-void SERCOM##n##_Handler(void) { \
+__attribute__((weak)) void SERCOM##n##_Handler(void) { \
     if (sercom_handlers[n] != 0) { \
         sercom_handlers[n]->fn(n); \
     } \
@@ -13,22 +13,22 @@ void SERCOM##n##_Handler(void) { \
 #else
 
 #define register_handler(n) \
-void SERCOM##n##_0_Handler(void) { \
+__attribute__((weak)) void SERCOM##n##_0_Handler(void) { \
     if (sercom_handlers[n] != 0) { \
         sercom_handlers[n]->fn(n); \
     } \
 } \
-void SERCOM##n##_1_Handler(void) { \
+__attribute__((weak)) void SERCOM##n##_1_Handler(void) { \
     if (sercom_handlers[n] != 0) { \
         sercom_handlers[n]->fn(n); \
     } \
 } \
-void SERCOM##n##_2_Handler(void) { \
+__attribute__((weak)) void SERCOM##n##_2_Handler(void) { \
     if (sercom_handlers[n] != 0) { \
         sercom_handlers[n]->fn(n); \
     } \
 } \
-void SERCOM##n##_3_Handler(void) { \
+__attribute__((weak)) void SERCOM##n##_3_Handler(void) { \
     if (sercom_handlers[n] != 0) { \
         sercom_handlers[n]->fn(n); \
     } \

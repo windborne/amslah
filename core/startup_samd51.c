@@ -164,54 +164,46 @@ void EVSYS_4_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* EVS
                                                                              EVSYS_OVR_9 */
 void PAC_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 void RAMECC_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
-void SERCOM0_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM0_0 */
-void SERCOM0_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM0_1 */
-void SERCOM0_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM0_2 */
-void SERCOM0_3_Handler(void)
-    __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM0_3, SERCOM0_4, SERCOM0_5, SERCOM0_6 */
-void SERCOM1_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM1_0 */
-void SERCOM1_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM1_1 */
-void SERCOM1_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM1_2 */
-void SERCOM1_3_Handler(void)
-    __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM1_3, SERCOM1_4, SERCOM1_5, SERCOM1_6 */
-void SERCOM2_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM2_0 */
-void SERCOM2_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM2_1 */
-void SERCOM2_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM2_2 */
-void SERCOM2_3_Handler(void)
-    __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM2_3, SERCOM2_4, SERCOM2_5, SERCOM2_6 */
-void SERCOM3_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM3_0 */
-void SERCOM3_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM3_1 */
-void SERCOM3_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM3_2 */
-void SERCOM3_3_Handler(void)
-    __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM3_3, SERCOM3_4, SERCOM3_5, SERCOM3_6 */
-#ifdef ID_SERCOM4
-void SERCOM4_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM4_0 */
-void SERCOM4_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM4_1 */
-void SERCOM4_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM4_2 */
-void SERCOM4_3_Handler(void)
-    __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM4_3, SERCOM4_4, SERCOM4_5, SERCOM4_6 */
-#endif
-#ifdef ID_SERCOM5
-void SERCOM5_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM5_0 */
-void SERCOM5_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM5_1 */
-void SERCOM5_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM5_2 */
-void SERCOM5_3_Handler(void)
-    __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM5_3, SERCOM5_4, SERCOM5_5, SERCOM5_6 */
-#endif
-#ifdef ID_SERCOM6
-void SERCOM6_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM6_0 */
-void SERCOM6_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM6_1 */
-void SERCOM6_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM6_2 */
-void SERCOM6_3_Handler(void)
-    __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM6_3, SERCOM6_4, SERCOM6_5, SERCOM6_6 */
-#endif
-#ifdef ID_SERCOM7
-void SERCOM7_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM7_0 */
-void SERCOM7_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM7_1 */
-void SERCOM7_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM7_2 */
-void SERCOM7_3_Handler(void)
-    __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM7_3, SERCOM7_4, SERCOM7_5, SERCOM7_6 */
-#endif
+// void SERCOM0_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM0_0 */
+// void SERCOM0_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM0_1 */
+// void SERCOM0_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM0_2 */
+// void SERCOM0_3_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM0_3, SERCOM0_4, SERCOM0_5, SERCOM0_6 */
+// void SERCOM1_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM1_0 */
+// void SERCOM1_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM1_1 */
+// void SERCOM1_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM1_2 */
+// void SERCOM1_3_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM1_3, SERCOM1_4, SERCOM1_5, SERCOM1_6 */
+// void SERCOM2_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM2_0 */
+// void SERCOM2_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM2_1 */
+// void SERCOM2_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM2_2 */
+// void SERCOM2_3_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM2_3, SERCOM2_4, SERCOM2_5, SERCOM2_6 */
+// void SERCOM3_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM3_0 */
+// void SERCOM3_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM3_1 */
+// void SERCOM3_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM3_2 */
+// void SERCOM3_3_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM3_3, SERCOM3_4, SERCOM3_5, SERCOM3_6 */
+// #ifdef ID_SERCOM4
+// void SERCOM4_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM4_0 */
+// void SERCOM4_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM4_1 */
+// void SERCOM4_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM4_2 */
+// void SERCOM4_3_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM4_3, SERCOM4_4, SERCOM4_5, SERCOM4_6 */
+// #endif
+// #ifdef ID_SERCOM5
+// void SERCOM5_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM5_0 */
+// void SERCOM5_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM5_1 */
+// void SERCOM5_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM5_2 */
+// void SERCOM5_3_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM5_3, SERCOM5_4, SERCOM5_5, SERCOM5_6 */__attribute__((weak))
+// #endif
+// #ifdef ID_SERCOM6
+// void SERCOM6_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM6_0 */
+// void SERCOM6_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM6_1 */
+// void SERCOM6_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM6_2 */
+// void SERCOM6_3_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM6_3, SERCOM6_4, SERCOM6_5, SERCOM6_6 */
+// #endif
+// #ifdef ID_SERCOM7
+// void SERCOM7_0_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM7_0 */
+// void SERCOM7_1_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM7_1 */
+// void SERCOM7_2_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM7_2 */
+// void SERCOM7_3_Handler(void) __attribute__((weak, alias("Dummy_Handler"))); /* SERCOM7_3, SERCOM7_4, SERCOM7_5, SERCOM7_6 */
+// #endif
 #ifdef ID_CAN0
 void CAN0_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif

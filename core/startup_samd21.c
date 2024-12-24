@@ -81,16 +81,16 @@ void DMAC_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 void USB_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 #endif
 void EVSYS_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
-void SERCOM0_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
-void SERCOM1_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
-void SERCOM2_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
-void SERCOM3_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
-#ifdef ID_SERCOM4
-void SERCOM4_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
-#endif
-#ifdef ID_SERCOM5
-void SERCOM5_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
-#endif
+// void SERCOM0_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+// void SERCOM1_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+// void SERCOM2_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+// void SERCOM3_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+// #ifdef ID_SERCOM4
+// void SERCOM4_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+// #endif
+// #ifdef ID_SERCOM5
+// void SERCOM5_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
+// #endif
 void TCC0_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 void TCC1_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
 void TCC2_Handler(void) __attribute__((weak, alias("Dummy_Handler")));
