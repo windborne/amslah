@@ -13,8 +13,8 @@
 
 #if USE_DEBUG_UART_V2
 
-RingBuffer_t transmit_buffer;
-RingBuffer_t receive_buffer;
+RingBuffer_t debug_uart_tx;
+RingBuffer_t debug_uart_rx;
 
 void debug_uart_init(void) {
     enable_sercom_clock(DEBUG_UART_SERCOM);
@@ -65,7 +65,7 @@ void DEBUG_UART_0_Handler(void) {
 
 // Transmit Complete (the mcu has just sent data out, and we can put a new byte from the buffer into DATA)
 void DEBUG_UART_1_Handler(void) {
-    if (read_from_buffer(&transmit_buffer, (void*) &DEBUG_SERCOM->USART.DATA.reg, 1) != 0) {
+    if (read_from_buffer(&debug_uart_tx, (void*) &DEBUG_SERCOM->USART.DATA.reg, 1) != 0) {
         DEBUG_SERCOM->USART.INTENSET.reg = SERCOM_USART_INTENSET_TXC;
     } else {
         DEBUG_SERCOM->USART.INTENCLR.reg = SERCOM_USART_INTENCLR_TXC;
@@ -75,7 +75,7 @@ void DEBUG_UART_1_Handler(void) {
 // Receive Complete (We have just finished shifting data into)
 void DEBUG_UART_2_Handler(void) {
     const char data = (char) DEBUG_SERCOM->USART.DATA.reg;
-    write_to_buffer(&receive_buffer, (const char*) &data, 1);
+    write_to_buffer(&debug_uart_rx, (const char*) &data, 1);
     DEBUG_SERCOM->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
 }
 
@@ -87,9 +87,24 @@ void DEBUG_UART_3_Handler(void) {
 
 
 void flush_to_uart(void) {
-    read_from_buffer(&transmit_buffer, (void*) &DEBUG_SERCOM->USART.DATA.reg, 1);
+    read_from_buffer(&debug_uart_tx, (void*) &DEBUG_SERCOM->USART.DATA.reg, 1);
     DEBUG_SERCOM->USART.INTENSET.reg = SERCOM_USART_INTENSET_TXC;
 }
 
+
+void debug_tx_send(const char* message, uint32_t length) {
+    uint32_t bytes_written = 0;
+    uint32_t start_time = xTaskGetTickCount();
+    uint32_t reasonable_timeout = (length / 6) + 5;  // at 115200 baud, you transmit about 12 bytes per second. If it's taking more than 5 milliseconds + double this time, quit.
+
+    while (bytes_written < length) {
+        bytes_written += write_to_buffer(&debug_uart_tx, (const char*)message + bytes_written, length - bytes_written);
+        flush_to_uart();
+        vTaskDelay(1);
+        if (xTaskGetTickCount() - start_time > reasonable_timeout) {
+            break;
+        }
+    }
+}
 
 #endif // USE_DEBUG_UART_V2

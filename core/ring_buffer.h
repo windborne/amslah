@@ -2,7 +2,8 @@
 
 #pragma once
 
-#include "amslah.h"
+#include <stddef.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 #define RING_BUFFER_CAPACITY (256)

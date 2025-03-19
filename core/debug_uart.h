@@ -7,6 +7,10 @@
 
 #if USE_DEBUG_UART_V2
 
+extern RingBuffer_t debug_uart_tx;
+extern RingBuffer_t debug_uart_rx;
+
+
 /// Claude was here
 #define _CONCAT(a, b) a##b
 #define CONCAT(a, b) _CONCAT(a, b)
@@ -41,8 +45,9 @@
 #define DEBUG_UART_3_IRQn SERCOMn_3_IRQn(DEBUG_UART_SERCOM)
 
 
-// Function declarations
 void debug_uart_init(void);
+void flush_to_uart(void);
+void debug_tx_send(const char* message, uint32_t length);
 
 // Interrupt handlers
 void DEBUG_UART_0_Handler(void);  // Data Register Empty interrupt
@@ -50,7 +55,5 @@ void DEBUG_UART_1_Handler(void);  // Transmit Complete interrupt
 void DEBUG_UART_2_Handler(void);  // Receive Complete interrupt
 void DEBUG_UART_3_Handler(void);  // Receive start, clear to send, receive break, error
 
-void flush_to_uart(void);
 
 #endif // USE_DEBUG_UART_V2
-

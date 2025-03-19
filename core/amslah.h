@@ -21,6 +21,7 @@ extern "C" {
 #include "uart.h"
 #include "util.h"
 #include "watchdog.h"
+#include "debug_uart.h"
 
 #ifdef __cplusplus
 }
