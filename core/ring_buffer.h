@@ -29,6 +29,6 @@ bool write_byte_to_buffer(RingBuffer_t* buffer, uint8_t next_byte);
 
 uint32_t search_first_byte(RingBuffer_t* buffer, uint8_t search_byte);
 uint32_t flush_until_byte(RingBuffer_t* buffer, uint8_t search_byte);
-uint32_t flush_through_substring(RingBuffer_t* buffer, const char* search_string, uint32_t len);
+uint32_t flush_until_substring(RingBuffer_t* buffer, const char* search_string, uint32_t len);
 uint32_t search_first_substring(RingBuffer_t* buffer, const char* search_string, uint32_t len);
 uint8_t peek_first(RingBuffer_t* buffer);

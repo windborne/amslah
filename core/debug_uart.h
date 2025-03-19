@@ -48,6 +48,8 @@ extern RingBuffer_t debug_uart_rx;
 void debug_uart_init(void);
 void flush_to_uart(void);
 void debug_tx_send(const char* message, uint32_t length);
+uint32_t wait_until_string(const char* response, uint32_t len, uint32_t timeout);
+bool wait_for_bytes(uint32_t n_bytes);
 
 // Interrupt handlers
 void DEBUG_UART_0_Handler(void);  // Data Register Empty interrupt

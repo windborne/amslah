@@ -95,16 +95,46 @@ void flush_to_uart(void) {
 void debug_tx_send(const char* message, uint32_t length) {
     uint32_t bytes_written = 0;
     uint32_t start_time = xTaskGetTickCount();
-    uint32_t reasonable_timeout = (length / 6) + 5;  // at 115200 baud, you transmit about 12 bytes per second. If it's taking more than 5 milliseconds + double this time, quit.
+    uint32_t reasonable_timeout_ms = (length / 6) + 5;  // at 115200 baud, you transmit about 12 bytes per second. If it's taking more than 5 milliseconds + double this time, quit.
 
     while (bytes_written < length) {
         bytes_written += write_to_buffer(&debug_uart_tx, (const char*)message + bytes_written, length - bytes_written);
         flush_to_uart();
         vTaskDelay(1);
-        if (xTaskGetTickCount() - start_time > reasonable_timeout) {
+        if (xTaskGetTickCount() - start_time > reasonable_timeout_ms) {
             break;
         }
     }
 }
+
+bool wait_for_bytes(uint32_t n_bytes) {
+    const uint32_t time_start = xTaskGetTickCount();
+    const uint32_t reasonable_timeout_ms = (n_bytes / 6) + 5;
+    uint32_t time_elapsed = 0;
+
+    while (time_elapsed < reasonable_timeout_ms) {
+        if (buffer_length(&debug_uart_rx) >= n_bytes) {
+            return true;
+        }
+        vTaskDelay(1);
+        time_elapsed = xTaskGetTickCount() - time_start;
+    }
+    return false;
+}
+
+uint32_t wait_until_string(const char* response, uint32_t len, uint32_t timeout) {
+    const uint32_t time_start = xTaskGetTickCount();
+    uint32_t time_elapsed = 0;
+
+    while (time_elapsed < timeout) {
+        if (search_first_substring(&debug_uart_rx, response, len) != 0) {
+            return true;
+        }
+        vTaskDelay(1);
+        time_elapsed = xTaskGetTickCount() - time_start;
+    }
+    return false;
+}
+
 
 #endif // USE_DEBUG_UART_V2

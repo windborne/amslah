@@ -143,19 +143,15 @@ uint32_t flush_until_byte(RingBuffer_t* buffer, uint8_t search_byte) {
 
 // Flush up to and including the first occurrence of the substring, or not at all if not present.
 // Alternatively, flush the specified number of bytes if search string is NULL.
-uint32_t flush_through_substring(RingBuffer_t* buffer, const char* search_string, uint32_t len) {
+uint32_t flush_until_substring(RingBuffer_t* buffer, const char* search_string, uint32_t len) {
     if (buffer == NULL) {
         return 0;
     }
     uint32_t n_bytes = 0;
     if (search_string != NULL) {
-        n_bytes = search_first_substring(buffer, search_string, len) + len;
+        n_bytes = search_first_substring(buffer, search_string, len);
     } else {
-        if (len > buffer_length(buffer)) {
-            n_bytes = buffer_length(buffer);
-        } else {
-            n_bytes = len;
-        }
+        n_bytes = buffer_length(buffer) < len ? buffer_length(buffer) : len;
     }
     for (uint32_t bytes_flushed = 0; bytes_flushed < n_bytes; ++bytes_flushed) {
         buffer->data[buffer->read_index] = 0;
