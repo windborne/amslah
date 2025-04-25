@@ -8,7 +8,7 @@ void enable_sercom_irq(int sercom) {
 	#else
 		for (int i=0; i<4; i++) {
 			int nn = 46 + 4 * sercom + i;
-			NVIC_SetPriority(nn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+			NVIC_SetPriority(nn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY+1);
 			NVIC_EnableIRQ(nn);
 		}
 	#endif

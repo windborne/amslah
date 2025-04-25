@@ -105,7 +105,7 @@ void eic_init() {
 	GCLK->PCHCTRL[EIC_GCLK_ID].reg = 0 | (1 << GCLK_PCHCTRL_CHEN_Pos);
     EIC->CTRLA.reg |= EIC_CTRLA_ENABLE;
 	for (int i=0; i<16; i++) {
-		NVIC_SetPriority(EIC_0_IRQn + i, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+		NVIC_SetPriority(EIC_0_IRQn + i, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY+1);
     	NVIC_EnableIRQ(EIC_0_IRQn + i);
 	}
 
