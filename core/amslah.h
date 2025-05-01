@@ -12,6 +12,7 @@ extern "C" {
 #include "mtb.h"
 #include "adc.h"
 #include "dac.h"
+#include "dma_base.h"
 #include "gpio.h"
 #include "i2c.h"
 #include "pwm.h"
