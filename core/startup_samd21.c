@@ -301,9 +301,7 @@ void init_sources() {
 
     USB->DEVICE.CTRLA.reg &= ~USB_CTRLA_ENABLE;
     PM->APBBMASK.reg &= ~PM_APBBMASK_USB;
-    PM->APBBMASK.reg &= ~PM_APBBMASK_DMAC;
     PM->AHBMASK.bit.USB_ = 0;
-    PM->AHBMASK.bit.DMAC_ = 0;
 
     critical_section_leave();
 
@@ -328,7 +326,6 @@ void init_chip() {
 				| PM_AHBMASK_DSU \
 				| PM_AHBMASK_HPB1 \
 				| PM_AHBMASK_HPB2 \
-				| PM_AHBMASK_DMAC \
 				| PM_AHBMASK_HPB0 \*/
 				/* These clocks should remain enabled on this bus
 				| PM_AHBMASK_HPB1 \
