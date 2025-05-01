@@ -27,6 +27,7 @@ volatile static DMAC_CH_OBJECT dmacChannelObj[DMAC_CHANNELS_NUMBER];
 
 // static void gps_tx_callback(DMAC_TRANSFER_EVENT event);
 static void dma_register_gps_tx_channel(void);
+static void dma_register_gps_rx_channel(void);
 static void init_dmac_channel_objects(void);
 static void dma_interrupt_enable(void);
 
@@ -55,18 +56,29 @@ void init_dma(void) {
     DMAC->CTRL.reg |= DMAC_CTRL_LVLEN0;
 
     dma_register_gps_tx_channel();
+    dma_register_gps_rx_channel();
 
     DMAC->CTRL.reg = DMAC_CTRL_DMAENABLE | DMAC_CTRL_LVLEN0 | DMAC_CTRL_LVLEN1 | DMAC_CTRL_LVLEN2 | DMAC_CTRL_LVLEN3;
 
     dma_interrupt_enable();
 }
 
-// void dma_register_gps_rx_channel() {
-//     uint8_t channel = 0;
+static void dma_register_gps_rx_channel() {
+    uint8_t channel = DMAC_CHANNEL_GPS_RX;
 
-//     DMAC->Channel[channel].CHCTRLA.bit.TRIGSRC = 0x10;  // Sercom 6, RX
-// }
+    DMAC->Channel[channel].CHCTRLA.bit.TRIGACT = 0x0;
+    DMAC->Channel[channel].CHCTRLA.bit.TRIGSRC = 0x10;  // Sercom 6, RX
 
+    BaseDmacDescriptors[channel].BTCTRL.reg = (
+        DMAC_BTCTRL_VALID
+         | DMAC_BTCTRL_BLOCKACT_INT
+         | DMAC_BTCTRL_BEATSIZE_BYTE
+        //  | DMAC_BTCTRL_STEPSEL_SRC
+         | DMAC_BTCTRL_DSTINC);
+
+    DMAC->Channel[channel].CHPRILVL.reg = DMAC_CHPRILVL_PRILVL_LVL0;
+    DMAC->Channel[channel].CHINTENSET.reg = DMAC_CHINTENSET_TERR | DMAC_CHINTENSET_TCMPL;
+}
 
 
 
@@ -80,7 +92,7 @@ static void dma_register_gps_tx_channel(void) {
         DMAC_BTCTRL_VALID
          | DMAC_BTCTRL_BLOCKACT_INT
          | DMAC_BTCTRL_BEATSIZE_BYTE
-        //  | DMAC_BTCTRL_STEPSEL_SRC
+        //  | DMAC_BTCTRL_STEPSEL_DST
          | DMAC_BTCTRL_SRCINC);
 
     DMAC->Channel[channel].CHPRILVL.reg = DMAC_CHPRILVL_PRILVL_LVL0;
@@ -94,13 +106,35 @@ static void dma_interrupt_enable(void) {
     NVIC_EnableIRQ(DMAC_1_IRQn);
 }
 
+bool dma_begin_gps_rx_transfer(const void* dstAddr, uint16_t block_size) {
+    uint8_t channel = DMAC_CHANNEL_GPS_RX;
+    bool isBusy = dmacChannelObj[channel].isBusy;
+
+    if (isBusy && DMAC->Channel[channel].CHINTFLAG.reg == 0) {
+        print("low level: DMA RX channel is busy\n");
+        return false;
+    }
+
+    DMAC->Channel[channel].CHINTFLAG.reg = DMAC_CHINTFLAG_TCMPL | DMAC_CHINTFLAG_TERR;  // Clears interrupt flags
+    dmacChannelObj[channel].isBusy = true;
+
+    BaseDmacDescriptors[channel].SRCADDR.reg = (uint32_t) &(SERCOM6->USART.DATA.reg);
+    BaseDmacDescriptors[channel].DSTADDR.reg = (uint32_t) (dstAddr) + block_size;
+    BaseDmacDescriptors[channel].BTCNT.reg = block_size;
+
+    print("Not busy: starting RX DMA transfer\n");
+    DMAC->Channel[channel].CHCTRLA.bit.ENABLE = 1;
+
+    return true;
+}
+
 bool dma_begin_gps_tx_transfer(const void* srcAddr, uint16_t block_size) {
     uint8_t channel = DMAC_CHANNEL_GPS_TX;
     // uint8_t beat_size = 0;
     bool isBusy = dmacChannelObj[channel].isBusy;
 
     if (isBusy && DMAC->Channel[channel].CHINTFLAG.reg == 0) {
-        // print("DMA channel is busy\n");
+        print("low level:DMA TX channel is busy\n");
         return false;
     }
     DMAC->Channel[channel].CHINTFLAG.reg = DMAC_CHINTFLAG_TCMPL | DMAC_CHINTFLAG_TERR;  // Clears interrupt flags
@@ -110,6 +144,7 @@ bool dma_begin_gps_tx_transfer(const void* srcAddr, uint16_t block_size) {
     BaseDmacDescriptors[channel].DSTADDR.reg = (uint32_t) &(SERCOM6->USART.DATA.reg);
     BaseDmacDescriptors[channel].BTCNT.reg = block_size;
 
+    print("Not busy: starting TX DMA transfer\n");
     DMAC->Channel[channel].CHCTRLA.bit.ENABLE = 1;
 
     return true;

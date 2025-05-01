@@ -10,6 +10,7 @@ extern "C" {
 
 void init_dma(void);
 bool dma_begin_gps_tx_transfer(const void* srcAddr, uint16_t block_size);
+bool dma_begin_gps_rx_transfer(const void* dstAddr, uint16_t block_size);
 
 typedef enum {
     DMAC_CHANNEL_GPS_RX = 0,
