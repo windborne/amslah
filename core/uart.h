@@ -106,6 +106,8 @@ void uart_start_listening(uart_t *uart);
 
 void uart_stop_listening(uart_t *uart);
 
+void uart_handler(int num);
+
 #ifdef __cplusplus
 }
 #endif

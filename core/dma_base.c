@@ -30,6 +30,8 @@ static void dma_register_gps_tx_channel(void);
 static void dma_register_gps_rx_channel(void);
 static void init_dmac_channel_objects(void);
 static void dma_interrupt_enable(void);
+static void gps_tx_callback(DMAC_TRANSFER_EVENT event);
+static void gps_rx_callback(DMAC_TRANSFER_EVENT event);
 
 static void init_dmac_channel_objects(void) {
     volatile DMAC_CH_OBJECT *dmacChObj = &dmacChannelObj[0];
@@ -39,7 +41,7 @@ static void init_dmac_channel_objects(void) {
     for(channel = 0U; channel < DMAC_CHANNELS_NUMBER; channel++)
     {
         dmacChObj->inUse = false;
-        // dmacChObj->callback = gps_tx_callback;
+        dmacChObj->callback = gps_tx_callback;
         dmacChObj->context = 0U;
         dmacChObj->isBusy = false;
 
@@ -53,18 +55,20 @@ void init_dma(void) {
 
     DMAC->BASEADDR.reg = (uint32_t) &BaseDmacDescriptors;
     DMAC->WRBADDR.reg = (uint32_t) &WriteBackDescriptors;
-    DMAC->CTRL.reg |= DMAC_CTRL_LVLEN0;
+    DMAC->CTRL.reg |= DMAC_CTRL_LVLEN0 | DMAC_CTRL_LVLEN1 | DMAC_CTRL_LVLEN2 | DMAC_CTRL_LVLEN3;
 
-    dma_register_gps_tx_channel();
     dma_register_gps_rx_channel();
+    dma_register_gps_tx_channel();
 
-    DMAC->CTRL.reg = DMAC_CTRL_DMAENABLE | DMAC_CTRL_LVLEN0 | DMAC_CTRL_LVLEN1 | DMAC_CTRL_LVLEN2 | DMAC_CTRL_LVLEN3;
+    DMAC->CTRL.reg |= DMAC_CTRL_DMAENABLE;
 
     dma_interrupt_enable();
 }
 
 static void dma_register_gps_rx_channel() {
     uint8_t channel = DMAC_CHANNEL_GPS_RX;
+
+    dmacChannelObj[channel].callback = gps_rx_callback;
 
     DMAC->Channel[channel].CHCTRLA.bit.TRIGACT = 0x0;
     DMAC->Channel[channel].CHCTRLA.bit.TRIGSRC = 0x10;  // Sercom 6, RX
@@ -73,7 +77,7 @@ static void dma_register_gps_rx_channel() {
         DMAC_BTCTRL_VALID
          | DMAC_BTCTRL_BLOCKACT_INT
          | DMAC_BTCTRL_BEATSIZE_BYTE
-        //  | DMAC_BTCTRL_STEPSEL_SRC
+        //  | DMAC_BTCTRL_STEPSEL_DST
          | DMAC_BTCTRL_DSTINC);
 
     DMAC->Channel[channel].CHPRILVL.reg = DMAC_CHPRILVL_PRILVL_LVL0;
@@ -85,6 +89,8 @@ static void dma_register_gps_rx_channel() {
 static void dma_register_gps_tx_channel(void) {
     uint8_t channel = DMAC_CHANNEL_GPS_TX;
 
+    dmacChannelObj[channel].callback = gps_tx_callback;
+
     DMAC->Channel[channel].CHCTRLA.bit.TRIGACT = 0x0;
     DMAC->Channel[channel].CHCTRLA.bit.TRIGSRC = 0x11;  // Sercom 6, TX
 
@@ -92,7 +98,7 @@ static void dma_register_gps_tx_channel(void) {
         DMAC_BTCTRL_VALID
          | DMAC_BTCTRL_BLOCKACT_INT
          | DMAC_BTCTRL_BEATSIZE_BYTE
-        //  | DMAC_BTCTRL_STEPSEL_DST
+        //  | DMAC_BTCTRL_STEPSEL_SRC
          | DMAC_BTCTRL_SRCINC);
 
     DMAC->Channel[channel].CHPRILVL.reg = DMAC_CHPRILVL_PRILVL_LVL0;
@@ -100,9 +106,9 @@ static void dma_register_gps_tx_channel(void) {
 }
 
 static void dma_interrupt_enable(void) {
-    NVIC_SetPriority(DMAC_0_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+    NVIC_SetPriority(DMAC_0_IRQn, 3);
     NVIC_EnableIRQ(DMAC_0_IRQn);
-    NVIC_SetPriority(DMAC_1_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+    NVIC_SetPriority(DMAC_1_IRQn, 3);
     NVIC_EnableIRQ(DMAC_1_IRQn);
 }
 
@@ -166,30 +172,36 @@ void DMAC_interrupt_handler(DmacChannel_t channel) {
         event = DMAC_TRANSFER_EVENT_COMPLETE;
         DMAC->Channel[channel].CHINTFLAG.reg = DMAC_CHINTFLAG_TCMPL;
         dmacChannelObj[channel].isBusy = false;
-        // print("DMA 1\n", channel);
     }
     if (DMAC->Channel[channel].CHINTFLAG.reg == DMAC_CHINTFLAG_TERR) {
         event = DMAC_TRANSFER_EVENT_ERROR;
         DMAC->Channel[channel].CHINTFLAG.reg = DMAC_CHINTFLAG_TERR;
         dmacChannelObj[channel].isBusy = false;
     }
-    if (dmacChannelObj[channel].callback) {
+    if (dmacChannelObj[channel].callback != NULL) {
         dmacChannelObj[channel].callback(event);
     }
 }
 
 
 void DMAC_0_Handler(void) {
-    DMAC_interrupt_handler(0);
+    DMAC_interrupt_handler(DMAC_CHANNEL_GPS_RX);
 }
 
 void DMAC_1_Handler(void) {
-    DMAC_interrupt_handler(1);
+    DMAC_interrupt_handler(DMAC_CHANNEL_GPS_TX);
 }
 
-// static void gps_tx_callback(DMAC_TRANSFER_EVENT event) {
-//     print("gps tx callback\n");
-//     if (event == DMAC_TRANSFER_EVENT_COMPLETE) {
-//         print("gps tx complete\n");
-//     }
-// }
+static void gps_tx_callback(DMAC_TRANSFER_EVENT event) {
+    // print("gps tx callback\n");
+    // if (event == DMAC_TRANSFER_EVENT_COMPLETE) {
+    //     print("gps tx complete\n");
+    // }
+}
+
+static void gps_rx_callback(DMAC_TRANSFER_EVENT event) {
+    // print("gps rx callback\n");
+    // if (event == DMAC_TRANSFER_EVENT_COMPLETE) {
+    //     print("gps rx complete\n");
+    // }
+}
