@@ -1,0 +1,38 @@
+# Generated Makefile by AMSLAH build system
+PROJECT_NAME = {{PROJECT_NAME}}
+BUILD_PATH = {{BUILD_PATH}}
+
+CC = arm-none-eabi-gcc -B/usr/bin/arm-none-eabi-
+CXX = arm-none-eabi-g++ -B/usr/bin/arm-none-eabi-
+OBJCOPY = arm-none-eabi-objcopy
+SIZE = arm-none-eabi-size
+
+CFLAGS = {{CFLAGS}}
+LFLAGS = {{LFLAGS}}
+INCLUDES = {{INCLUDES}}
+
+# Object files
+C_OBJS = {{C_OBJS}}
+CPP_OBJS = {{CPP_OBJS}}
+ALL_OBJS = $(C_OBJS) $(CPP_OBJS)
+
+# Default target
+all: $(BUILD_PATH)/$(PROJECT_NAME).bin
+
+# Link target
+$(BUILD_PATH)/$(PROJECT_NAME).elf: $(ALL_OBJS)
+	@echo "Linking..."
+	$(CXX) $(LFLAGS) -o $@ $(ALL_OBJS)
+
+# Create binary
+$(BUILD_PATH)/$(PROJECT_NAME).bin: $(BUILD_PATH)/$(PROJECT_NAME).elf
+	$(OBJCOPY) --strip-unneeded -O binary $< $@
+	$(SIZE) $<
+	@echo "Build complete: $@"
+
+{{FILE_RULES}}
+
+clean:
+	rm -rf $(BUILD_PATH)
+
+.PHONY: all clean 
