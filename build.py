@@ -15,6 +15,8 @@ class BuildSystem:
         self.amslah_path = Path(__file__).parent.absolute()
         self.project_path = Path.cwd()
         self.build_path = self.project_path / "build"
+        self.src_path = self.build_path / "src"
+        self.obj_path = self.build_path / "obj"
         self.makefile_path = self.build_path / "generated.mk"
         self.variables = variables or {}
         
@@ -69,35 +71,16 @@ class BuildSystem:
     
     def get_include_paths(self) -> List[str]:
         """Generate include paths from configuration"""
+        # Since everything is flattened, we only need core paths
         includes = [
             f'{self.amslah_path}/core',
             f'{self.amslah_path}/config', 
             f'{self.amslah_path}/freertos/include',
             f'{self.amslah_path}/freertos/portable_samd51',
-            f'{self.amslah_path}/extra',
-            '.'
+            f'{self.amslah_path}/extra'
         ]
         
-        # Add library paths
-        for lib in self.config.get('libs', []):
-            lib_path = Path(lib)
-            if not lib_path.is_absolute():
-                lib_path = self.project_path / lib_path
-            if lib_path.exists():
-                includes.append(str(lib_path))
-        
-        # Add all subdirectories (like original Makefile)
-        exclude = set(self.config.get('exclude', []))
-        exclude.add('build')
-        
-        subdirs_found = []
-        for item in self.project_path.iterdir():
-            if item.is_dir() and item.name not in exclude:
-                subdirs_found.append(item.name)
-                includes.append(str(item))
-        
-        if 'lib' in subdirs_found:
-            print(f"WARNING: Found 'lib' subdirectory in project: {subdirs_found}")
+        # All headers will be in build/src, so that's added in generate_makefile
         
         return [f'-I{path}' for path in includes]
     
@@ -145,6 +128,33 @@ class BuildSystem:
     
     def find_source_files(self) -> Dict[str, List[str]]:
         """Find all source files to compile"""
+        # First, check if zemi_output exists (Zemi processed files take priority)
+        zemi_output_path = self.project_path / "zemi_output"
+        
+        # Collect all source files from various locations
+        all_cpp_files = {}  # filename -> full path
+        all_c_files = {}    # filename -> full path
+        all_h_files = {}    # filename -> full path
+        
+        # Priority 1: Check zemi_output directory first
+        if zemi_output_path.exists():
+            for f in zemi_output_path.glob('*.cpp'):
+                basename = f.name
+                if basename in all_cpp_files:
+                    raise AssertionError(f"Filename conflict in zemi_output: {basename}")
+                all_cpp_files[basename] = f
+            for f in zemi_output_path.glob('*.c'):
+                basename = f.name
+                if basename in all_c_files:
+                    raise AssertionError(f"Filename conflict in zemi_output: {basename}")
+                all_c_files[basename] = f
+            for f in zemi_output_path.glob('*.h'):
+                basename = f.name
+                if basename in all_h_files:
+                    raise AssertionError(f"Filename conflict in zemi_output: {basename}")
+                all_h_files[basename] = f
+        
+        # Priority 2: Search other directories for non-Zemi files
         dirs = ['.']
         
         # Add library directories
@@ -155,27 +165,53 @@ class BuildSystem:
             if lib_path.exists():
                 dirs.append(str(lib_path))
         
-        # Add subdirectories but exclude build and excluded dirs
+        # Add subdirectories but exclude build, zemi_output, and excluded dirs
         exclude = set(self.config.get('exclude', []))
         exclude.add('build')
+        exclude.add('zemi_output')
+        exclude.add('output')  # Also exclude old output directory
         
-        subdirs_for_source = []
         for item in self.project_path.iterdir():
             if item.is_dir() and item.name not in exclude:
-                subdirs_for_source.append(item.name)
                 dirs.append(str(item))
         
-        if 'lib' in subdirs_for_source:
-            print(f"DEBUG: Found 'lib' subdirectory when scanning for sources: {subdirs_for_source}")
-        
-        cpp_files = []
-        c_files = []
-        
+        # Search directories for source files
         for dir_path in dirs:
             dir_p = Path(dir_path)
             if dir_p.exists():
-                cpp_files.extend(dir_p.glob('*.cpp'))
-                c_files.extend(dir_p.glob('*.c'))
+                # Skip Zemi source files (.cppz, .hz, .cz)
+                for f in dir_p.glob('*.cpp'):
+                    basename = f.name
+                    if basename not in all_cpp_files:
+                        if f.with_suffix('.cppz').exists():
+                            continue  # Skip, will be handled by Zemi
+                        all_cpp_files[basename] = f
+                    else:
+                        # Check for conflict
+                        if all_cpp_files[basename] != f:
+                            raise AssertionError(f"Filename conflict: '{basename}' found in both '{all_cpp_files[basename].parent}' and '{f.parent}'")
+                
+                for f in dir_p.glob('*.c'):
+                    basename = f.name
+                    if basename not in all_c_files:
+                        if f.with_suffix('.cz').exists():
+                            continue  # Skip, will be handled by Zemi
+                        all_c_files[basename] = f
+                    else:
+                        # Check for conflict
+                        if all_c_files[basename] != f:
+                            raise AssertionError(f"Filename conflict: '{basename}' found in both '{all_c_files[basename].parent}' and '{f.parent}'")
+                
+                for f in dir_p.glob('*.h'):
+                    basename = f.name
+                    if basename not in all_h_files:
+                        if f.with_suffix('.hz').exists():
+                            continue  # Skip, will be handled by Zemi
+                        all_h_files[basename] = f
+                    else:
+                        # Check for conflict
+                        if all_h_files[basename] != f:
+                            raise AssertionError(f"Filename conflict: '{basename}' found in both '{all_h_files[basename].parent}' and '{f.parent}'")
         
         # Add core AMSLAH files
         mcu = self.config.get('mcu', 'SAMD21J18A')
@@ -218,15 +254,50 @@ class BuildSystem:
             f'{self.amslah_path}/freertos/portable_samd51/port.c'
         ]
         
-        c_files.extend([Path(f) for f in core_files + freertos_files])
-        cpp_files.append(Path(f'{self.amslah_path}/extra/mutex.cpp'))
+        # Add core files (check for conflicts)
+        for f in core_files + freertos_files:
+            path = Path(f)
+            if path.exists():
+                basename = path.name
+                if basename in all_c_files and all_c_files[basename] != path:
+                    raise AssertionError(f"Filename conflict with core file: '{basename}'")
+                all_c_files[basename] = path
+        
+        # Add mutex.cpp
+        mutex_path = Path(f'{self.amslah_path}/extra/mutex.cpp')
+        if mutex_path.exists():
+            if 'mutex.cpp' in all_cpp_files and all_cpp_files['mutex.cpp'] != mutex_path:
+                raise AssertionError("Filename conflict with core file: 'mutex.cpp'")
+            all_cpp_files['mutex.cpp'] = mutex_path
         
         return {
-            'cpp': [str(f) for f in cpp_files if f.exists()],
-            'c': [str(f) for f in c_files if f.exists()]
+            'cpp': all_cpp_files,
+            'c': all_c_files,
+            'h': all_h_files
         }
     
-    def generate_makefile(self, sources: Dict[str, List[str]]) -> str:
+    def copy_sources_to_build(self, sources: Dict[str, Dict[str, Path]]) -> None:
+        """Copy all source files to flattened build/src directory"""
+        self.src_path.mkdir(parents=True, exist_ok=True)
+        
+        # Copy C files
+        for basename, src_path in sources['c'].items():
+            dst_path = self.src_path / basename
+            shutil.copy2(src_path, dst_path)
+        
+        # Copy C++ files
+        for basename, src_path in sources['cpp'].items():
+            dst_path = self.src_path / basename
+            shutil.copy2(src_path, dst_path)
+        
+        # Copy header files
+        for basename, src_path in sources['h'].items():
+            dst_path = self.src_path / basename
+            shutil.copy2(src_path, dst_path)
+        
+        print(f"Copied {len(sources['c'])} C files, {len(sources['cpp'])} C++ files, and {len(sources['h'])} header files to {self.src_path}")
+    
+    def generate_makefile(self, sources: Dict[str, Dict[str, Path]]) -> str:
         """Generate a simple Makefile for make to execute"""
         flags = self.get_mcu_flags()
         includes = self.get_include_paths()
@@ -242,54 +313,45 @@ class BuildSystem:
         # Convert lists to space-separated strings for Makefile
         cflags_str = ' '.join(flags['cflags'] + user_cflags + variable_flags)
         lflags_str = ' '.join(flags['lflags'])
-        includes_str = ' '.join(includes)
         
-        # Generate object file lists
+        # Update includes to include build/src since all headers are copied there
+        includes_str = ' '.join(includes + [f'-I{self.src_path}'])
+        
+        # Create object directory
+        self.obj_path.mkdir(parents=True, exist_ok=True)
+        
+        # Generate object file lists (all flattened in build/obj/)
         c_objs = []
         cpp_objs = []
         
-        for c_file in sources['c']:
-            c_path = Path(c_file)
-            try:
-                # Try to make it relative to project path
-                rel_path = c_path.relative_to(self.project_path)
-                obj_path = self.build_path / f"{rel_path}.o"
-            except ValueError:
-                # File is outside project - create flattened path
-                obj_path = self.build_path / "external" / f"{c_path.name}.o"
+        for basename in sources['c'].keys():
+            obj_path = self.obj_path / f"{Path(basename).stem}.o"
             c_objs.append(str(obj_path))
             
-        for cpp_file in sources['cpp']:
-            cpp_path = Path(cpp_file)
-            try:
-                # Try to make it relative to project path
-                rel_path = cpp_path.relative_to(self.project_path)
-                obj_path = self.build_path / f"{rel_path}.o"
-            except ValueError:
-                # File is outside project - create flattened path
-                obj_path = self.build_path / "external" / f"{cpp_path.name}.o"
+        for basename in sources['cpp'].keys():
+            obj_path = self.obj_path / f"{Path(basename).stem}.o"
             cpp_objs.append(str(obj_path))
         
         # Generate file rules
         file_rules = ""
         
         # Add rules for C files
-        for i, c_file in enumerate(sources['c']):
-            obj_file = c_objs[i]
+        for basename in sources['c'].keys():
+            src_file = self.src_path / basename
+            obj_file = self.obj_path / f"{Path(basename).stem}.o"
             file_rules += f"""
-{obj_file}: {c_file}
-\t@mkdir -p $(dir $@)
-\t@echo "Compiling $<..."
+{obj_file}: {src_file}
+\t@echo "Compiling {basename}..."
 \t$(CC) $(INCLUDES) $(CFLAGS) -o $@ -c $<
 """
 
         # Add rules for C++ files  
-        for i, cpp_file in enumerate(sources['cpp']):
-            obj_file = cpp_objs[i]
+        for basename in sources['cpp'].keys():
+            src_file = self.src_path / basename
+            obj_file = self.obj_path / f"{Path(basename).stem}.o"
             file_rules += f"""
-{obj_file}: {cpp_file}
-\t@mkdir -p $(dir $@)
-\t@echo "Compiling $<..."
+{obj_file}: {src_file}
+\t@echo "Compiling {basename}..."
 \t$(CXX) $(INCLUDES) $(CFLAGS) -o $@ -c $<
 """
 
@@ -315,6 +377,12 @@ class BuildSystem:
         if self.build_path.exists():
             shutil.rmtree(self.build_path)
             print("Build directory cleaned")
+        
+        # Also clean zemi_output if it exists
+        zemi_output = self.project_path / "zemi_output"
+        if zemi_output.exists():
+            shutil.rmtree(zemi_output)
+            print("Zemi output directory cleaned")
     
     def build(self, jobs: int = 1) -> str:
         """Main build function"""
@@ -329,7 +397,10 @@ class BuildSystem:
         
         # Find source files
         sources = self.find_source_files()
-        print(f"Found {len(sources['c'])} C files and {len(sources['cpp'])} C++ files")
+        print(f"Found {len(sources['c'])} C files, {len(sources['cpp'])} C++ files, and {len(sources['h'])} header files")
+        
+        # Copy all sources to flattened build/src directory
+        self.copy_sources_to_build(sources)
         
         # Generate Makefile
         makefile_content = self.generate_makefile(sources)
