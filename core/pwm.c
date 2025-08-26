@@ -201,7 +201,7 @@ void pwm_init_with(pwmcfg_t cfg) {
 		if (cfg.timer == 4) MCLK->APBCMASK.reg |= MCLK_APBCMASK_TC4;
 		if (cfg.timer == 5) MCLK->APBCMASK.reg |= MCLK_APBCMASK_TC5;
 		if (cfg.timer == 6) MCLK->APBDMASK.reg |= MCLK_APBDMASK_TC6;
-		if (cfg.timer == 7) MCLK->APBDMASK.reg |= MCLK_APBDMASK_TC6;
+		if (cfg.timer == 7) MCLK->APBDMASK.reg |= MCLK_APBDMASK_TC7;
 
         TcCount8* hw = (TcCount8*)tc_insts[cfg.timer];
 		//if (prescaler == 0) prescaler = PWM_PRESCALER;
