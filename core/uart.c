@@ -27,8 +27,12 @@ void uart_handler(int num) {
     if ( (uart->hw->USART.INTFLAG.reg & SERCOM_USART_INTFLAG_RXC)
              && (uart->hw->USART.INTENSET.reg & SERCOM_USART_INTENSET_RXC)) {
         char byte = uart->hw->USART.DATA.reg;
-        //gpio_set(GPIO(GPIO_PORTB, 30), LOW);
-        //while (1) {};
+
+
+        if (num == 5) {
+            PORT->Group[GPIO_PORT(PB22)].OUTTGL.reg = 1U << GPIO_PIN(PB22);
+        }
+
         xStreamBufferSendFromISR(uart->rx_buffer, &byte, 1, &woke);
     }
 	portYIELD_FROM_ISR(woke);
