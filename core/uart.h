@@ -37,7 +37,7 @@ typedef struct {
 } uartcfg_t;
 
 void uart_init_with(uart_t *uart, uartcfg_t cfg);
-
+void set_uart_handler(uart_t *uart);
 
 /**
  * @brief Compute BAUD register for UART operation

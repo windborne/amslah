@@ -34,6 +34,10 @@ void uart_handler(int num) {
 	portYIELD_FROM_ISR(woke);
 }
 
+void set_uart_handler(uart_t *uart) {
+    uart->fn = uart_handler;
+}
+
 void uart_init_with(uart_t *uart, uartcfg_t cfg) {
 	uart_init(uart, cfg.sercom, cfg.baud, cfg.pin_tx, (cfg.pin_tx << 16) | cfg.mux_tx, cfg.pin_rx, (cfg.pin_rx << 16) | cfg.mux_rx);
 }
