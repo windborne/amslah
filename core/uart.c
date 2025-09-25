@@ -42,13 +42,11 @@ void uart_init_with(uart_t *uart, uartcfg_t cfg) {
 	uart_init(uart, cfg.sercom, cfg.baud, cfg.pin_tx, (cfg.pin_tx << 16) | cfg.mux_tx, cfg.pin_rx, (cfg.pin_rx << 16) | cfg.mux_rx);
 }
 
-void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_tx, uint8_t pin_rx, uint32_t mux_rx) {
+void uart_registers_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_tx, uint8_t pin_rx, uint32_t mux_rx) {
     enable_sercom_clock(sercom);
 
     gpio_function(pin_tx, mux_tx);
     gpio_function(pin_rx, mux_rx); 
-
-    //PORT->Group[GPIO_PORT(pin_rx)].PINCFG[GPIO_PIN(pin_rx)].reg = PORT_PINCFG_PMUXEN | PORT_PINCFG_INEN ;
 
 	Sercom *hw = get_sercom(sercom);
 
@@ -72,11 +70,21 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
 	hw->USART.CTRLB.bit.ENC = 0;
     hw->USART.CTRLB.bit.RXEN = 1; // Receiver
     hw->USART.CTRLB.bit.TXEN = 1; // Transmitter
-    hw->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
+    // hw->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
     hw->USART.CTRLA.reg |= 1 << SERCOM_USART_CTRLA_ENABLE_Pos; // Enable
 
     while (hw->USART.SYNCBUSY.bit.CTRLB);
     while (hw->USART.SYNCBUSY.bit.SWRST);
+
+    uart->hw = hw;
+}
+
+void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_tx, uint8_t pin_rx, uint32_t mux_rx) {    
+    Sercom *hw = (uart->hw != NULL) ? uart->hw : get_sercom(sercom);
+
+    uart_registers_init(uart, sercom, baud, pin_tx, mux_tx, pin_rx, mux_rx);
+    hw->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
+
     enable_sercom_irq(sercom);
 
     uart->hw = hw;
