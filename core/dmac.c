@@ -27,6 +27,7 @@ void init_dma(void) {
     if (!DMAC_ENABLED) {
         return;
     }
+    #ifdef _SAMD51_
     DMAC->BASEADDR.reg = (uint32_t) &BaseDmacDescriptors;
     DMAC->WRBADDR.reg = (uint32_t) &WriteBackDescriptors;
     DMAC->CTRL.reg |= DMAC_CTRL_LVLEN0;
@@ -36,6 +37,7 @@ void init_dma(void) {
     }
 
     DMAC->CTRL.reg = DMAC_CTRL_DMAENABLE | DMAC_CTRL_LVLEN0 | DMAC_CTRL_LVLEN1 | DMAC_CTRL_LVLEN2 | DMAC_CTRL_LVLEN3;
+    #endif
 
     dma_interrupt_enable();
 }
@@ -51,6 +53,7 @@ static void dma_register_channel(DmacChannel_t channel) {
     bool direction_is_tx = dmac_cfgs[channel].direction_is_tx;
     uint8_t trigSrc = dmac_cfgs[channel].trigSrc;
     
+    #ifdef _SAMD51_
     DMAC->Channel[channel].CHCTRLA.bit.TRIGACT = 0x2;
     DMAC->Channel[channel].CHCTRLA.bit.TRIGSRC = trigSrc;
 
@@ -62,19 +65,23 @@ static void dma_register_channel(DmacChannel_t channel) {
 
     DMAC->Channel[channel].CHPRILVL.reg = DMAC_CHPRILVL_PRILVL_LVL0;
     DMAC->Channel[channel].CHINTENSET.reg = DMAC_CHINTENSET_TERR | DMAC_CHINTENSET_TCMPL;
+    #endif
 }
 
 
 static void dma_interrupt_enable(void) {
+    #ifdef _SAMD51_
     NVIC_SetPriority(DMAC_0_IRQn, 2);
     NVIC_EnableIRQ(DMAC_0_IRQn);
     NVIC_SetPriority(DMAC_1_IRQn, 2);
     NVIC_EnableIRQ(DMAC_1_IRQn);
+    #endif
 }
 
 bool dma_uart_transfer(DmacChannel_t channel, const void* bufAddr, uint16_t block_size) {
     bool isBusy = dmac_cfgs[channel].isBusy;
 
+    #ifdef _SAMD51_
     if (isBusy && DMAC->Channel[channel].CHINTFLAG.reg == 0) {
         return false;
     }
@@ -91,6 +98,7 @@ bool dma_uart_transfer(DmacChannel_t channel, const void* bufAddr, uint16_t bloc
     BaseDmacDescriptors[channel].BTCNT.reg = block_size;
 
     DMAC->Channel[channel].CHCTRLA.bit.ENABLE = 1;
+    #endif
 
     return true;
 }
@@ -98,34 +106,43 @@ bool dma_uart_transfer(DmacChannel_t channel, const void* bufAddr, uint16_t bloc
 
 bool DMAC_ChannelIsBusy(DmacChannel_t channel) {
     bool isBusy = dmac_cfgs[channel].isBusy;
+    #ifdef _SAMD51_
     if (((DMAC->Channel[channel].CHINTFLAG.reg & (DMAC_CHINTENCLR_TCMPL | DMAC_CHINTENCLR_TERR)) == 0U) && (isBusy)) {
         return true;
     }
+    #endif
     return false;
 }
 
 
 void DMAC_ChannelSuspend(DmacChannel_t channel) {
+    #ifdef _SAMD51_
     DMAC->Channel[channel].CHCTRLB.reg = (DMAC->Channel[channel].CHCTRLB.reg & (uint8_t)(~DMAC_CHCTRLB_CMD_Msk)) | DMAC_CHCTRLB_CMD_SUSPEND;
+    #endif
 }
 
 void DMAC_ChannelResume (DmacChannel_t channel) {
+    #ifdef _SAMD51_
     DMAC->Channel[channel].CHCTRLB.reg = (DMAC->Channel[channel].CHCTRLB.reg & (uint8_t)(~DMAC_CHCTRLB_CMD_Msk)) | DMAC_CHCTRLB_CMD_RESUME;
+    #endif
 }
 
 void DMAC_ChannelDisable (DmacChannel_t channel) {
     /* Disable the DMA channel */
+    #ifdef _SAMD51_
     DMAC->Channel[channel].CHCTRLA.reg &= (~DMAC_CHCTRLA_ENABLE);
 
     while((DMAC->Channel[channel].CHCTRLA.reg & DMAC_CHCTRLA_ENABLE) != 0U) {
         /* Wait for channel to be disabled */
     }
 
+    #endif
     dmac_cfgs[channel].isBusy = false;
 }
 
 void DMAC_interrupt_handler(DmacChannel_t channel) {
     DMAC_RESULT result = DMAC_RESULT_NONE;
+    #ifdef _SAMD51_
     if (DMAC->Channel[channel].CHINTFLAG.reg == DMAC_CHINTFLAG_TCMPL) {
         result = DMAC_RESULT_COMPLETE;
         DMAC->Channel[channel].CHINTFLAG.reg = DMAC_CHINTFLAG_TCMPL;
@@ -136,6 +153,7 @@ void DMAC_interrupt_handler(DmacChannel_t channel) {
         DMAC->Channel[channel].CHINTFLAG.reg = DMAC_CHINTFLAG_TERR;
         dmac_cfgs[channel].isBusy = false;
     }
+    #endif
     if (dmac_cfgs[channel].callback) {
         dmac_cfgs[channel].callback(result);
     }
