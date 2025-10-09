@@ -116,6 +116,7 @@ CSRC += $(AMSLAH_PATH)/core/i2c.c
 CSRC += $(AMSLAH_PATH)/core/pwm.c
 CSRC += $(AMSLAH_PATH)/core/adc.c
 CSRC += $(AMSLAH_PATH)/core/dac.c
+CSRC += $(AMSLAH_PATH)/core/dmac.c
 CSRC += $(AMSLAH_PATH)/core/eic.c
 CSRC += $(AMSLAH_PATH)/core/watchdog.c
 CSRC += $(AMSLAH_PATH)/core/sercoms.c

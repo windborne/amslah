@@ -116,8 +116,8 @@
 	#define DEBUG_UART_RX_MUX ( PINMUX_PA13C_SERCOM2_PAD1 )
 #endif
 
-#ifndef USE_DMA_FOR_DEBUG_UART_TX
-	#define USE_DMA_FOR_DEBUG_UART_TX 0
+#ifndef DMAC_ENABLED
+	#define DMAC_ENABLED 0
 #endif
 
 #ifndef SERIAL_TASK
