@@ -8,7 +8,13 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "dma_config.h"  // Provides DmacChannel_t
+#if __has_include("dma_config.h")
+  #include "dma_config.h"  // User must provide DmacChannel_t
+#else
+    typedef enum {
+        N_DMAC_CHANNELS,
+    } DmacChannel_t;
+#endif
 
 typedef enum
 {

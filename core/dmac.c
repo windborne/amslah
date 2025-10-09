@@ -1,6 +1,10 @@
 #include "dmac.h"
 #include <stddef.h>
-#include "dma_config.h"
+
+#if __has_include("dma_config.h")
+  #include "dma_config.h"
+#endif
+
 #include "sammy.h"
 #include "amslah_config.h"
 
