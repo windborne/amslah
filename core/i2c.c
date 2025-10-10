@@ -36,8 +36,11 @@ void i2c_handler(int num) {
 void i2c_init(i2c_t *i2c, int sercom,
                 uint8_t pin_sda, uint32_t mux_sda,
                 uint8_t pin_scl, uint32_t mux_scl) {
+	i2c->allow_isr_during_bitbang = 0; // Set to 1 after i2c_init() to opt into ISR tolerant mode.
+
 	i2c->pin_sda = pin_sda;
 	i2c->pin_scl = pin_scl;
+
 	if (i2c->bitbang) {
 		return;
 	}
@@ -262,7 +265,7 @@ if (!i2c->bitbang) {
 	if (!i2c->nostop) i2c->hw->I2CM.CTRLB.bit.CMD = 3;
 	return 0;
 } else {
-portENTER_CRITICAL();
+if (!i2c->allow_isr_during_bitbang) portENTER_CRITICAL();
 	int ret = 0;
 	_bitbang_start(i2c);
 	_bitbang_write(i2c, (addr << 1) | 0);
@@ -270,7 +273,7 @@ portENTER_CRITICAL();
 		ret = _bitbang_write(i2c, bytes[i]);
 	}
 	if (!i2c->nostop) _bitbang_stop(i2c);
-portEXIT_CRITICAL();
+if (!i2c->allow_isr_during_bitbang) portEXIT_CRITICAL();
 	return ret;
 }
 }
@@ -303,14 +306,14 @@ if (!i2c->bitbang) {
 
 	return 0;
 } else {
-portENTER_CRITICAL();
+if (!i2c->allow_isr_during_bitbang) portENTER_CRITICAL();
 		_bitbang_start(i2c);
 		_bitbang_write(i2c, (addr << 1) | 1);
 	for (int i=0; i<len; i++) {
 		bytes[i] = _bitbang_read(i2c, (i == (len-1)) ? NACK : ACK);
 	}
 	_bitbang_stop(i2c);
-portEXIT_CRITICAL();
+if (!i2c->allow_isr_during_bitbang) portEXIT_CRITICAL();
 	return 0;
 }
 }
