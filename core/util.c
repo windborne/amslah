@@ -14,6 +14,17 @@ void enable_sercom_irq(int sercom) {
 	#endif
 }
 
+void disable_uart_tx_interrupts(int sercom) {
+	#ifdef _SAMD21_
+		#error "Not implemented whoops"
+	#else
+		int dre_irq = 46 + 4 * sercom;
+		NVIC_DisableIRQ(dre_irq);
+		int txc_irq = 46 + 4 * sercom + 1;
+		NVIC_DisableIRQ(txc_irq);
+	#endif
+}
+
 void enable_sercom_clock(int n) {
 #ifdef _SAMD21_
     PM->APBCMASK.reg |= 1 << (n + 2);
