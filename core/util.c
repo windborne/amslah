@@ -15,14 +15,14 @@ void enable_sercom_irq(int sercom) {
 }
 
 void disable_uart_tx_interrupts(int sercom) {
-	#ifdef _SAMD21_
-		#error "Not implemented whoops"
-	#else
-		int dre_irq = 46 + 4 * sercom;
-		NVIC_DisableIRQ(dre_irq);
-		int txc_irq = 46 + 4 * sercom + 1;
-		NVIC_DisableIRQ(txc_irq);
-	#endif
+    #ifdef _SAMD21_
+        NVIC_DisableIRQ(9 + sercom);
+    #else
+        for (int i=0; i<2; i++) {
+            int nn = 46 + 4 * sercom + i;
+            NVIC_DisableIRQ(nn);
+        }
+    #endif
 }
 
 void enable_sercom_clock(int n) {

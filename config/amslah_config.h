@@ -120,6 +120,10 @@
 	#define DMAC_ENABLED 0
 #endif
 
+#ifndef TACOMA_TX_DMA
+	#define TACOMA_TX_DMA 0
+#endif
+
 #ifndef SERIAL_TASK
 	#define SERIAL_TASK USE_DEBUG_UART
 #endif
