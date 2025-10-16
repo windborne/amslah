@@ -11,6 +11,7 @@ extern "C" {
 #if __has_include("dma_config.h")
   #include "dma_config.h"  // User must provide DmacChannel_t
 #else
+    #define DMAC_CHANNEL_COUNT (0)
     typedef enum {
         N_DMAC_CHANNELS,
     } DmacChannel_t;

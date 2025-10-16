@@ -9,7 +9,7 @@
 #include "amslah_config.h"
 
 
-#if DMAC_ENABLED && (N_DMAC_CHANNELS > 0)
+#if (DMAC_ENABLED && (DMAC_CHANNEL_COUNT > 0))
     static DmacDescriptor BaseDmacDescriptors[N_DMAC_CHANNELS] = {0};
     static DmacDescriptor WriteBackDescriptors[N_DMAC_CHANNELS] = {0};
     extern volatile dmac_channel_cfg dmac_cfgs[];
