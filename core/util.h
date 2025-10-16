@@ -62,7 +62,7 @@ void enable_sercom_clock(int n);
 
 void enable_sercom_irq(int sercom);
 
-void disable_uart_tx_irq(int sercom);
+void disable_uart_tx_interrupts(int sercom);
 
 uint32_t get_32bit_core_id();
 
