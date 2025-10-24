@@ -3,6 +3,7 @@
 #include "task.h"
 #include "serial.h"
 #include "pwm.h"
+#include "dmac.h"
 
 #include "stream_buffer.h"
 
@@ -74,6 +75,12 @@ void init_serial() {
     uart_init(&debug_uart, DEBUG_UART_SERCOM, DEBUG_UART_BAUD,
                 DEBUG_UART_TX_PIN, DEBUG_UART_TX_MUX,
                 DEBUG_UART_RX_PIN, DEBUG_UART_RX_MUX);
+	#endif
+
+
+    #if TACOMA_TX_DMA
+        disable_uart_tx_interrupts(DEBUG_UART_SERCOM);
+        init_dma();
 	#endif
 
 	#if SERIAL_TASK
