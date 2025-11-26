@@ -21,14 +21,55 @@ const uint8_t adc_ains[] = {-1, -1, 0, 1, 4, 5, 6, 7, 16, 17, 18, 19, /* PA11 */
                             2, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* PB21 */
                             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}; /* PB31 */
 #else
-const uint8_t adc_ains[] = {-1, -1, 0, 1, 4, 5, 6, 7, 8, 9, 10, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, 13, 14, 15, -1, -1, -1, -1, 2, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+
+//SAMD51 has two ADCS, ADC0 and ADC1. Pins are mapped to one or the other.
+
+const uint8_t adc_ains[] = {-1, -1, 0, 1, 4, 5, 6, 7, 8, 9, 10, 11, /* PA11 */
+                            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* PA25 */
+                            -1, -1, -1, -1, -1, -1, /* PA31 */
+                            12, 13, 14, 15, /* PB03 */
+                            6, 7, 8, 9, /* PB07 */
+                            2, 3, /* PB09 */
+                            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, /* PB21 */
+                            -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}; /* PC31 */
+
+
+//Used to tell which ADC to use for a given pin
+const uint8_t adc_num[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* PA11 */
+                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* PA25 */
+                           0, 0, 0, 0, 0, 0, /* PA31 */
+                           0, 0, 0, 0, /* PB03 */
+                           1, 1, 1, 1, /* PB07 */
+                           0, 0, /* PB09 */
+                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* PB21 */
+                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; /* PC31 */
 #endif
 
+#ifdef _SAMD51_
+typedef struct {
+	Adc* peripheral;
+	SemaphoreHandle_t mutex;
+	SemaphoreHandle_t call_mutex;
+	volatile int result;
+	uint8_t reference;
+} adc_instance_t;
+
+static adc_instance_t adc_instances[2] = {
+	{ADC0, 0, 0, 0, ADC_REFERENCE},
+	{ADC1, 0, 0, 0, ADC_REFERENCE}
+};
+
+#define adc_mutex (adc_instances[0].mutex)
+#define adc_call_mutex (adc_instances[0].call_mutex)
+#define adc_result (adc_instances[0].result)
+uint8_t runtime_adc_reference = ADC_REFERENCE;
+
+#else
 SemaphoreHandle_t adc_mutex = 0;
 SemaphoreHandle_t adc_call_mutex = 0;
 volatile int adc_result;
-
 uint8_t runtime_adc_reference = ADC_REFERENCE;
+#endif
 
 #define ADC_Fn \
     ADC->INTENCLR.reg = ADC_INTENCLR_RESRDY; \
@@ -49,14 +90,122 @@ void ADC0_1_Handler() {
 	ADC_Fn
 }
 
+#ifdef _SAMD51_
+void ADC1_0_Handler() {
+	ADC1->INTENCLR.reg = ADC_INTENCLR_RESRDY;
+	adc_instances[1].result = ADC1->RESULT.reg;
+	BaseType_t woke = pdFALSE;
+	xSemaphoreGiveFromISR(adc_instances[1].call_mutex, &woke);
+	portYIELD_FROM_ISR(woke);
+}
+
+void ADC1_1_Handler() {
+	ADC1->INTENCLR.reg = ADC_INTENCLR_RESRDY;
+	adc_instances[1].result = ADC1->RESULT.reg;
+	BaseType_t woke = pdFALSE;
+	xSemaphoreGiveFromISR(adc_instances[1].call_mutex, &woke);
+	portYIELD_FROM_ISR(woke);
+}
+#endif
+
 void adc_deinit() {
+#ifdef _SAMD51_
+    // Deinit ADC0
+    xSemaphoreTake(adc_instances[0].mutex, portMAX_DELAY);
+    ADC0->INTENCLR.reg = ADC_INTENCLR_RESRDY;
+    ADC0->CTRLA.bit.ENABLE = 0;
+    while (ADC0->STATUS.reg & ADC_STATUS_ADCBUSY) {};
+    xSemaphoreGive(adc_instances[0].mutex);
+    
+    // Deinit ADC1
+    xSemaphoreTake(adc_instances[1].mutex, portMAX_DELAY);
+    ADC1->INTENCLR.reg = ADC_INTENCLR_RESRDY;
+    ADC1->CTRLA.bit.ENABLE = 0;
+    while (ADC1->STATUS.reg & ADC_STATUS_ADCBUSY) {};
+    xSemaphoreGive(adc_instances[1].mutex);
+#else
     xSemaphoreTake(adc_mutex, portMAX_DELAY);
+    ADC->INTENCLR.reg = ADC_INTENCLR_RESRDY;
     ADC->CTRLA.bit.ENABLE = 0;
     while (ADC->STATUS.reg & ADC_BUSY_MASK) {};
     xSemaphoreGive(adc_mutex);
+#endif
 }
 
+#ifdef _SAMD51_
+static void adc_init_instance(adc_instance_t* inst, uint8_t adc_num) {
+	Adc* adc_periph = inst->peripheral;
+
+	if (inst->mutex == 0) {
+		inst->mutex = xSemaphoreCreateBinary();
+		inst->call_mutex = xSemaphoreCreateBinary();
+		xSemaphoreGive(inst->mutex);
+	} else {
+		xSemaphoreTake(inst->mutex, portMAX_DELAY);
+	}
+
+	if (adc_periph->CTRLA.bit.ENABLE) {
+		xSemaphoreGive(inst->mutex);
+		return;
+	}
+
+	if (adc_num == 0) {
+		MCLK->APBDMASK.bit.ADC0_ = 1;
+		GCLK->PCHCTRL[ADC0_GCLK_ID].reg = 0 | (1 << GCLK_PCHCTRL_CHEN_Pos);
+	} else {
+		MCLK->APBDMASK.bit.ADC1_ = 1;
+		GCLK->PCHCTRL[ADC1_GCLK_ID].reg = 0 | (1 << GCLK_PCHCTRL_CHEN_Pos);
+	}
+
+	adc_periph->REFCTRL.bit.REFCOMP = 1;
+	adc_periph->REFCTRL.bit.REFSEL = inst->reference;
+	adc_periph->AVGCTRL.bit.SAMPLENUM = ADC_OVERSAMPLE;
+	adc_periph->SAMPCTRL.bit.SAMPLEN = ADC_SAMPLE_TIME;
+
+	while (adc_periph->STATUS.reg & ADC_STATUS_ADCBUSY) {};
+
+	adc_periph->CTRLA.bit.PRESCALER = ADC_FREQUENCY_PRESCALER;
+	adc_periph->INPUTCTRL.bit.DIFFMODE = 0; /* Single ended */
+	adc_periph->CTRLB.bit.RESSEL = ADC_AVERAGE;
+	adc_periph->CTRLB.bit.CORREN = 0;
+	adc_periph->CTRLB.bit.FREERUN = 0;
+
+	while (adc_periph->STATUS.reg & ADC_STATUS_ADCBUSY) {};
+
+	adc_periph->INPUTCTRL.bit.MUXNEG = 0x18;
+
+	while (adc_periph->STATUS.reg & ADC_STATUS_ADCBUSY) {};
+
+	if (adc_num == 0) {
+		uint32_t refbuf = (*((uint32_t*)ADC0_FUSES_BIASREFBUF_ADDR) & ADC0_FUSES_BIASREFBUF_Msk) >> ADC0_FUSES_BIASREFBUF_Pos;
+		uint32_t comp = (*((uint32_t*)ADC0_FUSES_BIASCOMP_ADDR) & ADC0_FUSES_BIASCOMP_Msk) >> ADC0_FUSES_BIASCOMP_Pos;
+		adc_periph->CALIB.reg = ADC_CALIB_BIASREFBUF(refbuf) | ADC_CALIB_BIASCOMP(comp);
+	} else {
+		uint32_t refbuf = (*((uint32_t*)ADC1_FUSES_BIASREFBUF_ADDR) & ADC1_FUSES_BIASREFBUF_Msk) >> ADC1_FUSES_BIASREFBUF_Pos;
+		uint32_t comp = (*((uint32_t*)ADC1_FUSES_BIASCOMP_ADDR) & ADC1_FUSES_BIASCOMP_Msk) >> ADC1_FUSES_BIASCOMP_Pos;
+		adc_periph->CALIB.reg = ADC_CALIB_BIASREFBUF(refbuf) | ADC_CALIB_BIASCOMP(comp);
+	}
+
+	adc_periph->CTRLA.reg = ADC_CTRLA_ENABLE;
+
+	while (adc_periph->STATUS.reg & ADC_STATUS_ADCBUSY) {};
+
+	adc_periph->INTENSET.bit.RESRDY = 1;
+
+	if (adc_num == 0) {
+		NVIC_SetPriority(ADC0_1_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+		NVIC_EnableIRQ(ADC0_1_IRQn);
+	} else {
+		NVIC_SetPriority(ADC1_1_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
+		NVIC_EnableIRQ(ADC1_1_IRQn);
+	}
+
+	xSemaphoreGive(inst->mutex);
+}
+#endif
+
 void adc_init() {
+#ifdef _SAMD21_
 	if (adc_mutex == 0) {
         adc_mutex = xSemaphoreCreateBinary();
         adc_call_mutex = xSemaphoreCreateBinary();
@@ -69,87 +218,66 @@ void adc_init() {
         return;
     }
 
-#ifdef _SAMD21_
     PM->APBCMASK.reg |= PM_APBCMASK_ADC;
 
     GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID_ADC
                         | GCLK_CLKCTRL_GEN_GCLK1
                         | (1 << GCLK_CLKCTRL_CLKEN_Pos);
     while(GCLK->STATUS.bit.SYNCBUSY);
-#else
-	MCLK->APBDMASK.bit.ADC0_ = 1;
-	GCLK->PCHCTRL[ADC0_GCLK_ID].reg = 0 | (1 << GCLK_PCHCTRL_CHEN_Pos);
-#endif
 
     ADC->REFCTRL.bit.REFCOMP = 1;
-    ADC->REFCTRL.bit.REFSEL = runtime_adc_reference; /* 1.0 V voltage reference by default. */
+    ADC->REFCTRL.bit.REFSEL = runtime_adc_reference;
 
     ADC->AVGCTRL.bit.SAMPLENUM = ADC_OVERSAMPLE;
-
     ADC->SAMPCTRL.bit.SAMPLEN = ADC_SAMPLE_TIME;
 
     while (ADC->STATUS.reg & ADC_BUSY_MASK) {};
 
-#ifdef _SAMD21_
     ADC->CTRLB.bit.PRESCALER = ADC_FREQUENCY_PRESCALER;
-    ADC->CTRLB.bit.DIFFMODE = 0; /* Single ended. */
-#else // rly
-    ADC->CTRLA.bit.PRESCALER = ADC_FREQUENCY_PRESCALER;
-    ADC->INPUTCTRL.bit.DIFFMODE = 0; /* Single ended. */
-#endif
-    ADC->CTRLB.bit.RESSEL = ADC_AVERAGE; /* Averaging by default. */
+    ADC->CTRLB.bit.DIFFMODE = 0;
+    ADC->CTRLB.bit.RESSEL = ADC_AVERAGE;
     ADC->CTRLB.bit.CORREN = 0;
     ADC->CTRLB.bit.FREERUN = 0;
 
     while (ADC->STATUS.reg & ADC_BUSY_MASK) {};
 
-#ifdef _SAMD21_
     ADC->INPUTCTRL.bit.GAIN = 0;
     ADC->INPUTCTRL.bit.MUXNEG = 0x19;
-#else
-    ADC->INPUTCTRL.bit.MUXNEG = 0x18;
-#endif
 
     while (ADC->STATUS.reg & ADC_BUSY_MASK) {};
 
-#ifdef _SAMD21_
 	ADC->CALIB.reg = ADC_CALIB_BIAS_CAL((*(uint32_t *) ADC_FUSES_BIASCAL_ADDR >> ADC_FUSES_BIASCAL_Pos)) | ADC_CALIB_LINEARITY_CAL((*(uint64_t *) ADC_FUSES_LINEARITY_0_ADDR >> ADC_FUSES_LINEARITY_0_Pos));
-#else
-		uint32_t refbuf = (*((uint32_t*)ADC0_FUSES_BIASREFBUF_ADDR) & ADC0_FUSES_BIASREFBUF_Msk) >> ADC0_FUSES_BIASREFBUF_Pos;
-		uint32_t comp = (*((uint32_t*)ADC0_FUSES_BIASCOMP_ADDR) & ADC0_FUSES_BIASCOMP_Msk) >> ADC0_FUSES_BIASCOMP_Pos;
-		ADC->CALIB.reg = ADC_CALIB_BIASREFBUF(refbuf) | ADC_CALIB_BIASCOMP(comp);
-#endif
 	ADC->CTRLA.reg = ADC_CTRLA_ENABLE;
 
     while (ADC->STATUS.reg & ADC_BUSY_MASK) {};
 
     ADC->INTENSET.bit.RESRDY = 1;
-
-#ifdef _SAMD21_
     NVIC_EnableIRQ(ADC_IRQn);
-#else
-	//NVIC_EnableIRQ(ADC0_0_IRQn);
-	NVIC_SetPriority(ADC0_1_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
-	NVIC_EnableIRQ(ADC0_1_IRQn);
-#endif
     xSemaphoreGive(adc_mutex);
+#else
+	adc_init_instance(&adc_instances[0], 0);
+	adc_init_instance(&adc_instances[1], 1);
+#endif
 }
 
 void adc_init_pin(uint8_t pin) {
 	if (pin == 255) return;
     gpio_function(pin, (pin << 16) | 1);
-    configASSERT(adc_ains[pin] != -1);
+    configASSERT(adc_ains[pin] != (uint8_t)-1);
 }
 
 int adc_sample(uint8_t pin) {
 	if (pin == 255) return 0;
+
+#ifdef _SAMD21_
 	if (!ADC->CTRLA.bit.ENABLE) return -1;
 	int ain;
 	if (pin == 137) ain = 0x18;
     else if (pin == 138) ain = 0x1a;
     else if (pin == 139) ain = 0x1b;
-	else if (adc_ains[pin] == -1) return -1;
+	else if (adc_ains[pin] == (uint8_t)-1) return -1;
 	else ain = adc_ains[pin];
+
     xSemaphoreTake(adc_mutex, portMAX_DELAY);
     ADC->INPUTCTRL.bit.MUXPOS = ain;
     ADC->SWTRIG.reg = 0b11;
@@ -167,6 +295,49 @@ int adc_sample(uint8_t pin) {
 		}
 	}
     return result;
+#else
+	int ain;
+	uint8_t adc_idx;
+
+	if (pin == 137) {
+		ain = 0x18;
+		adc_idx = 0;
+	} else if (pin == 138) {
+		ain = 0x1a;
+		adc_idx = 0;
+	} else if (pin == 139) {
+		ain = 0x1b;
+		adc_idx = 0;
+	} else if (adc_ains[pin] == (uint8_t)-1) {
+		return -1;
+	} else {
+		ain = adc_ains[pin];
+		adc_idx = adc_num[pin];
+	}
+
+	adc_instance_t* inst = &adc_instances[adc_idx];
+	Adc* adc_periph = inst->peripheral;
+
+	if (!adc_periph->CTRLA.bit.ENABLE) return -1;
+
+	xSemaphoreTake(inst->mutex, portMAX_DELAY);
+	adc_periph->INPUTCTRL.bit.MUXPOS = ain;
+	adc_periph->SWTRIG.reg = 0b11;
+	adc_periph->INTENSET.bit.RESRDY = 1;
+
+	xSemaphoreTake(inst->call_mutex, portMAX_DELAY);
+	int result = inst->result;
+	xSemaphoreGive(inst->mutex);
+
+	if (ADC_AVERAGE) {
+		if (ADC_OVERSAMPLE < 5) {
+			result = result >> ADC_OVERSAMPLE;
+		} else {
+			result = result >> 4;
+		}
+	}
+	return result;
+#endif
 }
 
 /* Thank you, for once, ASF, for not making me deal with Table 37-39*/

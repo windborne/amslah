@@ -34,6 +34,7 @@ typedef struct {
 	uint8_t pin_scl;
 	bool nostop;
 	bool slow;
+	bool allow_isr_during_bitbang;
 } i2c_t;
 
 void i2c_init(i2c_t *i2c, int sercom,
