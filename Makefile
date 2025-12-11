@@ -186,7 +186,7 @@ ohp:
 test: $(APP) 
 	edbg -bpv -t $(EDBG_FAMILY) -f build/amslah.bin 
 ocd:
-	cd $(AMSLAH_PATH); openocd
+	cd $(AMSLAH_PATH); openocd -f openocd_samd51.cfg
 
 gdb:
 	arm-none-eabi-gdb build/$(PROJECT_NAME)$(_NAME_SUFFIX).elf -ex "target extended-remote :3333"
