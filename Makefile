@@ -172,7 +172,7 @@ $(BUILD_PATH)/%.o: %.c $(CONFIGS) $(HSRC)
 	$(CC) $(INCLUDE) -x c $(CFLAGS) -o "$@" -c "$<"
 
 clean:
-	rm -rf build
+	rm -rf build output
 
 u: $(APP)
 	edbg -bpv -t $(EDBG_FAMILY) -f build/$(PROJECT_NAME)$(_NAME_SUFFIX).bin $(ICE_SERIAL)
