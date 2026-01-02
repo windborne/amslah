@@ -14,6 +14,17 @@ void enable_sercom_irq(int sercom) {
 	#endif
 }
 
+void disable_uart_tx_interrupts(int sercom) {
+    #ifdef _SAMD21_
+        NVIC_DisableIRQ(9 + sercom);
+    #else
+        for (int i=0; i<2; i++) {
+            int nn = 46 + 4 * sercom + i;
+            NVIC_DisableIRQ(nn);
+        }
+    #endif
+}
+
 void enable_sercom_clock(int n) {
 #ifdef _SAMD21_
     PM->APBCMASK.reg |= 1 << (n + 2);
