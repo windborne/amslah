@@ -8,7 +8,7 @@ extern "C" {
 #include <stdbool.h>
 
 #ifndef DMA_RX_HALF_SIZE
-#define DMA_RX_HALF_SIZE 128
+#define DMA_RX_HALF_SIZE 2048
 #endif
 
 #define DMA_RX_BUF_SIZE (DMA_RX_HALF_SIZE * 2)
@@ -32,6 +32,7 @@ void dma_rx_restart(uint8_t channel);
 uint32_t dma_rx_overflows(uint8_t channel);
 uint32_t dma_rx_errors(uint8_t channel);
 uint32_t dma_rx_total_bytes(uint8_t channel);
+uint32_t dma_rx_blocks(uint8_t channel);
 
 #ifdef __cplusplus
 }

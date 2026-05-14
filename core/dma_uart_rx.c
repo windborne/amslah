@@ -24,6 +24,7 @@ typedef struct {
     uint8_t  sercom_num;
     volatile uint32_t overflows;
     volatile uint32_t errors;
+    volatile uint32_t blocks;
     bool     active;
 } rx_state_t;
 
@@ -215,6 +216,10 @@ uint32_t dma_rx_total_bytes(uint8_t channel) {
     return (channel < MAX_CH) ? _st[channel].written : 0;
 }
 
+uint32_t dma_rx_blocks(uint8_t channel) {
+    return (channel < MAX_CH) ? _st[channel].blocks : 0;
+}
+
 // ---- ISR ----
 
 static void handle_irq(uint8_t ch) {
@@ -241,6 +246,7 @@ static void handle_irq(uint8_t ch) {
         if (!s->active) return;
 
         s->written += DMA_RX_HALF_SIZE;
+        s->blocks++;
 
         if ((s->written - s->read) > DMA_RX_BUF_SIZE) {
             s->overflows++;
