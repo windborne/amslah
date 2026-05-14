@@ -1,8 +1,8 @@
 #include "dma_uart_rx.h"
+#include "sammy.h"
 
 #ifdef _SAMD51_
 
-#include "sammy.h"
 #include <string.h>
 
 // SAMD51 DMAC requires two globally-aligned descriptor arrays:
