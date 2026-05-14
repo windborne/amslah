@@ -14,7 +14,7 @@ extern "C" {
 #include "sercoms.h"
 
 typedef struct {
-    sercom_handler_f fn; 
+    sercom_handler_f fn;
     Sercom *hw;
     uint8_t *tx_buffer;
     uint16_t tx_len;
@@ -22,6 +22,7 @@ typedef struct {
     StreamBufferHandle_t rx_buffer;
 	SemaphoreHandle_t bus_mutex;
 	SemaphoreHandle_t call_mutex;
+	void *dma_rx;
 } uart_t;
 
 typedef struct {

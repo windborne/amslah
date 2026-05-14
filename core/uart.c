@@ -87,17 +87,21 @@ void uart_init(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_
     uart->call_mutex = xSemaphoreCreateBinary();
 
     uart->rx_buffer = xStreamBufferCreate(UART_RX_BUFFER_SIZE, 1);
+    uart->dma_rx = NULL;
 
     sercom_handlers[sercom] = (dummy_type*)uart;
 }
 
 void uart_reinit(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mux_tx, uint8_t pin_rx, uint32_t mux_rx){
+    #if DMAC_ENABLED
+    dma_uart_rx_t *saved_dma = (dma_uart_rx_t *)uart->dma_rx;
+    if (saved_dma) dma_uart_rx_stop(saved_dma);
+    #endif
+
     enable_sercom_clock(sercom);
 
     gpio_function(pin_tx, mux_tx);
-    gpio_function(pin_rx, mux_rx); 
-
-    //PORT->Group[GPIO_PORT(pin_rx)].PINCFG[GPIO_PIN(pin_rx)].reg = PORT_PINCFG_PMUXEN | PORT_PINCFG_INEN ;
+    gpio_function(pin_rx, mux_rx);
 
 	Sercom *hw = get_sercom(sercom);
 
@@ -133,6 +137,12 @@ void uart_reinit(uart_t *uart, int sercom, int baud, uint8_t pin_tx, uint32_t mu
     xSemaphoreGive(uart->bus_mutex);
 
     sercom_handlers[sercom] = (dummy_type*)uart;
+
+    #if DMAC_ENABLED
+    if (saved_dma) {
+        dma_uart_rx_init(saved_dma, saved_dma->channel, saved_dma->sercom_num, uart->rx_buffer);
+    }
+    #endif
 }
 
 int32_t uart_write(uart_t *uart, const uint8_t *buf, uint16_t len) {
@@ -163,7 +173,9 @@ uint32_t uart_available(uart_t *uart) {
 
 void uart_start_listening(uart_t *uart) {
     uart->hw->USART.CTRLB.bit.RXEN = 1;
-    uart->hw->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
+    if (!uart->dma_rx) {
+        uart->hw->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
+    }
 }
 
 void uart_stop_listening(uart_t *uart) {
@@ -174,6 +186,7 @@ void uart_stop_listening(uart_t *uart) {
 
 #if DMAC_ENABLED
 void uart_enable_dma_rx(uart_t *uart, dma_uart_rx_t *rx, DmacChannel_t channel, uint8_t sercom_num) {
+    uart->dma_rx = rx;
     dma_uart_rx_init(rx, channel, sercom_num, uart->rx_buffer);
 }
 #endif
