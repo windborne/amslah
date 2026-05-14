@@ -106,6 +106,12 @@ void uart_start_listening(uart_t *uart);
 
 void uart_stop_listening(uart_t *uart);
 
+#include "amslah_config.h"
+#if DMAC_ENABLED
+#include "dmac.h"
+void uart_enable_dma_rx(uart_t *uart, dma_uart_rx_t *rx, DmacChannel_t channel, uint8_t sercom_num);
+#endif
+
 #ifdef __cplusplus
 }
 #endif

@@ -128,6 +128,14 @@
 	#endif
 #endif
 
+#ifndef DMAC_ENABLED
+	#define DMAC_ENABLED 0
+#endif
+
+#ifndef DMAC_RX_HALF_SIZE
+	#define DMAC_RX_HALF_SIZE 128
+#endif
+
 #ifndef AMSLAH_IDLE_HOOK
 	#define AMSLAH_IDLE_HOOK 0
 #endif

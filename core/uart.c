@@ -171,3 +171,9 @@ void uart_stop_listening(uart_t *uart) {
     uart->hw->USART.INTENCLR.reg = SERCOM_USART_INTENCLR_RXC;
     xStreamBufferReset(uart->rx_buffer);
 }
+
+#if DMAC_ENABLED
+void uart_enable_dma_rx(uart_t *uart, dma_uart_rx_t *rx, DmacChannel_t channel, uint8_t sercom_num) {
+    dma_uart_rx_init(rx, channel, sercom_num, uart->rx_buffer);
+}
+#endif
