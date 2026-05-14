@@ -252,35 +252,30 @@ static void dma_rx_handle_error(DmacChannel_t channel) {
 static void DMAC_interrupt_handler(DmacChannel_t channel) {
     uint8_t flags = DMAC->Channel[channel].CHINTFLAG.reg;
 
-    #if DMAC_ENABLED
     if (flags & DMAC_CHINTFLAG_TERR) {
         DMAC->Channel[channel].CHINTFLAG.reg = DMAC_CHINTFLAG_TERR;
+        #if DMAC_ENABLED
         if (dma_rx_states[channel]) {
             dma_rx_handle_error(channel);
             return;
         }
-        if (dmac_cfgs) dmac_cfgs[channel].isBusy = false;
+        dmac_cfgs[channel].isBusy = false;
+        #endif
     }
 
     if (flags & DMAC_CHINTFLAG_TCMPL) {
         DMAC->Channel[channel].CHINTFLAG.reg = DMAC_CHINTFLAG_TCMPL;
+        #if DMAC_ENABLED
         if (dma_rx_states[channel]) {
             dma_rx_handle_tcmpl(channel);
             return;
         }
-        if (dmac_cfgs) {
-            dmac_cfgs[channel].isBusy = false;
-            if (dmac_cfgs[channel].callback) {
-                dmac_cfgs[channel].callback(DMAC_RESULT_COMPLETE);
-            }
+        dmac_cfgs[channel].isBusy = false;
+        if (dmac_cfgs[channel].callback) {
+            dmac_cfgs[channel].callback(DMAC_RESULT_COMPLETE);
         }
+        #endif
     }
-    #else
-    if (flags & DMAC_CHINTFLAG_TERR)
-        DMAC->Channel[channel].CHINTFLAG.reg = DMAC_CHINTFLAG_TERR;
-    if (flags & DMAC_CHINTFLAG_TCMPL)
-        DMAC->Channel[channel].CHINTFLAG.reg = DMAC_CHINTFLAG_TCMPL;
-    #endif
 }
 
 void DMAC_0_Handler(void) { DMAC_interrupt_handler(0); }
